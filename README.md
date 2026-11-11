@@ -21,10 +21,7 @@ Las marcas viven en el `localStorage` del navegador: no se pierden al recargar, 
 
 Ilustraciones oficiales de [PokeAPI](https://pokeapi.co/); ubicaciones, fotos y mapas de [Serebii.net](https://www.serebii.net/). Pokémon y sus nombres son marcas de Nintendo, Game Freak y The Pokémon Company. Proyecto personal sin ánimo de lucro.
 
-## Actualizar la web
+## Acceder a la web
 
-Desde esta carpeta, en PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File subir.ps1 "Mensaje opcional"
-```
+Podéis entrar en la web desde el siguiente enlace:
+https://davidgori.github.io/PokeTracker/
