@@ -21,6 +21,13 @@ if (-not $Mensaje) { $Mensaje = 'Actualizar PokeTracker ' + (Get-Date -Format 'y
 git commit -m $Mensaje
 if ($LASTEXITCODE -ne 0) { Write-Host 'Falló el commit.' -ForegroundColor Red; exit 1 }
 
+# Trae antes los cambios hechos desde la web de GitHub (por ejemplo, editar el README)
+git pull --rebase
+if ($LASTEXITCODE -ne 0) {
+    Write-Host 'Hay cambios en GitHub que chocan con los tuyos. Resuélvelos y vuelve a ejecutar el script.' -ForegroundColor Red
+    exit 1
+}
+
 git push
 if ($LASTEXITCODE -ne 0) { Write-Host 'Falló la subida (git push).' -ForegroundColor Red; exit 1 }
 
