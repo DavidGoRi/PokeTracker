@@ -19,6 +19,24 @@ header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px 
 .cabecera select{min-width:0;flex:1 1 auto;text-overflow:ellipsis}
 @media (max-width:600px){h1{font-size:18px}#tema{padding:6px 10px}}
 h1{margin:0;font-size:20px}
+h1.titulo{display:flex;align-items:center;gap:8px;flex:none;white-space:nowrap}
+.logo{width:36px;height:36px;flex:none;overflow:visible}
+.logo-cuerpo{transform-origin:32px 60px;animation:logoSalto 4s ease-in-out infinite}
+.logo-halo{opacity:0;animation:logoHalo 2.4s ease-in-out infinite}
+.logo-lente{animation:logoLente 2.4s ease-in-out infinite}
+.logo-luz{animation:logoLuz 1.5s steps(1) infinite}
+.logo-luz.l2{animation-delay:.5s}.logo-luz.l3{animation-delay:1s}
+.logo-bola{transform-origin:32px 45px;animation:logoBola 2.4s ease-in-out infinite}
+.logo-escaner{animation:logoEscaner 2.4s linear infinite}
+h1.titulo:hover .logo-cuerpo{animation-duration:.8s}
+@keyframes logoSalto{0%,80%,100%{transform:translateY(0) rotate(0)}86%{transform:translateY(-4px) rotate(-6deg)}92%{transform:translateY(0) rotate(4deg)}}
+@keyframes logoHalo{0%,100%{opacity:0}50%{opacity:.55}}
+@keyframes logoLente{0%,100%{fill:#2b9be8}50%{fill:#5fc3ff}}
+@keyframes logoLuz{0%{opacity:1}33%{opacity:.25}}
+@keyframes logoBola{0%,40%,100%{transform:rotate(0)}48%{transform:rotate(-18deg)}56%{transform:rotate(15deg)}64%{transform:rotate(-8deg)}72%{transform:rotate(0)}}
+@keyframes logoEscaner{0%{transform:translateY(-3px)}100%{transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){.logo *{animation:none!important}}
+@media (max-width:600px){.logo{width:30px;height:30px}}
 select{padding:7px 10px;border:1px solid var(--borde);border-radius:8px;background:var(--bg);color:var(--txt);font:inherit;font-weight:600;max-width:100%}
 .fila{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pestanas{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
@@ -88,6 +106,10 @@ main{padding:16px;max-width:1200px;margin:0 auto}
 .modal{background:var(--card);color:var(--txt);border:1px solid var(--borde);border-radius:14px;width:100%;max-width:760px;padding:16px 18px 20px;position:relative}
 .modal h2{margin:0 40px 4px 0;font-size:20px;display:flex;align-items:center;gap:10px}
 .modal h2 img{width:56px;height:56px;object-fit:contain}
+.modal h2{flex-wrap:wrap}
+.vershiny{font-size:12px;padding:3px 10px;margin-left:auto;font-weight:600}
+.vershiny:hover{border-color:#f4b400;color:#f4b400}
+.vershiny.si{border-color:#f4b400}
 .modal .sub{color:var(--sub);font-size:13px;margin-bottom:10px}
 .cerrar{position:absolute;top:12px;right:12px;width:34px;height:34px;padding:0;font-size:18px;border-radius:50%}
 .entrada{border-top:1px solid var(--borde);padding-top:12px;margin-top:12px}
@@ -134,7 +156,30 @@ main{padding:16px;max-width:1200px;margin:0 auto}
 <body>
 <header>
   <div class="cabecera">
-    <div class="fila"><h1>PokeTracker</h1><select id="juego" aria-label="Juego"></select></div>
+    <div class="fila"><h1 class="titulo"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+      <defs><clipPath id="pantallaLogo"><rect x="17" y="33" width="30" height="14" rx="2"/></clipPath></defs>
+      <g class="logo-cuerpo">
+        <rect x="6" y="3" width="52" height="58" rx="8" fill="#d62839" stroke="#7a0f1c" stroke-width="3"/>
+        <path d="M6 22 H30 L36 16 H58" fill="none" stroke="#7a0f1c" stroke-width="3" stroke-linejoin="round"/>
+        <circle class="logo-halo" cx="17" cy="13" r="9" fill="#7fd0ff"/>
+        <circle cx="17" cy="13" r="7.5" fill="#fff"/>
+        <circle class="logo-lente" cx="17" cy="13" r="5.5" fill="#2b9be8"/>
+        <circle cx="15" cy="11" r="1.8" fill="#bfe6ff"/>
+        <circle class="logo-luz l1" cx="30" cy="9" r="2.4" fill="#ff4d4d" stroke="#7a0f1c" stroke-width="1"/>
+        <circle class="logo-luz l2" cx="37" cy="9" r="2.4" fill="#ffd23f" stroke="#7a0f1c" stroke-width="1"/>
+        <circle class="logo-luz l3" cx="44" cy="9" r="2.4" fill="#4cd964" stroke="#7a0f1c" stroke-width="1"/>
+        <rect x="13" y="29" width="38" height="22" rx="3" fill="#f2f2f2" stroke="#7a0f1c" stroke-width="2"/>
+        <rect x="17" y="33" width="30" height="14" rx="2" fill="#3fbf7f"/>
+        <g clip-path="url(#pantallaLogo)">
+          <g class="logo-bola">
+            <circle cx="32" cy="40" r="5" fill="#fff" stroke="#1d1f24" stroke-width="1.2"/>
+            <path d="M27 40 A5 5 0 0 1 37 40 Z" fill="#e3350d" stroke="#1d1f24" stroke-width="1.2"/>
+            <circle cx="32" cy="40" r="1.6" fill="#fff" stroke="#1d1f24" stroke-width="1.1"/>
+          </g>
+          <rect class="logo-escaner" x="17" y="33" width="30" height="2.5" fill="#d9ffe9" opacity=".7"/>
+        </g>
+      </g>
+    </svg>PokeTracker</h1><select id="juego" aria-label="Juego"></select></div>
     <button id="tema"></button>
   </div>
   <div class="pestanas" id="pestanas"></div>
@@ -250,7 +295,8 @@ function forma(id){
 const tiposDe = id => (forma(id) || [])[2] || TIPOS[id] || [];
 const nombreForma = (id, nom) => forma(id) ? `${nom} de ${forma(id)[1]}` : nom;
 const htmlTipos = id => `<div class="tipos">${tiposDe(id).map(x => `<span class="tipo t-${x}">${x}</span>`).join('')}</div>`;
-const img = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${(forma(id) || [id])[0]}.png`;
+const img = (id, sh) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${sh ? 'shiny/' : ''}${(forma(id) || [id])[0]}.png`;
+const SIN_SHINY = "this.onerror=null;this.src=this.src.replace('/shiny/','/')";   // si no hay ilustración variocolor, la normal
 const $ = s => document.querySelector(s);
 const leer = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : v; } catch(e) { return def; } };
 const escribir = (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} };
@@ -363,7 +409,7 @@ function pintar(){
   };
   $('#rejilla').innerHTML = items.length ? items.map(([n,id,nom]) => `
     <div class="poke${capturados.has(id)?' cap':''}${shiny.has(id)?' shiny':''}" data-id="${id}" title="Nacional nº ${id}">
-      <img loading="lazy" src="${img(id)}" alt="${nom}">
+      <img loading="lazy" src="${img(id, shiny.has(id))}" alt="${nom}" onerror="${SIN_SHINY}">
       <div><div class="num">#${String(n).padStart(3,'0')}</div><div class="nom">${nombreForma(id, nom)}</div><button class="verspawn" data-spawn="${id}">Detalles</button>${!iris && exc.has(id) && pestana === a.dex ? '<div class="exc">No cuenta para el amuleto</div>' : ''}${etiquetas(id)}</div>
       ${htmlTipos(id)}
       <span class="chk">✓</span>
@@ -436,7 +482,7 @@ function nombrePoke(id){
 function abrirSpawn(id){
   const datos = (typeof SPAWNS !== 'undefined' && SPAWNS[juego.id] && SPAWNS[juego.id][id]) || [];
   let h = `<button class="cerrar" id="cerrar" aria-label="Cerrar">✕</button>
-    <h2><img src="${img(id)}" alt="">${esc(nombreForma(id, nombrePoke(id)))}${htmlTipos(id)}</h2>
+    <h2><img id="imgDetalle" src="${img(id, shiny.has(id))}" alt="" onerror="${SIN_SHINY}">${esc(nombreForma(id, nombrePoke(id)))}${htmlTipos(id)}<button class="vershiny${shiny.has(id) ? ' si' : ''}" id="verShiny" data-id="${id}">${shiny.has(id) ? 'Ver normal' : '✨ Ver variocolor'}</button></h2>
     <div class="sub">Detalles en ${NOMBRE_JUEGO[juego.id]}.</div>`;
   h += datosPoke(id);
   h += lineaEvolutiva(id);
@@ -463,6 +509,13 @@ function abrirSpawn(id){
   document.body.style.overflow = 'hidden';
   datos.forEach((_, i) => { const d = $('#det' + i); if (d.dataset.primera !== '') mostrarZona(i, +d.dataset.primera); });
   $('#cerrar').onclick = cerrarSpawn;
+  $('#verShiny').onclick = e => {
+    const b = e.currentTarget, ahora = !b.classList.contains('si');
+    b.classList.toggle('si', ahora);
+    b.textContent = ahora ? 'Ver normal' : '✨ Ver variocolor';
+    const im = $('#imgDetalle'); im.onerror = () => { im.onerror = null; im.src = img(id, false); };
+    im.src = img(id, ahora);
+  };
 }
 
 function datosPoke(id){
@@ -496,7 +549,7 @@ function lineaEvolutiva(id){
     // Con más de 2 evoluciones (Eevee, Tyrogue…): el Pokémon arriba y una cuadrícula de tarjetas debajo
     const abanico = hijos.length > 2;
     let s = `<div class="evonodo${abanico ? ' evoabanico' : ''}"><button class="evopoke${nid === id ? ' actual' : ''}" data-evo="${nid}" title="Ver detalles de ${esc(nom)}">
-      <img loading="lazy" src="${img(nid)}" alt=""><span>${esc(nombreForma(nid, nom))}</span></button>`;
+      <img loading="lazy" src="${img(nid, shiny.has(nid))}" alt="" onerror="${SIN_SHINY}"><span>${esc(nombreForma(nid, nom))}</span></button>`;
     if (hijos.length) {
       s += '<div class="evoramas">' + hijos.map(([met, hijo]) => {
         const lista = met[juego.id] || met['*'];
