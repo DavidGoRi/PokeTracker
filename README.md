@@ -1,12 +1,16 @@
 # PokeTracker
 
-Seguimiento personal de la Pokédex de los juegos de Pokémon de Nintendo Switch que dan el Amuleto Iris al completarla:
+Seguimiento personal de la Pokédex de los juegos principales de Pokémon que se pueden jugar en Nintendo Switch y Switch 2:
 
 - Let's Go, Pikachu! / Eevee!
 - Espada / Escudo (con la Isla de la Armadura y las Nieves de la Corona)
 - Diamante Brillante / Perla Reluciente
 - Leyendas: Arceus
 - Escarlata / Púrpura (con Noroteo y Arándano)
+- Leyendas Pokémon: Z-A (con el Hiperespacio del DLC Megadimensión)
+- Rojo Fuego / Verde Hoja (Kanto y Nacional)
+
+Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iris, el Volcanion variocolor de Z-A o el Diploma de Rojo Fuego / Verde Hoja.
 
 ## Qué hace
 
