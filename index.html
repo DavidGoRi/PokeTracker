@@ -62,6 +62,7 @@ h1.titulo{display:flex;align-items:center;gap:10px;flex:none;white-space:nowrap}
 .selector-juego{flex:1 1 auto;min-width:0;max-width:420px;margin-left:auto;position:relative}
 .selector-juego select{width:100%;border-radius:999px;background-color:var(--surf);box-shadow:var(--sombra);padding-left:16px}
 #tema{width:40px;height:40px;padding:0;flex:none;background:var(--surf);box-shadow:var(--sombra)}
+#idioma{flex:none;border-radius:999px;background-color:var(--surf);box-shadow:var(--sombra);padding:9px 30px 9px 14px;font-size:13px;font-weight:700;background-position:right 11px center}
 .logo{width:34px;height:34px;flex:none;overflow:visible}
 .logo-cuerpo{transform-origin:32px 60px;animation:logoSalto 4s ease-in-out infinite}
 .logo-halo{opacity:0;animation:logoHalo 2.4s ease-in-out infinite}
@@ -327,6 +328,7 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
   .selector-juego{max-width:none}
   .selector-juego select{font-size:13.5px;padding:9px 34px 9px 14px}
   #tema{width:38px;height:38px}
+  #idioma{padding:8px 26px 8px 11px;font-size:12px;background-position:right 9px center}
   main{padding:14px 12px 40px}
   .resumen{padding:14px 16px;gap:14px;border-radius:20px}
   .anillo{width:62px;height:62px}
@@ -358,6 +360,16 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 @media (min-width:1100px){.rejilla{grid-template-columns:repeat(auto-fill,minmax(176px,1fr))}}
 @media (hover:none){.poke:hover{transform:perspective(800px);box-shadow:var(--sombra);border-color:var(--borde)}.poke.cap:hover{border-color:color-mix(in srgb,var(--ok) 45%,var(--borde))}.poke:hover .poke-img img{transform:none}}
 
+/* =================== Habilidades, objetos y códigos =================== */
+.habs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.hab{background:var(--surf2);border:1px solid var(--borde);border-radius:16px;padding:12px 14px}
+.hab.oculta{border-style:dashed}
+.hab-cab{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.hab-tag{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;background:var(--acento-suave);color:var(--acento)}
+.donde{font-size:13px;color:var(--sub);margin:6px 0 2px;line-height:1.5}
+.donde b{color:var(--txt)}
+.codigo{margin:4px 0;font-size:13px}
+.codigo code{font:700 13px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--surf);border:1px solid var(--borde2);border-radius:8px;padding:2px 8px;letter-spacing:.06em;user-select:all}
 /* =================== Movimientos, crianza, eventos y accesibilidad =================== */
 .saltar{position:absolute;left:12px;top:-60px;z-index:100;background:var(--acento);color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;text-decoration:none;transition:top .2s}
 .saltar:focus{top:12px}
@@ -491,6 +503,7 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
       </g>
     </svg><span class="marca-txt">Poke<b>Tracker</b></span></h1>
     <div class="selector-juego"><select id="juego" aria-label="Juego"></select></div>
+    <select id="idioma" aria-label="Idioma / Language"><option value="es">ES</option><option value="en">EN</option></select>
     <button id="tema" aria-label="Cambiar tema"></button>
   </div>
 </header>
@@ -551,9 +564,15 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
   <div class="pie">Tus marcas se guardan en este navegador. Ilustraciones de PokeAPI y datos de Serebii.net · Proyecto personal sin ánimo de lucro.</div>
 </main>
 <div class="fondo" id="fondo"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
-<script src="datos/base.js?v=202611141212"></script>
 <script>
-const V = '202611141212';
+const EN = (() => { try { return localStorage.getItem('pokedex-idioma') === 'en'; } catch(e) { return false; } })();
+const L = (es, en) => EN ? en : es;
+document.documentElement.lang = EN ? 'en' : 'es';
+if (EN) document.write('<script src="datos/base-en.js?v=202611141320"><\/script>');
+</script>
+<script src="datos/base.js?v=202611141320"></script>
+<script>
+const V = '202611141320';
 /* ---------- Tema: oscuro por defecto ---------- */
 const TEMA = 'pokedex-galar-tema';
 function aplicarTema(tm){
@@ -574,6 +593,32 @@ document.getElementById('tema').onclick = () => {
   aplicarTema(nuevo);
   try { localStorage.setItem(TEMA, nuevo); } catch(e) {}
 };
+
+/* ---------- Idioma ---------- */
+const TIPO_EN = {Normal:'Normal',Fuego:'Fire',Agua:'Water',Planta:'Grass','Eléctrico':'Electric',Hielo:'Ice',Lucha:'Fighting',Veneno:'Poison',Tierra:'Ground',
+  Volador:'Flying','Psíquico':'Psychic',Bicho:'Bug',Roca:'Rock',Fantasma:'Ghost','Dragón':'Dragon',Siniestro:'Dark',Acero:'Steel',Hada:'Fairy'};
+const tipoTxt = x => EN ? (TIPO_EN[x] || x) : x;
+const LOCALE = L('es-ES', 'en-GB');
+document.getElementById('idioma').value = EN ? 'en' : 'es';
+document.getElementById('idioma').onchange = e => { try { localStorage.setItem('pokedex-idioma', e.target.value); } catch(err) {} location.reload(); };
+if (EN) {
+  const q = s => document.querySelector(s), txt = (s, v) => { const e = q(s); if (e) { const n = [...e.childNodes].reverse().find(x => x.nodeType === 3 && x.textContent.trim()); if (n) n.textContent = v; else e.textContent = v; } };
+  q('.saltar').textContent = 'Skip to the Pokémon list';
+  q('#juego').setAttribute('aria-label', 'Game'); q('#tema').setAttribute('aria-label', 'Change theme');
+  q('#buscar').placeholder = 'Name, number or type…'; q('#buscar').setAttribute('aria-label', 'Search by name (English or Spanish), number or type');
+  [['todos', 'All'], ['faltan', 'Missing'], ['cap', 'Caught'], ['evo', 'To evolve'], ['shiny', '★ Shiny'], ['alfa', 'α Alphas']]
+    .forEach(([f, v]) => { const b = q(`#filtros button[data-f="${f}"]`); if (b) b.textContent = v; });
+  q('#filtros button[data-f="evo"]').title = 'You don\u2019t have it, but you have its pre-evolution';
+  q('#fTipo').setAttribute('aria-label', 'Type'); q('#fZona').setAttribute('aria-label', 'Area'); q('#fVersion').setAttribute('aria-label', 'Version'); q('#fOrden').setAttribute('aria-label', 'Sort');
+  [['num', 'Sort: number'], ['nom', 'Sort: name'], ['faltan', 'Sort: missing first'], ['facil', 'Sort: easiest first']].forEach(([v, s]) => q(`#fOrden option[value="${v}"]`).textContent = s);
+  txt('#bStats', 'Stats'); txt('#bRuta', 'Suggested route'); txt('#bInter', 'Trades'); txt('#bObjetos', 'Evolution items');
+  txt('#bMarcar', 'Mark visible'); txt('#bDesmarcar', 'Unmark visible');
+  q('#bMarcar').title = 'Marks every Pokémon currently shown in the list as caught'; q('#bDesmarcar').title = 'Unmarks every Pokémon currently shown in the list';
+  q('#rejilla').setAttribute('aria-label', 'Pokémon list');
+  txt('#exportar', 'Save full backup'); txt('#importar', 'Load backup'); txt('#borrar', 'Unmark this whole game');
+  q('.pie').textContent = 'Your marks are saved in this browser. Artwork from PokeAPI and data from Serebii.net · Non-profit personal project.';
+  q('#pestanas').setAttribute('aria-label', 'Pokédex');
+}
 
 /* ---------- Datos ---------- */
 const MITICOS_SINNOH = [151, 251, 385, 386, 489, 490, 491, 492, 493];
@@ -620,6 +665,32 @@ const JUEGOS = [
       texto:'marca aquí los Pokémon que tienes guardados en Pokémon HOME para llevar tu Pokédex viviente (uno de cada especie). En Detalles verás dónde conseguir cada uno en los juegos de Switch.',
       donde:'' } }
 ];
+const JUEGOS_EN = {
+  lgpe: {nombre: "Let's Go, Pikachu! / Eevee!", dex: ['Kanto (153)'], texto: 'you must <b>catch</b> the 150 Kanto Pokémon (1 to 150). <b>Mew, Meltan and Melmetal don\u2019t count.</b> The other version\u2019s exclusives can be obtained by trading.',
+    donde: 'Talk to the game director (Game Freak) in the tall building to the left of the Celadon City department store.'},
+  swsh: {nombre: 'Sword / Shield', dex: ['Galar (400)', 'Isle of Armor (210)', 'Crown Tundra (210)'], texto: 'you must <b>catch</b> all 400 Pokémon in the Galar Pokédex (seeing them isn\u2019t enough). The other version\u2019s exclusives (and Zacian or Zamazenta) can be obtained by trading. The DLC Pokédexes don\u2019t count.',
+    donde: 'Talk to Morimoto (Game Freak) on the ground floor of the Hotel Ionia in Hammerlocke.'},
+  bdsp: {nombre: 'Brilliant Diamond / Shining Pearl', dex: ['Sinnoh (151)', 'National (493)'], texto: 'you must <b>catch</b> the 484 Pokémon in the game\u2019s National Pokédex. <b>Mythical Pokémon don\u2019t count</b>: Mew, Celebi, Jirachi, Deoxys, Phione, Manaphy, Darkrai, Shaymin and Arceus. The other version\u2019s exclusives can be obtained by trading or from Pokémon HOME.',
+    donde: 'Go to the Grand Lake hotel, into the building on the left, and talk to Ueda (on the left). Masuda, next to him, gives you the diploma.'},
+  pla: {nombre: 'Legends: Arceus', dex: ['Hisui (242)'], marca: 'Level 10', texto: 'you need <b>research level 10</b> on entries 1 to 240 of the Hisui Pokédex (including Arceus, Phione and Manaphy). <b>Shaymin and Darkrai don\u2019t count.</b> Here, mark a Pokémon when it reaches level 10, not when you catch it.',
+    donde: 'Talk to Professor Laventon at the Galaxy Team headquarters in Jubilife Village.'},
+  sv: {nombre: 'Scarlet / Violet', dex: ['Paldea (400)', 'Kitakami (200)', 'Blueberry (243)'], texto: 'you must <b>catch</b> all 400 Pokémon in the Paldea Pokédex, after finishing the story. The other version\u2019s exclusives (and Koraidon or Miraidon) can be obtained by trading. The DLC Pokédexes don\u2019t count.',
+    donde: 'Talk to Jacq, the Biology teacher at the academy.'},
+  za: {nombre: 'Pokémon Legends: Z-A', dex: ['Lumiose (232)', 'Hyperspace (132)', 'Mega Evolutions (92)'], premio: 'Shiny Volcanion', etiqueta: 'Lumiose, Hyperspace and Mega Evolution Pokédexes',
+    texto: 'in Z-A the Shiny Charm is <b>not</b> earned by completing the Pokédex: it is the reward for Mable\u2019s research requests (up to level 50). Completing the Lumiose, Hyperspace (Mega Dimension DLC) and Mega Evolution Pokédexes gives a <b>Shiny Volcanion</b> in Pokémon HOME. Every Pokémon must be caught in Z-A. In the Mega Evolutions tab, mark each one when you register it (Details shows where its Mega Stone is).',
+    donde: 'Move the Pokémon to Pokémon HOME and confirm the completed Pokédex in the Games tab to receive it.'},
+  frlg: {nombre: 'FireRed / LeafGreen', dex: ['Kanto (151)', 'National (386)'], premio: 'Diploma', texto: 'these games don\u2019t have the Shiny Charm (it arrived in Gen 5). <b>Catching</b> the 150 Kanto Pokémon gets you the <b>Diploma</b>. <b>Mew doesn\u2019t count.</b> The other version\u2019s exclusives can be obtained by local trading. The National Pokédex can\u2019t be completed on Switch: many Pokémon only came from Ruby, Sapphire, Emerald, Colosseum or XD.',
+    donde: 'Talk to the game designer on the top floor of Celadon Mansion, in Celadon City.'},
+  home: {nombre: 'Pokémon HOME (living dex)', dex: ['National (1025)'], premio: 'Living dex', etiqueta: 'National Pokédex', texto: 'mark here the Pokémon you have stored in Pokémon HOME to track your living dex (one of each species). Details shows where to get each one in the Switch games.', donde: ''},
+};
+if (EN) JUEGOS.forEach(j => {
+  const e = JUEGOS_EN[j.id]; if (!e) return;
+  j.nombre = e.nombre; j.dex.forEach((d, k) => d.nombre = e.dex[k] || d.nombre);
+  if (j.marca) j.marca = e.marca || 'Level 10';
+  j.amuleto.texto = e.texto; j.amuleto.donde = e.donde;
+  if (j.amuleto.premio) j.amuleto.premio = e.premio || j.amuleto.premio;
+  if (j.amuleto.etiqueta) j.amuleto.etiqueta = e.etiqueta || j.amuleto.etiqueta;
+});
 // Megaevoluciones de Z-A: tipos y ubicaciones de su megapiedra
 Object.assign(TIPOS, MEGAS.tipos);
 // Ubicaciones: se cargan por juego cuando hacen falta
@@ -628,7 +699,9 @@ function cargarDatos(f){
   return cargas[f] || (cargas[f] = fetch(`datos/${f}?v=${V}`).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .catch(() => { delete cargas[f]; return null; }));
 }
-const cargarSpawns = g => cargarDatos(`spawns-${g}.json`).then(d => (SPAWNS[g] = d || SPAWNS[g] || {}));
+const cargarSpawns = g => cargarDatos(`spawns-${EN ? 'en-' : ''}${g}.json`).then(d => (SPAWNS[g] = d || SPAWNS[g] || {}));
+const EVOS = EN && typeof EVO_EN !== 'undefined' ? EVO_EN : EVO;
+const locNom = i => EN && typeof LOC_EN !== 'undefined' ? (LOC_EN[i] || LOC[i][0]) : LOC[i][0];
 
 // Forma regional según la Pokédex que se está viendo (Galar, Hisui, Paldea); si el Pokémon no está en ella, la de otra pestaña del juego
 function forma(id){
@@ -638,8 +711,10 @@ function forma(id){
   return otra && (TIPOS_FORMA[otra.id] || {})[id];
 }
 const tiposDe = id => (forma(id) || [])[2] || TIPOS[id] || [];
-const nombreForma = (id, nom) => forma(id) ? `${nom} de ${forma(id)[1]}` : nom;
-const htmlTipos = id => `<div class="tipos">${tiposDe(id).map(x => `<span class="tipo t-${x}">${x}</span>`).join('')}</div>`;
+const REG_EN = {Galar: 'Galarian', Hisui: 'Hisuian', Paldea: 'Paldean', Alola: 'Alolan'};
+const nomVis = (id, nom) => EN ? ((typeof MEGA_NOMBRES_EN !== 'undefined' && MEGA_NOMBRES_EN[id]) || NOMBRES_EN[MEGAS.base[id] || id] || nom) : nom;
+const nombreForma = (id, nom) => { const n = nomVis(id, nom), f = forma(id); return f ? (EN ? `${REG_EN[f[1]] || f[1]} ${n}` : `${n} de ${f[1]}`) : n; };
+const htmlTipos = id => `<div class="tipos">${tiposDe(id).map(x => `<span class="tipo t-${x}">${tipoTxt(x)}</span>`).join('')}</div>`;
 const img = (id, sh) => id >= 20000 && MEGAS.img[id] ? MEGAS.img[id] : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${sh ? 'shiny/' : ''}${(forma(id) || [id])[0]}.png`;
 // Si falta la ilustración variocolor, la normal; si falta la normal (megas nuevas), la de Serebii
 function fallo(el, id){
@@ -733,7 +808,8 @@ let vista = [];   // ids que se ven ahora en la lista
 let fTipo = '', fZona = '', fVersion = '', orden = leer('pokedex-orden', 'num');
 let ZONAS = {};   // nombre de la zona -> Set de ids (del juego actual)
 
-const VERSIONES = {lgpe:['Pikachu', 'Eevee'], swsh:['Espada', 'Escudo'], bdsp:['Diamante Brillante', 'Perla Reluciente'], sv:['Escarlata', 'Púrpura'], frlg:['Rojo Fuego', 'Verde Hoja']};
+const VERSIONES = EN ? {lgpe:['Pikachu', 'Eevee'], swsh:['Sword', 'Shield'], bdsp:['Brilliant Diamond', 'Shining Pearl'], sv:['Scarlet', 'Violet'], frlg:['FireRed', 'LeafGreen']}
+  : {lgpe:['Pikachu', 'Eevee'], swsh:['Espada', 'Escudo'], bdsp:['Diamante Brillante', 'Perla Reluciente'], sv:['Escarlata', 'Púrpura'], frlg:['Rojo Fuego', 'Verde Hoja']};
 const COLOR_TIPO = {Normal:'#9a9d9f',Fuego:'#e8562b',Agua:'#3a86ee',Planta:'#3fa34d','Eléctrico':'#d9a600',Hielo:'#38bdd8',Lucha:'#e3711a',Veneno:'#9b51d0',Tierra:'#9a6a33',Volador:'#7aa7e8','Psíquico':'#ec4c86',Bicho:'#8ea21c',Roca:'#ad9f6d',Fantasma:'#6f4a8e','Dragón':'#5468e8',Siniestro:'#5b4c4a',Acero:'#5f9db3',Hada:'#e472d6'};
 const LISTA_TIPOS = ['Normal','Fuego','Agua','Planta','Eléctrico','Hielo','Lucha','Veneno','Tierra','Volador','Psíquico','Bicho','Roca','Fantasma','Dragón','Siniestro','Acero','Hada'];
 
@@ -743,41 +819,45 @@ const PADRE = {};
   const nodo = ([id, , hijos]) => hijos.forEach(([, h]) => { if (!(h[0] in PADRE)) PADRE[h[0]] = id; nodo(h); });
   Object.values(EVO).forEach(nodo);
 })();
+const NOTA_EN = {'Forma de Galar.': 'Galarian Form.', 'Forma de Alola.': 'Alolan Form.', 'En estado salvaje, solo con la Isla de la Armadura.': 'In the wild, only with the Isle of Armor.',
+  'Es el fósil el que es exclusivo: se puede conseguir intercambiando el fósil.': 'The fossil is the exclusive: you can get it by trading the fossil.'};
+const notaEx = s => EN ? (NOTA_EN[s] || s) : s;
 const exclusivo = id => (EXCLUSIVOS[juego.id] || {})[id];
 
 let ZONAS_SIN = {};   // las mismas zonas, sin contar incursiones ni aventuras Dinamax
-const ES_INCURSION = /incursi|aventura dinamax/i;
+const ES_INCURSION = /incursi|aventura dinamax|raid|dynamax adventure/i;
 function zonasJuego(){
   const z = {}, s = {}, sp = SPAWNS[juego.id] || {};
   for (const id in sp) sp[id].forEach(([, , lineas]) => lineas.forEach(l => {
     const incursion = l.some(tok => typeof tok === 'string' && ES_INCURSION.test(tok));
     l.forEach(tok => {
       if (typeof tok !== 'number' || !(LOC[tok][2] || LOC[tok][3])) return;
-      (z[LOC[tok][0]] = z[LOC[tok][0]] || new Set()).add(+id);
-      if (!incursion) (s[LOC[tok][0]] = s[LOC[tok][0]] || new Set()).add(+id);
+      const nz = locNom(tok);
+      (z[nz] = z[nz] || new Set()).add(+id);
+      if (!incursion) (s[nz] = s[nz] || new Set()).add(+id);
     });
   }));
   ZONAS_SIN = s;
   return z;
 }
 function opcionesFiltros(){
-  $('#fTipo').innerHTML = '<option value="">Todos los tipos</option>' + LISTA_TIPOS.map(x => `<option>${x}</option>`).join('');
+  $('#fTipo').innerHTML = `<option value="">${L('Todos los tipos', 'All types')}</option>` + LISTA_TIPOS.map(x => `<option value="${x}">${tipoTxt(x)}</option>`).join('');
   ZONAS = {}; ZONAS_SIN = {};
   $('#fZona').style.display = juego.home ? 'none' : '';
-  $('#fZona').innerHTML = '<option value="">Todas las zonas</option>';
+  $('#fZona').innerHTML = `<option value="">${L('Todas las zonas', 'All areas')}</option>`;
   if (!juego.home) {
     const g = juego.id;
     cargarSpawns(g).then(() => {
       if (juego.id !== g) return;
       ZONAS = zonasJuego();
-      $('#fZona').innerHTML = '<option value="">Todas las zonas</option>' +
-        Object.keys(ZONAS).sort((a, b) => a.localeCompare(b, 'es')).map(z => `<option>${esc(z)}</option>`).join('');
+      $('#fZona').innerHTML = `<option value="">${L('Todas las zonas', 'All areas')}</option>` +
+        Object.keys(ZONAS).sort((a, b) => a.localeCompare(b, LOCALE)).map(z => `<option>${esc(z)}</option>`).join('');
       $('#fZona').value = fZona;
     });
   }
   const v = VERSIONES[juego.id];
   $('#fVersion').style.display = v ? '' : 'none';
-  $('#fVersion').innerHTML = v ? `<option value="">Todas las versiones</option><option value="0">Solo en ${v[0]}</option><option value="1">Solo en ${v[1]}</option><option value="ambas">Sin exclusivos</option>` : '';
+  $('#fVersion').innerHTML = v ? `<option value="">${L('Todas las versiones', 'All versions')}</option><option value="0">${L('Solo en', 'Only in')} ${v[0]}</option><option value="1">${L('Solo en', 'Only in')} ${v[1]}</option><option value="ambas">${L('Sin exclusivos', 'No exclusives')}</option>` : '';
   fTipo = fZona = fVersion = '';
   $('#fOrden').value = orden;
 }
@@ -798,7 +878,7 @@ function cargarJuego(){
   if (pestana !== 'iris' && !juego.dex.some(d => d.id === pestana)) pestana = juego.dex[0].id;
   $('#pestanas').innerHTML = '<span class="indicador" aria-hidden="true"></span>' + juego.dex.map(d => `<button data-p="${d.id}">${d.nombre}</button>`).join('')
     + `<button data-p="iris">${juego.amuleto.premio ? '🏆' : '✨'} ${premio()}</button>`;
-  $('#filtroCap').textContent = juego.marca ? 'Nivel 10' : 'Capturados';
+  $('#filtroCap').textContent = juego.marca ? juego.marca : L('Capturados', 'Caught');
   pintar();
   actualizarIndicador(true);
 }
@@ -827,7 +907,8 @@ $('#juego').onchange = e => {
 };
 
 const dexObjetivo = () => [].concat(juego.amuleto.dex);
-const premio = () => juego.amuleto.premio || 'Amuleto Iris';
+const premio = () => juego.amuleto.premio || L('Amuleto Iris', 'Shiny Charm');
+const paraPremio = () => juego.amuleto.premio ? L('el ', 'the ') + premio() : L('el Amuleto Iris', 'the Shiny Charm');
 const requeridos = () => {
   const vistos = new Set(), lst = [];
   dexObjetivo().forEach(d => DEX[d].forEach(p => { if (!vistos.has(p[1]) && !juego.amuleto.excluir.includes(p[1])) { vistos.add(p[1]); lst.push(p); } }));
@@ -844,36 +925,31 @@ function resumen(){
   const base = iris ? requeridos() : DEX[pestana];
   const hechos = base.filter(p => capturados.has(p[1])).length;
   const nombreDex = juego.dex.find(d => d.id === dexObjetivo()[0]).nombre.replace(/ \(\d+\)/, '');
-  const etiquetaDex = juego.amuleto.etiqueta || `Pokédex ${nombreDex === "Nacional" ? "Nacional" : "de " + nombreDex}`;
-  $('#txtProg').textContent = iris
-    ? `${etiquetaDex}: ${hechos} / ${base.length} (te faltan ${base.length - hechos} para ${juego.amuleto.premio ? 'el ' + premio() : 'el Amuleto Iris'})`
-    : `${juego.marca ? 'En nivel 10' : 'Capturados'}: ${hechos} / ${base.length} (${Math.round(hechos*100/base.length)} %)`
-      + (base.some(p => shiny.has(p[1])) ? ` · ★ ${base.filter(p => shiny.has(p[1])).length} variocolores` : '')
-      + (juego.alfas && base.some(p => alfas.has(p[1])) ? ` · α ${base.filter(p => alfas.has(p[1])).length} alfas` : '');
+  const etiquetaDex = juego.amuleto.etiqueta || (EN ? `${nombreDex} Pokédex` : `Pokédex ${nombreDex === "Nacional" ? "Nacional" : "de " + nombreDex}`);
   $('#barraProg').style.width = (hechos*100/base.length) + '%';
   const pct = base.length ? hechos * 100 / base.length : 0;
   $('#anilloValor').style.strokeDasharray = `${pct} 100`;
   $('#pct').textContent = Math.floor(pct) + '%';
-  $('#resEtq').textContent = iris ? etiquetaDex : (juego.marca ? 'En nivel 10 · ' : 'Capturados · ') + juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '');
+  $('#resEtq').textContent = iris ? etiquetaDex : (juego.marca ? L('En nivel 10 · ', 'At level 10 · ') : L('Capturados · ', 'Caught · ')) + juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '');
   contar($('#resHechos'), hechos);
   const claveHito = juego.id + '|' + pestana, antes = ultimoHecho[claveHito];
   if (porUsuario && base.length && hechos === base.length && antes !== undefined && antes < base.length)
-    setTimeout(() => celebrar(iris ? `¡Ya tienes todo lo necesario para ${juego.amuleto.premio ? 'el ' + premio() : 'el Amuleto Iris'}!`
-      : `¡${juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '')} completada!`), 700);
+    setTimeout(() => celebrar(iris ? L(`¡Ya tienes todo lo necesario para ${paraPremio()}!`, `You have everything you need for ${paraPremio()}!`)
+      : L(`¡${juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '')} completada!`, `${juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '')} complete!`)), 700);
   ultimoHecho[claveHito] = hechos;
   $('#resTotal').textContent = '/ ' + base.length;
-  $('#txtProg').textContent = hechos === base.length ? '¡Completada!' : iris
-    ? `Te faltan ${base.length - hechos} para ${juego.amuleto.premio ? 'el ' + premio() : 'el Amuleto Iris'}`
-    : `Te faltan ${base.length - hechos}`;
+  $('#txtProg').textContent = hechos === base.length ? L('¡Completada!', 'Complete!') : iris
+    ? L(`Te faltan ${base.length - hechos} para ${paraPremio()}`, `${base.length - hechos} left for ${paraPremio()}`)
+    : L(`Te faltan ${base.length - hechos}`, `${base.length - hechos} left`);
   const nSh = base.filter(p => shiny.has(p[1])).length, nAl = juego.alfas ? base.filter(p => alfas.has(p[1])).length : 0;
-  $('#resExtra').innerHTML = `<span class="pildora"><span style="color:var(--oro)">★</span><b>${nSh}</b> variocolores</span>`
-    + (juego.alfas ? `<span class="pildora"><span style="color:var(--alfa);font-weight:800">α</span><b>${nAl}</b> alfas</span>` : '');
+  $('#resExtra').innerHTML = `<span class="pildora"><span style="color:var(--oro)">★</span><b>${nSh}</b> ${L('variocolores', 'shiny')}</span>`
+    + (juego.alfas ? `<span class="pildora"><span style="color:var(--alfa);font-weight:800">α</span><b>${nAl}</b> ${L('alfas', 'alphas')}</span>` : '');
 
   const a = juego.amuleto;
   $('#aviso').innerHTML = iris
     ? (hechos === base.length
-        ? `<div class="aviso"><b>¡Ya tienes todo lo necesario!</b> ${a.donde}</div>`
-        : `<div class="aviso"><b>${premio()}:</b> ${a.texto} ${a.donde} Pulsa un Pokémon para marcarlo.</div>`)
+        ? `<div class="aviso"><b>${L('¡Ya tienes todo lo necesario!', 'You have everything you need!')}</b> ${a.donde}</div>`
+        : `<div class="aviso"><b>${premio()}:</b> ${a.texto} ${a.donde} ${L('Pulsa un Pokémon para marcarlo.', 'Tap a Pokémon to mark it.')}</div>`)
     : '';
 
   actualizarIndicador();
@@ -910,7 +986,7 @@ function pintarRejilla(){
   if (fZona) items = items.filter(p => ZONAS[fZona] && ZONAS[fZona].has(p[1]));
   if (fVersion === 'ambas') items = items.filter(p => !exclusivo(p[1]));
   else if (fVersion) items = items.filter(p => exclusivo(p[1]) && String(exclusivo(p[1])[0]) === fVersion);
-  if (orden === 'nom') items = [...items].sort((x, y) => nombreForma(x[1], x[2]).localeCompare(nombreForma(y[1], y[2]), 'es'));
+  if (orden === 'nom') items = [...items].sort((x, y) => nombreForma(x[1], x[2]).localeCompare(nombreForma(y[1], y[2]), LOCALE));
   if (orden === 'faltan') items = [...items].sort((x, y) => capturados.has(x[1]) - capturados.has(y[1]) || x[0] - y[0]);
   if (orden === 'facil') items = [...items].sort((x, y) => capturados.has(x[1]) - capturados.has(y[1]) || (CAPTURA[y[1]] ?? -1) - (CAPTURA[x[1]] ?? -1) || x[0] - y[0]);
   vista = items.map(p => p[1]);
@@ -919,23 +995,23 @@ function pintarRejilla(){
   const etiquetas = id => {
     let s = '';
     const ex = exclusivo(id);
-    if (ex) s += `<span class="excl v${ex[0]}" title="${esc('Exclusivo de ' + vers[ex[0]] + (ex[1] ? '. ' + ex[1] : ''))}">Solo ${vers[ex[0]]}</span>`;
-    if (!capturados.has(id) && capturados.has(PADRE[id])) s += `<span class="evoaviso">⬆ Evoluciona tu ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
+    if (ex) s += `<span class="excl v${ex[0]}" title="${esc(L('Exclusivo de ', 'Exclusive to ') + vers[ex[0]] + (ex[1] ? '. ' + notaEx(ex[1]) : ''))}">${L('Solo', 'Only')} ${vers[ex[0]]}</span>`;
+    if (!capturados.has(id) && capturados.has(PADRE[id])) s += `<span class="evoaviso">⬆ ${L('Evoluciona tu', 'Evolve your')} ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
     return s ? `<div class="etiquetas">${s}</div>` : '';
   };
   $('#rejilla').innerHTML = items.length ? items.map(([n,id,nom]) => `
-    <div class="poke${capturados.has(id)?' cap':''}${shiny.has(id)?' shiny':''}" data-id="${id}" title="Nacional nº ${id}" role="button" tabindex="0"
-      aria-pressed="${capturados.has(id)}" aria-label="${esc(nombreForma(id, nom))}, número ${n}${capturados.has(id) ? ', capturado' : ''}. Pulsa para ${capturados.has(id) ? 'desmarcarlo' : 'marcarlo como capturado'}">
+    <div class="poke${capturados.has(id)?' cap':''}${shiny.has(id)?' shiny':''}" data-id="${id}" title="${L('Nacional nº', 'National No.')} ${id}" role="button" tabindex="0"
+      aria-pressed="${capturados.has(id)}" aria-label="${esc(nombreForma(id, nom))}, ${L('número', 'number')} ${n}${capturados.has(id) ? L(', capturado', ', caught') : ''}. ${capturados.has(id) ? L('Pulsa para desmarcarlo', 'Press to unmark it') : L('Pulsa para marcarlo como capturado', 'Press to mark it as caught')}">
       <span class="num">#${String(n).padStart(3,'0')}</span>
       <span class="chk">✓</span>
       <div class="poke-img" style="--c:${COLOR_TIPO[tiposDe(id)[0]] || '#888'}"><img loading="lazy" decoding="async" src="${img(id, shiny.has(id))}" alt="" onload="this.classList.add('ok')" onerror="fallo(this,${id})"></div>
       <div class="nom">${nombreForma(id, nom)}</div>
       ${htmlTipos(id)}
-      ${etiquetas(id)}${!iris && exc.has(id) && dexObjetivo().includes(pestana) ? `<div class="exc">No cuenta para ${juego.amuleto.premio ? 'el ' + premio() : 'el amuleto'}</div>` : ''}
-      <div class="poke-acc"><button class="verspawn" data-spawn="${id}" aria-label="Detalles de ${esc(nombreForma(id, nom))}">Detalles</button>
-      <button class="estrella${shiny.has(id) ? ' si' : ''}" data-shiny="${id}" aria-pressed="${shiny.has(id)}" title="${shiny.has(id) ? 'Quitar de variocolores' : 'Marcar como variocolor'}" aria-label="Variocolor">${shiny.has(id) ? '★' : '☆'}</button>
-      ${juego.alfas && pestana !== 'mega-za' ? `<button class="alfa${alfas.has(id) ? ' si' : ''}" data-alfa="${id}" aria-pressed="${alfas.has(id)}" title="${alfas.has(id) ? 'Quitar de alfas' : 'Marcar que tienes un alfa'}" aria-label="Alfa">α</button>` : ''}</div>
-    </div>`).join('') : `<div class="vacio">${iris ? '¡No te falta ninguno!' : 'No hay resultados.'}</div>`;
+      ${etiquetas(id)}${!iris && exc.has(id) && dexObjetivo().includes(pestana) ? `<div class="exc">${L('No cuenta para', 'Doesn\u2019t count for')} ${paraPremio()}</div>` : ''}
+      <div class="poke-acc"><button class="verspawn" data-spawn="${id}" aria-label="${L('Detalles de', 'Details for')} ${esc(nombreForma(id, nom))}">${L('Detalles', 'Details')}</button>
+      <button class="estrella${shiny.has(id) ? ' si' : ''}" data-shiny="${id}" aria-pressed="${shiny.has(id)}" title="${shiny.has(id) ? L('Quitar de variocolores', 'Remove from shiny') : L('Marcar como variocolor', 'Mark as shiny')}" aria-label="${L('Variocolor', 'Shiny')}">${shiny.has(id) ? '★' : '☆'}</button>
+      ${juego.alfas && pestana !== 'mega-za' ? `<button class="alfa${alfas.has(id) ? ' si' : ''}" data-alfa="${id}" aria-pressed="${alfas.has(id)}" title="${alfas.has(id) ? L('Quitar de alfas', 'Remove from alphas') : L('Marcar que tienes un alfa', 'Mark that you have an alpha')}" aria-label="${L('Alfa', 'Alpha')}">α</button>` : ''}</div>
+    </div>`).join('') : `<div class="vacio">${iris ? L('¡No te falta ninguno!', 'Nothing missing!') : L('No hay resultados.', 'No results.')}</div>`;
   const rej = $('#rejilla');
   // Las imágenes que ya están en caché aparecen sin fundido (para que no parpadeen al marcar)
   rej.querySelectorAll('.poke-img img').forEach(im => { if (im.complete && im.naturalWidth) im.classList.add('ok'); });
@@ -1001,8 +1077,9 @@ $('#exportar').onclick = () => {
   a.href = URL.createObjectURL(new Blob([JSON.stringify(datos)], {type:'application/json'}));
   a.download = `poketracker-copia-${new Date().toISOString().slice(0, 10)}.json`; a.click();
   const r = resumenCopia(claves);
-  alert('Copia guardada con todos los juegos' + (r.length ? ':\n\n' + r.join('\n') : ' (todavía no hay nada marcado).') +
-    '\n\nIncluye variocolores, alfas, formas, fechas y ajustes. Para pasarla a otro dispositivo, abre allí PokeTracker y pulsa «Cargar copia».');
+  alert(L('Copia guardada con todos los juegos', 'Backup saved with every game') + (r.length ? ':\n\n' + r.join('\n') : L(' (todavía no hay nada marcado).', ' (nothing marked yet).')) +
+    L('\n\nIncluye variocolores, alfas, formas, fechas y ajustes. Para pasarla a otro dispositivo, abre allí PokeTracker y pulsa «Cargar copia».',
+      '\n\nIt includes shiny, alphas, forms, dates and settings. To move it to another device, open PokeTracker there and press "Load backup".'));
 };
 $('#importar').onclick = () => $('#fichero').click();
 $('#fichero').onchange = async e => {
@@ -1020,23 +1097,25 @@ $('#fichero').onchange = async e => {
     });
     const r = resumenCopia(claves);
     if (!Object.keys(claves).length) throw new Error('vacía');
-    if (!confirm('Se va a cargar esta copia y sustituirá lo que hay en este navegador:\n\n' + (r.length ? r.join('\n') : 'Sin Pokémon marcados') + '\n\n¿Continuar?')) { e.target.value = ''; return; }
+    if (!confirm(L('Se va a cargar esta copia y sustituirá lo que hay en este navegador:\n\n', 'This backup will replace what is stored in this browser:\n\n') + (r.length ? r.join('\n') : L('Sin Pokémon marcados', 'No Pokémon marked')) + L('\n\n¿Continuar?', '\n\nContinue?'))) { e.target.value = ''; return; }
     Object.entries(claves).forEach(([k, v]) => { if (esClave(k)) escribir(k, String(v)); });
     juego = JUEGOS.find(j => j.id === leer('pokedex-juego', juego.id)) || juego;
     $('#juego').value = juego.id;
     aplicarTema(leer(TEMA, 'dark'));
     orden = leer('pokedex-orden', 'num');
     cargarJuego();
-    alert('Copia cargada.');
-  } catch(err) { alert('El archivo no es una copia válida de PokeTracker.'); }
+    alert(L('Copia cargada.', 'Backup loaded.'));
+    if ((leer('pokedex-idioma', 'es') === 'en') !== EN) location.reload();
+  } catch(err) { alert(L('El archivo no es una copia válida de PokeTracker.', 'This file is not a valid PokeTracker backup.')); }
   e.target.value = '';
 };
 $('#borrar').onclick = () => {
-  if (confirm(`¿Desmarcar todos los Pokémon de ${juego.nombre}? (Los variocolores se mantienen.)`)) { capturados.clear(); fechas = {}; guardar(); pintar(); }
+  if (confirm(L(`¿Desmarcar todos los Pokémon de ${juego.nombre}? (Los variocolores se mantienen.)`, `Unmark every Pokémon in ${juego.nombre}? (Shiny marks are kept.)`))) { capturados.clear(); fechas = {}; guardar(); pintar(); }
 };
 
 /* ---------- Ver Spawn ---------- */
-const NOMBRE_JUEGO = {home:'los juegos de Switch', lgpe:"Let's Go, Pikachu! / Eevee!", swsh:'Espada / Escudo', bdsp:'Diamante Brillante / Perla Reluciente', pla:'Leyendas: Arceus', sv:'Escarlata / Púrpura', za:'Leyendas Pokémon: Z-A', frlg:'Rojo Fuego / Verde Hoja'};
+const NOMBRE_JUEGO = EN ? {home:'the Switch games', lgpe:"Let's Go, Pikachu! / Eevee!", swsh:'Sword / Shield', bdsp:'Brilliant Diamond / Shining Pearl', pla:'Legends: Arceus', sv:'Scarlet / Violet', za:'Pokémon Legends: Z-A', frlg:'FireRed / LeafGreen'}
+  : {home:'los juegos de Switch', lgpe:"Let's Go, Pikachu! / Eevee!", swsh:'Espada / Escudo', bdsp:'Diamante Brillante / Perla Reluciente', pla:'Leyendas: Arceus', sv:'Escarlata / Púrpura', za:'Leyendas Pokémon: Z-A', frlg:'Rojo Fuego / Verde Hoja'};
 const ZOOM = {hisui:1.6, galar:1.1, lumiose:1};          // aumento del mapa en la vista acercada
 const ZOOM_PIXEL = 4;                           // mapas pequeños (Kanto y Sinnoh)
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1049,7 +1128,7 @@ function nombrePoke(id){
 let focoAntes = null;
 function abrirModal(h){
   if (!$('#fondo').classList.contains('abierto')) focoAntes = document.activeElement;
-  $('#modal').innerHTML = `<button class="cerrar" id="cerrar" aria-label="Cerrar">✕</button>` + h;
+  $('#modal').innerHTML = `<button class="cerrar" id="cerrar" aria-label="${L('Cerrar', 'Close')}">✕</button>` + h;
   const tit = $('#modal h2'); if (tit) { tit.id = 'tituloModal'; $('#modal').setAttribute('aria-labelledby', 'tituloModal'); }
   setTimeout(() => $('#cerrar') && $('#cerrar').focus({preventScroll: true}), 30);
   $('#fondo').classList.add('abierto');
@@ -1068,17 +1147,18 @@ const cargarJSON = f => cargarDatos(f);
 async function abrirSpawn(id){
   await (juego.home ? Promise.all(JUEGOS.filter(j => !j.home).map(j => cargarSpawns(j.id))) : cargarSpawns(juego.id));
   const datos = spawnsDe(id);
-  let h = `<h2><img id="imgDetalle" src="${img(id, shiny.has(id))}" alt="" onerror="fallo(this,${id})">${esc(nombreForma(id, nombrePoke(id)))}${htmlTipos(id)}<button class="vershiny${shiny.has(id) ? ' si' : ''}" id="verShiny" data-id="${id}">${shiny.has(id) ? 'Ver normal' : '✨ Ver variocolor'}</button></h2>
-    <div class="sub">Detalles en ${NOMBRE_JUEGO[juego.id]}.</div>`;
+  let h = `<h2><img id="imgDetalle" src="${img(id, shiny.has(id))}" alt="" onerror="fallo(this,${id})">${esc(nombreForma(id, nombrePoke(id)))}${htmlTipos(id)}<button class="vershiny${shiny.has(id) ? ' si' : ''}" id="verShiny" data-id="${id}">${shiny.has(id) ? L('Ver normal', 'Show normal') : L('✨ Ver variocolor', '✨ Show shiny')}</button></h2>
+    <div class="sub">${L('Detalles en', 'Details in')} ${NOMBRE_JUEGO[juego.id]}.</div>`;
   h += datosPoke(id);
   h += '<div id="secEventos"></div>';
   h += combate(id);
+  h += '<div id="secHab"></div>';
   h += lineaEvolutiva(id);
   h += '<div id="secFormas"></div>';
   h += '<div id="secCria"></div><div id="secMovs"></div>';
   h += tareasInvestigacion(id);
-  h += `<h3 class="seccion">Dónde aparece</h3><div class="sub">Pulsa una zona para ver su foto y su posición en el mapa.</div>`;
-  if (!datos.length) h += `<div class="entrada">No hay datos de dónde aparece en este juego.</div>`;
+  h += `<h3 class="seccion">${L('Dónde aparece', 'Where to find it')}</h3><div class="sub">${L('Pulsa una zona para ver su foto y su posición en el mapa.', 'Tap an area to see its photo and where it is on the map.')}</div>`;
+  if (!datos.length) h += `<div class="entrada">${L('No hay datos de dónde aparece en este juego.', 'No location data for this game.')}</div>`;
   h += '<div id="secCond"></div>';
   datos.forEach(([vers, sec, lineas], i) => {
     h += `<div class="entrada"><h3>${esc(vers)}${sec ? ' · ' + esc(sec) : ''}</h3>`;
@@ -1087,7 +1167,7 @@ async function abrirSpawn(id){
       h += '<div class="linea">' + l.map(tok => {
         if (typeof tok === 'number') {
           if (primera === null) primera = tok;
-          return `<span class="zona" data-loc="${tok}" data-ent="${i}">${esc(LOC[tok][0])}</span>`;
+          return `<span class="zona" data-loc="${tok}" data-ent="${i}">${esc(locNom(tok))}</span>`;
         }
         return esc(tok.trim());
       }).reduce((acc, s, k) => acc + (k && !/^[,:.)]/.test(s) ? ' ' : '') + s, '') + '</div>';
@@ -1102,16 +1182,17 @@ async function abrirSpawn(id){
   pintarMovimientos(id);
   pintarCrianza(id);
   pintarEventos(id);
+  pintarHabilidades(id);
   const bl = $('#marcarLinea');
   if (bl) bl.onclick = () => {
     const ids = idsJuego(), linea = JSON.parse(bl.dataset.ids).filter(x => ids.has(x));
     linea.forEach(x => marcar(x, true)); guardar(); pintar();
-    bl.textContent = `✔ Marcados (${linea.length})`;
+    bl.textContent = L(`✔ Marcados (${linea.length})`, `✔ Marked (${linea.length})`);
   };
   $('#verShiny').onclick = e => {
     const b = e.currentTarget, ahora = !b.classList.contains('si');
     b.classList.toggle('si', ahora);
-    b.textContent = ahora ? 'Ver normal' : '✨ Ver variocolor';
+    b.textContent = ahora ? L('Ver normal', 'Show normal') : L('✨ Ver variocolor', '✨ Show shiny');
     const im = $('#imgDetalle'); im.onerror = () => fallo(im, id);
     im.src = img(id, ahora);
   };
@@ -1138,7 +1219,7 @@ const EFICACIA = {
   Acero:{Fuego:.5,Agua:.5,Eléctrico:.5,Hielo:2,Roca:2,Acero:.5,Hada:2},
   Hada:{Fuego:.5,Lucha:2,Veneno:.5,Dragón:2,Siniestro:2,Acero:.5}
 };
-const NOM_STATS = ['PS', 'Ataque', 'Defensa', 'At. esp.', 'Def. esp.', 'Velocidad'];
+const NOM_STATS = EN ? ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'] : ['PS', 'Ataque', 'Defensa', 'At. esp.', 'Def. esp.', 'Velocidad'];
 function combate(id){
   const def = tiposDe(id); if (!def.length) return '';
   const mult = {};
@@ -1146,15 +1227,15 @@ function combate(id){
   let nGrupo = 0;
   const grupo = (titulo, f, clase) => {
     const l = LISTA_TIPOS.filter(at => f(mult[at])); if (!l.length) return '';
-    return `<div class="debil ${clase}" style="--i:${nGrupo++}"><span class="debil-x">${titulo}</span><div>${l.map(x => `<span class="tipo t-${x}">${x}</span>`).join('')}</div></div>`;
+    return `<div class="debil ${clase}" style="--i:${nGrupo++}"><span class="debil-x">${titulo}</span><div>${l.map(x => `<span class="tipo t-${x}">${tipoTxt(x)}</span>`).join('')}</div></div>`;
   };
-  let h = '<h3 class="seccion">Combate</h3><div class="combate"><div><div class="subtit">Daño que recibe</div>';
+  let h = `<h3 class="seccion">${L('Combate', 'Battle')}</h3><div class="combate"><div><div class="subtit">${L('Daño que recibe', 'Damage taken')}</div>`;
   h += grupo('×4', m => m === 4, 'x4') + grupo('×2', m => m === 2, 'x2') + grupo('×½', m => m === .5, 'r2') + grupo('×¼', m => m === .25, 'r4') + grupo('×0', m => m === 0, 'x0');
   h += '</div>';
   const st = STATS[(forma(id) || [id])[0]] || STATS[id];
   if (st) {
     const tot = st.reduce((a, b) => a + b, 0);
-    h += `<div><div class="subtit">Estadísticas base · total ${tot}</div>` + st.map((v, k) => `<div class="stat" style="--i:${k}"><span>${NOM_STATS[k]}</span>
+    h += `<div><div class="subtit">${L('Estadísticas base · total', 'Base stats · total')} ${tot}</div>` + st.map((v, k) => `<div class="stat" style="--i:${k}"><span>${NOM_STATS[k]}</span>
       <div class="stat-barra" role="img" aria-label="${NOM_STATS[k]}: ${v}"><div style="width:${Math.min(100, v / 2)}%"></div></div><b>${v}</b></div>`).join('') + '</div>';
   }
   return h + '</div>';
@@ -1163,53 +1244,55 @@ function combate(id){
 function datosPoke(id){
   const r = CAPTURA[id], partes = [];
   if (r != null) {
-    const dif = r >= 150 ? 'fácil' : r >= 75 ? 'normal' : r >= 30 ? 'difícil' : 'muy difícil';
-    partes.push(`<span><b>Ratio de captura:</b> ${r} / 255 (${dif})</span>`);
+    const dif = r >= 150 ? L('fácil', 'easy') : r >= 75 ? 'normal' : r >= 30 ? L('difícil', 'hard') : L('muy difícil', 'very hard');
+    partes.push(`<span><b>${L('Ratio de captura', 'Catch rate')}:</b> ${r} / 255 (${dif})</span>`);
   }
   const ex = exclusivo(id);
-  if (ex) partes.push(`<span><b>Exclusivo de</b> <span class="excl v${ex[0]}">${VERSIONES[juego.id][ex[0]]}</span>${ex[1] ? ' ' + esc(ex[1]) : ''}${ex[1] && /fósil/.test(ex[1]) ? '' : ' Consíguelo por intercambio.'}</span>`);
-  if (shiny.has(id)) partes.push('<span style="color:#f4b400"><b style="color:inherit">★ Lo tienes variocolor</b></span>');
-  if (juego.alfas && alfas.has(id)) partes.push('<span><b>α Tienes un alfa</b></span>');
+  if (ex) partes.push(`<span><b>${L('Exclusivo de', 'Exclusive to')}</b> <span class="excl v${ex[0]}">${VERSIONES[juego.id][ex[0]]}</span>${ex[1] ? ' ' + esc(notaEx(ex[1])) : ''}${ex[1] && /fósil/.test(ex[1]) ? '' : L(' Consíguelo por intercambio.', ' Get it by trading.')}</span>`);
+  if (shiny.has(id)) partes.push(`<span style="color:#f4b400"><b style="color:inherit">${L('★ Lo tienes variocolor', '★ You have it shiny')}</b></span>`);
+  if (juego.alfas && alfas.has(id)) partes.push(`<span><b>${L('α Tienes un alfa', 'α You have an alpha')}</b></span>`);
   return partes.length ? `<div class="info">${partes.join('')}</div>` : '';
 }
 
 function tareasInvestigacion(id){
-  if (juego.id !== 'pla' || !TAREAS[id]) return '';
-  const filas = TAREAS[id].map(([t, nums, doble]) =>
-    `<tr><td>${esc(t)}${doble ? '<span class="x2" title="Cuenta el doble para el nivel de investigación">×2</span>' : ''}</td>` +
+  const TT = EN && typeof TAREAS_EN !== 'undefined' ? TAREAS_EN : TAREAS;
+  if (juego.id !== 'pla' || !TT[id]) return '';
+  const filas = TT[id].map(([t, nums, doble]) =>
+    `<tr><td>${esc(t)}${doble ? `<span class="x2" title="${L('Cuenta el doble para el nivel de investigación', 'Counts double towards the research level')}">×2</span>` : ''}</td>` +
     [0,1,2,3,4].map(k => `<td class="n">${nums[k] ?? ''}</td>`).join('') + '</tr>').join('');
-  return `<h3 class="seccion">Tareas de investigación</h3>
-    <div class="sub">Cada objetivo cumplido da 10 puntos (20 con ×2). El nivel 10 de investigación son 100 puntos.</div>
+  return `<h3 class="seccion">${L('Tareas de investigación', 'Research tasks')}</h3>
+    <div class="sub">${L('Cada objetivo cumplido da 10 puntos (20 con ×2). El nivel 10 de investigación son 100 puntos.', 'Each goal reached gives 10 points (20 with ×2). Research level 10 takes 100 points.')}</div>
     <table class="tareas">${filas}</table>`;
 }
 
 function lineaEvolutiva(id){
-  const arbol = (typeof EVO !== 'undefined') && EVO[EVO_IDX[id] || EVO_IDX[MEGAS.base[id]]];
-  let h = '<h3 class="seccion">Línea evolutiva</h3>';
-  if (!arbol || !arbol[2].length) return h + '<div class="sub">No evoluciona.</div>';
+  const arbol = EVOS[EVO_IDX[id] || EVO_IDX[MEGAS.base[id]]];
+  let h = `<h3 class="seccion">${L('Línea evolutiva', 'Evolution line')}</h3>`;
+  if (!arbol || !arbol[2].length) return h + `<div class="sub">${L('No evoluciona.', 'Does not evolve.')}</div>`;
   let otros = false;
   const nodo = ([nid, nom, hijos]) => {
     // Con más de 2 evoluciones (Eevee, Tyrogue…): el Pokémon arriba y una cuadrícula de tarjetas debajo
     const abanico = hijos.length > 2;
-    let s = `<div class="evonodo${abanico ? ' evoabanico' : ''}"><button class="evopoke${nid === id ? ' actual' : ''}" data-evo="${nid}" title="Ver detalles de ${esc(nom)}">
+    let s = `<div class="evonodo${abanico ? ' evoabanico' : ''}"><button class="evopoke${nid === id ? ' actual' : ''}" data-evo="${nid}" title="${L('Ver detalles de', 'See details for')} ${esc(nom)}">
       <img loading="lazy" src="${img(nid, shiny.has(nid))}" alt="" onerror="fallo(this,${nid})"><span>${esc(nombreForma(nid, nom))}</span></button>`;
     if (hijos.length) {
       s += '<div class="evoramas">' + hijos.map(([met, hijo]) => {
         const lista = met[juego.id] || met['*'] || met.sv || Object.values(met)[0];
         if (lista.some(m => m.endsWith(' *'))) otros = true;
-        return `<div class="evorama"><div class="evometodo">${lista.map((m, k) => (k ? '<span class="o">o</span>' : '') + esc(m)).join('')}<span class="evoflecha">${abanico ? '↓' : '→'}</span></div>${nodo(hijo)}</div>`;
+        return `<div class="evorama"><div class="evometodo">${lista.map((m, k) => (k ? `<span class="o">${L('o', 'or')}</span>` : '') + esc(m)).join('')}<span class="evoflecha">${abanico ? '↓' : '→'}</span></div>${nodo(hijo)}</div>`;
       }).join('') + '</div>';
     }
     return s + '</div>';
   };
   h += `<div class="evo">${nodo(arbol)}</div>`;
   const todos = []; (function rec(n){ todos.push(n[0]); n[2].forEach(([, x]) => rec(x)); })(arbol);
-  h += `<button id="marcarLinea" data-ids="${JSON.stringify(todos)}" style="margin-top:6px">✔ Marcar toda la línea como capturada</button>`;
-  if (otros) h += '<div class="sub">* Método de otros juegos: esa evolución puede no estar disponible en este.</div>';
+  h += `<button id="marcarLinea" data-ids="${JSON.stringify(todos)}" style="margin-top:6px">${L('✔ Marcar toda la línea como capturada', '✔ Mark the whole line as caught')}</button>`;
+  if (otros) h += `<div class="sub">${L('* Método de otros juegos: esa evolución puede no estar disponible en este.', '* Method from other games: this evolution may not be available here.')}</div>`;
   return h;
 }
 
 /* ---------- Movimientos ---------- */
+const movNom = m => EN ? (m[2] || m[0]) : m[0];
 const ORDEN_MOVS = ['sv', 'za', 'pla', 'swsh', 'bdsp', 'lgpe', 'frlg'];
 async function movimientosDe(id){
   const pid = MEGAS.base[id] || (forma(id) || [id])[0];
@@ -1225,27 +1308,29 @@ async function pintarMovimientos(id){
   const cont = $('#secMovs'); if (!cont) return;
   const [r, N] = await Promise.all([movimientosDe(id), cargarDatos('movimientos.json')]);
   if (!$('#secMovs') || !N) return;
-  if (!r || !r.m[0].length) { cont.innerHTML = '<h3 class="seccion">Movimientos por nivel</h3><div class="sub">No hay datos de movimientos de este Pokémon en este juego.</div>'; return; }
-  const nivel = lv => lv === 0 ? (r.g === 'za' ? 'Inicio' : 'Al evolucionar') : lv === 1 ? 'Inicio' : lv;
-  const filas = r.m[0].map(([lv, k]) => `<tr><td class="n">${nivel(lv)}</td><td>${esc(N[k][0])}</td><td>${N[k][1] ? `<span class="tipo t-${N[k][1]}">${N[k][1]}</span>` : ''}</td></tr>`).join('');
-  cont.innerHTML = `<h3 class="seccion">Movimientos por nivel</h3>
-    ${juego.home ? `<div class="sub">Datos de ${NOMBRE_JUEGO[r.g]}.</div>` : ''}
-    <details class="plegable" ${r.m[0].length <= 14 ? 'open' : ''}><summary>${r.m[0].length} movimientos</summary>
-    <div style="overflow-x:auto"><table class="cond movs"><tr><th>Nivel</th><th>Movimiento</th><th>Tipo</th></tr>${filas}</table></div></details>`;
+  if (!r || !r.m[0].length) { cont.innerHTML = `<h3 class="seccion">${L('Movimientos por nivel', 'Level-up moves')}</h3><div class="sub">${L('No hay datos de movimientos de este Pokémon en este juego.', 'No move data for this Pokémon in this game.')}</div>`; return; }
+  const nivel = lv => lv === 0 ? (r.g === 'za' ? L('Inicio', 'Start') : L('Al evolucionar', 'On evolution')) : lv === 1 ? L('Inicio', 'Start') : lv;
+  const filas = r.m[0].map(([lv, k]) => `<tr><td class="n">${nivel(lv)}</td><td>${esc(movNom(N[k]))}</td><td>${N[k][1] ? `<span class="tipo t-${N[k][1]}">${tipoTxt(N[k][1])}</span>` : ''}</td></tr>`).join('');
+  cont.innerHTML = `<h3 class="seccion">${L('Movimientos por nivel', 'Level-up moves')}</h3>
+    ${juego.home ? `<div class="sub">${L('Datos de', 'Data from')} ${NOMBRE_JUEGO[r.g]}.</div>` : ''}
+    <details class="plegable" ${r.m[0].length <= 14 ? 'open' : ''}><summary>${r.m[0].length} ${L('movimientos', 'moves')}</summary>
+    <div style="overflow-x:auto"><table class="cond movs"><tr><th>${L('Nivel', 'Level')}</th><th>${L('Movimiento', 'Move')}</th><th>${L('Tipo', 'Type')}</th></tr>${filas}</table></div></details>`;
 }
 
 /* ---------- Crianza ---------- */
 const CRIA_JUEGO = {
-  swsh: {lugar: 'déjalos en la guardería de la Ruta 5 o en la del Área Silvestre (Valle Entrepuentes)', incienso: true},
-  bdsp: {lugar: 'déjalos en la guardería del Pueblo Sosiego (Ruta 209)', incienso: true},
-  sv:   {lugar: 'llévalos en el equipo, haz un picnic y busca el huevo en la cesta', incienso: false},
-  frlg: {lugar: 'déjalos en la guardería de la Ruta 5 o en la de Isla Quarta', incienso: true},
+  swsh: {lugar: L('déjalos en la guardería de la Ruta 5 o en la del Área Silvestre (Valle Entrepuentes)', 'leave them at the Route 5 Nursery or the Wild Area Nursery (Bridge Field)'), incienso: true},
+  bdsp: {lugar: L('déjalos en la guardería del Pueblo Sosiego (Ruta 209)', 'leave them at the Solaceon Town Pokémon Nursery (Route 209)'), incienso: true},
+  sv:   {lugar: L('llévalos en el equipo, haz un picnic y busca el huevo en la cesta', 'keep them in your party, have a picnic and check the basket for the Egg'), incienso: false},
+  frlg: {lugar: L('déjalos en la guardería de la Ruta 5 o en la de Isla Quarta', 'leave them at the Route 5 Day Care or the Four Island Day Care'), incienso: true},
 };
-const nomEs = i => nombrePokeGlobal(i);
+const nomEs = i => nomVis(i, nombrePokeGlobal(i));
 function nombrePokeGlobal(i){
   for (const k in DEX) { const p = DEX[k].find(x => x[1] === i); if (p) return p[2]; }
   return NOMBRES_EN[i] || '#' + i;
 }
+const INCIENSO_EN = {'Incienso Marino': 'Sea Incense', 'Incienso Lento': 'Lax Incense', 'Incienso Raro': 'Odd Incense', 'Incienso Roca': 'Rock Incense',
+  'Incienso Floral': 'Rose Incense', 'Incienso Duplo': 'Luck Incense', 'Incienso Puro': 'Pure Incense', 'Incienso Aroma': 'Full Incense', 'Incienso Armonía': 'Wave Incense'};
 // Crianza: cómo conseguir ESTE Pokémon criando (a quién juntar, qué sale del huevo y si hay que evolucionarlo)
 async function pintarCrianza(id){
   const cont = $('#secCria'); if (!cont) return;
@@ -1258,37 +1343,43 @@ async function pintarCrianza(id){
   const crian = linea.filter(i => CRIA[i] && !CRIA[i][0].includes('no-eggs') && i !== 132);
   const conIncienso = linea.map(i => CRIA[i]).find(c => c && c[5]);       // la línea tiene un bebé que necesita incienso
   const raiz = CRIA[base][3];
-  const genero = s => s === -1 ? 'sin sexo' : s === 0 ? 'solo macho' : s === 8 ? 'solo hembra' : `${100 - s * 12.5} % macho · ${s * 12.5} % hembra`;
-  let h = '<h3 class="seccion">Crianza</h3><div class="cria">';
+  const genero = s => s === -1 ? L('sin sexo', 'genderless') : s === 0 ? L('solo macho', 'male only') : s === 8 ? L('solo hembra', 'female only') : L(`${100 - s * 12.5} % macho · ${s * 12.5} % hembra`, `${100 - s * 12.5}% male · ${s * 12.5}% female`);
+  const GH = EN && typeof GRUPOS_HUEVO_EN !== 'undefined' ? GRUPOS_HUEVO_EN : GRUPOS_HUEVO;
+  let h = `<h3 class="seccion">${L('Crianza', 'Breeding')}</h3><div class="cria">`;
   const pasos = [];
   let padre = null, nace = null, movsDe = null;
-  if (base === 132) pasos.push('<b>Ditto no se puede conseguir criando</b>: hay que capturarlo. Eso sí, sirve de pareja para criar casi cualquier otro Pokémon.');
-  else if (base === 490) pasos.push('<b>Manaphy no se puede conseguir criando.</b> Si crías un Manaphy con un Ditto, del huevo sale Phione.');
+  if (base === 132) pasos.push(L('<b>Ditto no se puede conseguir criando</b>: hay que capturarlo. Eso sí, sirve de pareja para criar casi cualquier otro Pokémon.', '<b>Ditto can\u2019t be bred</b>: you have to catch it. It can breed with almost any other Pokémon, though.'));
+  else if (base === 490) pasos.push(L('<b>Manaphy no se puede conseguir criando.</b> Si crías un Manaphy con un Ditto, del huevo sale Phione.', '<b>Manaphy can\u2019t be bred.</b> Breeding Manaphy with Ditto gives a Phione Egg.'));
   else if (base === 489) { padre = 490; nace = 489; }
-  else if (!crian.length) pasos.push(`<b>${esc(nom)} no se puede conseguir criando</b>: ni él ni nadie de su línea pone huevos (es legendario, singular o un caso especial). Tienes que capturarlo o conseguirlo de otra forma.`);
+  else if (!crian.length) pasos.push(L(`<b>${esc(nom)} no se puede conseguir criando</b>: ni él ni nadie de su línea pone huevos (es legendario, singular o un caso especial). Tienes que capturarlo o conseguirlo de otra forma.`,
+    `<b>${esc(nom)} can\u2019t be bred</b>: neither it nor anything in its line can produce Eggs (it\u2019s Legendary, Mythical or a special case). You have to catch it or get it another way.`));
   else { padre = crian.includes(base) ? base : crian[0]; nace = raiz; }
   if (padre) {
-    const [grupos, sexo] = CRIA[padre], gNom = grupos.map(g => GRUPOS_HUEVO[g] || g);
+    const [grupos, sexo] = CRIA[padre], gNom = grupos.map(g => GH[g] || g);
     const otros = crian.filter(i => i !== padre).map(nomEs);
-    h += `<div class="info"><span><b>Grupo huevo${padre !== base ? ' de ' + esc(nomEs(padre)) : ''}:</b> ${gNom.map(esc).join(' y ')}</span>`
-      + `<span><b>Sexo:</b> ${genero(CRIA[base][1])}</span>`
-      + (CRIA[nace] && CRIA[nace][2] ? `<span><b>Eclosión:</b> ${CRIA[nace][2]} ciclos (unos ${(CRIA[nace][2] * 257).toLocaleString('es-ES')} pasos)</span>` : '') + '</div>';
+    const y = L(' y ', ' and '), o = L(' o ', ' or ');
+    h += `<div class="info"><span><b>${L('Grupo huevo', 'Egg group')}${padre !== base ? L(' de ', ' of ') + esc(nomEs(padre)) : ''}:</b> ${gNom.map(esc).join(y)}</span>`
+      + `<span><b>${L('Sexo', 'Gender')}:</b> ${genero(CRIA[base][1])}</span>`
+      + (CRIA[nace] && CRIA[nace][2] ? `<span><b>${L('Eclosión', 'Hatching')}:</b> ${CRIA[nace][2]} ${L('ciclos (unos', 'cycles (about')} ${(CRIA[nace][2] * 257).toLocaleString(LOCALE)} ${L('pasos)', 'steps)')}</span>` : '') + '</div>';
     if (juego.id && !juego.home && !reglas) {
-      pasos.push(`En ${NOMBRE_JUEGO[juego.id]} <b>no se pueden criar Pokémon</b>: consigue a ${esc(nom)} capturándolo o evolucionándolo. Sí se puede criar en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura y Rojo Fuego / Verde Hoja.`);
+      pasos.push(L(`En ${NOMBRE_JUEGO[juego.id]} <b>no se pueden criar Pokémon</b>: consigue a ${esc(nom)} capturándolo o evolucionándolo. Sí se puede criar en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura y Rojo Fuego / Verde Hoja.`,
+        `<b>There is no breeding</b> in ${NOMBRE_JUEGO[juego.id]}: get ${esc(nom)} by catching or evolving it. Breeding is available in Sword / Shield, Brilliant Diamond / Shining Pearl, Scarlet / Violet and FireRed / LeafGreen.`));
     } else {
-      const pareja = sexo === -1 || sexo === 0 ? `con un <b>Ditto</b> (es la única pareja posible: ${sexo === -1 ? 'no tiene sexo' : 'solo hay machos'})`
-        : `con un <b>Ditto</b> o con un Pokémon de sexo contrario del grupo huevo <b>${gNom.map(esc).join('</b> o <b>')}</b>`;
-      pasos.push(`Consigue un <b>${esc(nomEs(padre))}</b>${otros.length ? ` (o ${otros.map(esc).join(', ').replace(/, ([^,]*)$/, ' o $1')})` : ''} y júntalo ${pareja}.`);
-      pasos.push(reglas ? `Después ${reglas.lugar}.` : 'Hazlo en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura o Rojo Fuego / Verde Hoja (en Let’s Go, Leyendas: Arceus y Z-A no hay crianza).');
+      const pareja = sexo === -1 || sexo === 0 ? L(`con un <b>Ditto</b> (es la única pareja posible: ${sexo === -1 ? 'no tiene sexo' : 'solo hay machos'})`, `with a <b>Ditto</b> (its only possible partner: ${sexo === -1 ? 'it\u2019s genderless' : 'there are only males'})`)
+        : L(`con un <b>Ditto</b> o con un Pokémon de sexo contrario del grupo huevo <b>${gNom.map(esc).join('</b> o <b>')}</b>`, `with a <b>Ditto</b> or a Pokémon of the opposite gender from the <b>${gNom.map(esc).join('</b> or <b>')}</b> Egg group`);
+      pasos.push(L(`Consigue un <b>${esc(nomEs(padre))}</b>${otros.length ? ` (o ${otros.map(esc).join(', ').replace(/, ([^,]*)$/, ' o $1')})` : ''} y júntalo ${pareja}.`,
+        `Get a <b>${esc(nomEs(padre))}</b>${otros.length ? ` (or ${otros.map(esc).join(', ').replace(/, ([^,]*)$/, ' or $1')})` : ''} and pair it ${pareja}.`));
+      pasos.push(reglas ? L(`Después ${reglas.lugar}.`, `Then ${reglas.lugar}.`) : L('Hazlo en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura o Rojo Fuego / Verde Hoja (en Let’s Go, Leyendas: Arceus y Z-A no hay crianza).', 'Do it in Sword / Shield, Brilliant Diamond / Shining Pearl, Scarlet / Violet or FireRed / LeafGreen (Let\u2019s Go, Legends: Arceus and Z-A have no breeding).'));
       const usaIncienso = conIncienso && (!reglas || reglas.incienso);
       if (usaIncienso) {
         const [, , , bebe, sinInc, inc] = conIncienso;
-        if (base === bebe) pasos.push(`Equipa a uno de los dos con el <b>${esc(inc)}</b>; sin él, del huevo saldría ${esc(nomEs(sinInc))} en vez de ${esc(nom)}.`);
-        else { nace = sinInc; pasos.push(`Que ninguno lleve el <b>${esc(inc)}</b>: así del huevo sale ${esc(nomEs(sinInc))} (con el incienso saldría ${esc(nomEs(bebe))}).`); }
+        const incN = EN ? (INCIENSO_EN[inc] || inc) : inc;
+        if (base === bebe) pasos.push(L(`Equipa a uno de los dos con el <b>${esc(incN)}</b>; sin él, del huevo saldría ${esc(nomEs(sinInc))} en vez de ${esc(nom)}.`, `Have one of them hold a <b>${esc(incN)}</b>; without it, the Egg would hatch into ${esc(nomEs(sinInc))} instead of ${esc(nom)}.`));
+        else { nace = sinInc; pasos.push(L(`Que ninguno lleve el <b>${esc(incN)}</b>: así del huevo sale ${esc(nomEs(sinInc))} (con el incienso saldría ${esc(nomEs(bebe))}).`, `Make sure neither holds a <b>${esc(incN)}</b>: that way the Egg hatches into ${esc(nomEs(sinInc))} (with the incense it would be ${esc(nomEs(bebe))}).`)); }
       }
-      pasos.push(nace === base ? `Del huevo saldrá <b>${esc(nom)}</b>.` : `Del huevo saldrá <b>${esc(nomEs(nace))}</b>.`);
-      if (nace !== base) pasos.push(`Evoluciónalo hasta <b>${esc(nom)}</b> (mira cómo en la línea evolutiva de arriba).`);
-      if (forma(id)) pasos.push(`Para que salga la forma de ${esc(forma(id)[1])}, el padre o la madre que no sea Ditto tiene que tener esa forma.`);
+      pasos.push(L(`Del huevo saldrá <b>${esc(nace === base ? nom : nomEs(nace))}</b>.`, `The Egg will hatch into <b>${esc(nace === base ? nom : nomEs(nace))}</b>.`));
+      if (nace !== base) pasos.push(L(`Evoluciónalo hasta <b>${esc(nom)}</b> (mira cómo en la línea evolutiva de arriba).`, `Evolve it into <b>${esc(nom)}</b> (see how in the evolution line above).`));
+      if (forma(id)) pasos.push(L(`Para que salga la forma de ${esc(forma(id)[1])}, el padre o la madre que no sea Ditto tiene que tener esa forma.`, `To get the ${esc(REG_EN[forma(id)[1]] || forma(id)[1])} form, the parent that isn\u2019t Ditto must have that form.`));
       movsDe = nace;
     }
   }
@@ -1298,32 +1389,52 @@ async function pintarCrianza(id){
     const g = juego.home ? 'sv' : juego.id;
     const [M, N] = await Promise.all([cargarDatos(`movs-${g}.json`), cargarDatos('movimientos.json')]);
     const mh = M && N && M[movsDe] && M[movsDe][1];
-    if (mh && mh.length) h += `<div class="subtit" style="margin-top:12px">Movimientos huevo de ${esc(nomEs(movsDe))}</div>
-      <div class="listapk">${mh.map(k => `<span class="minipk mov">${N[k][1] ? `<span class="tipo t-${N[k][1]}">${N[k][1]}</span>` : ''}${esc(N[k][0])}</span>`).join('')}</div>
-      <div class="sub">Los aprende si el padre (o la madre) los conoce al dejarlos juntos.</div>`;
+    if (mh && mh.length) h += `<div class="subtit" style="margin-top:12px">${L('Movimientos huevo de', 'Egg moves of')} ${esc(nomEs(movsDe))}</div>
+      <div class="listapk">${mh.map(k => `<span class="minipk mov">${N[k][1] ? `<span class="tipo t-${N[k][1]}">${tipoTxt(N[k][1])}</span>` : ''}${esc(movNom(N[k]))}</span>`).join('')}</div>
+      <div class="sub">${L('Los aprende si el padre (o la madre) los conoce al dejarlos juntos.', 'It learns them if a parent knows them when you leave them together.')}</div>`;
   }
   if ($('#secCria')) cont.innerHTML = h + '</div>';
 }
 
-/* ---------- Eventos (teraincursiones de Escarlata / Púrpura, actualizado a diario) ---------- */
+/* ---------- Eventos (Escarlata / Púrpura y Z-A, actualizados a diario) ---------- */
+const REGION_ES = {Global: 'Global', Japan: 'Japón', Europe: 'Europa', America: 'América', 'North America': 'Norteamérica', 'South America': 'Sudamérica',
+  Spain: 'España', UK: 'Reino Unido', 'United Kingdom': 'Reino Unido', Korea: 'Corea', 'South Korea': 'Corea del Sur', Taiwan: 'Taiwán', 'Hong Kong': 'Hong Kong',
+  Singapore: 'Singapur', Australia: 'Australia', China: 'China', France: 'Francia', Germany: 'Alemania', Italy: 'Italia'};
+const region = r => EN ? r : r.split(/,\s*/).map(x => REGION_ES[x] || x).join(', ');
 async function pintarEventos(id){
-  const cont = $('#secEventos'); if (!cont || !(juego.id === 'sv' || juego.home)) return;
+  const cont = $('#secEventos'); if (!cont) return;
   const E = await cargarDatos('eventos.json'); if (!E || !$('#secEventos')) return;
   const base = MEGAS.base[id] || id, hoy = new Date().toISOString().slice(0, 10);
-  const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('es-ES', {day: 'numeric', month: 'long'});
+  const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString(LOCALE, {day: 'numeric', month: 'long'});
   const lista = [];
-  E.eventos.filter(e => e.ids.includes(base)).forEach(e => e.fechas.forEach(([a, b]) => {
+  E.eventos.filter(e => e.ids.includes(base) && (juego.home || e.juego === juego.id)).forEach(e => (e.regiones || e.fechas.map(f => ['Global', ...f])).forEach(([reg, a, b]) => {
     if (b < hoy) return;
-    const ahora = a <= hoy;
-    const dias = Math.round((new Date(a) - new Date(hoy)) / 864e5);
+    const ahora = a <= hoy, dias = Math.round((new Date(a) - new Date(hoy)) / 864e5);
     if (!ahora && dias > 60) return;
-    lista.push({ahora, a, b, txt: `Teraincursión de evento${e.estrellas ? ` de ${e.estrellas}★` : ''}${e.brote ? ' y brote masivo' : ''} en Escarlata / Púrpura`});
+    const juegoTxt = NOMBRE_JUEGO[e.juego];
+    let txt;
+    if (e.tipo === 'teraincursion') txt = L(`Teraincursión de evento${e.estrellas ? ` de ${e.estrellas}★` : ''}${e.brote ? ' y brote masivo' : ''}`, `Tera Raid Battle event${e.estrellas ? ` (${e.estrellas}★)` : ''}${e.brote ? ' and mass outbreak' : ''}`);
+    else if (e.tipo === 'codigo-compartido') txt = L(`Regalo Misterioso con código${e.shiny ? ' (variocolor)' : ''}${e.alfa ? ' (alfa)' : ''}`, `Mystery Gift code${e.shiny ? ' (shiny)' : ''}${e.alfa ? ' (alpha)' : ''}`);
+    else txt = L(`Regalo con código de un solo uso (tiendas o eventos)${e.shiny ? ', variocolor' : ''}`, `Single-use code gift (stores or events)${e.shiny ? ', shiny' : ''}`);
+    lista.push({ahora, a, b, txt: `${txt} · ${juegoTxt}`, reg: region(reg), codigo: e.codigo});
   }));
   if (!lista.length) return;
   lista.sort((x, y) => x.a.localeCompare(y.a));
-  cont.innerHTML = `<div class="eventos">${lista.map(e => `<div class="evento${e.ahora ? ' ahora' : ''}"><span class="evento-tag">${e.ahora ? 'Ahora' : 'Próximamente'}</span>
-    <div><b>${e.txt}</b><div class="sub" style="margin:0">Del ${fmt(e.a)} al ${fmt(e.b)}.</div></div></div>`).join('')}
-    <div class="nota">Fuente: Serebii.net · actualizado el ${fmt(E.actualizado)}</div></div>`;
+  cont.innerHTML = `<div class="eventos">${lista.map(e => `<div class="evento${e.ahora ? ' ahora' : ''}"><span class="evento-tag">${e.ahora ? L('Ahora', 'Now') : L('Próximamente', 'Coming soon')}</span>
+    <div><b>${esc(e.txt)}</b>${e.codigo ? `<div class="codigo">${L('Código', 'Code')}: <code>${esc(e.codigo)}</code></div>` : ''}<div class="sub" style="margin:0">${esc(e.reg)} · ${L(`Del ${fmt(e.a)} al ${fmt(e.b)}.`, `From ${fmt(e.a)} to ${fmt(e.b)}.`)}</div></div></div>`).join('')}
+    <div class="nota">${L('Fuente', 'Source')}: Serebii.net · ${L('actualizado el', 'updated on')} ${fmt(E.actualizado)}</div></div>`;
+}
+
+/* ---------- Habilidades ---------- */
+async function pintarHabilidades(id){
+  const cont = $('#secHab'); if (!cont) return;
+  const H = await cargarDatos('habilidades.json'); if (!H || !$('#secHab')) return;
+  const pid = (forma(id) || [id])[0];
+  const lista = H.poke[pid] || H.poke[id] || H.poke[MEGAS.base[id]];
+  if (!lista) return;
+  cont.innerHTML = `<h3 class="seccion">${L('Habilidades', 'Abilities')}</h3><div class="habs">${lista.map(([k, oculta]) => { const a = H.lista[k];
+    return `<div class="hab${oculta ? ' oculta' : ''}"><div class="hab-cab"><b>${esc(EN ? a[1] : a[0])}</b>${oculta ? `<span class="hab-tag">${L('Oculta', 'Hidden')}</span>` : ''}</div>
+      <div class="sub" style="margin:0">${esc((EN ? a[3] : a[2]) || '')}</div></div>`; }).join('')}</div>`;
 }
 
 /* ---------- Formas ---------- */
@@ -1333,10 +1444,10 @@ async function pintarFormas(id){
   const lst = F && F[id]; if (!lst || !$('#secFormas')) return;
   const dibuja = () => {
     const n = lst.filter(f => formasT.has(f[0])).length;
-    cont.innerHTML = `<h3 class="seccion">Formas (${n} / ${lst.length})</h3>
-      <div class="sub">Pulsa las formas que tienes para tu colección.</div>
-      <div class="formas">${lst.map(([k, nom, im]) => `<button class="forma${formasT.has(k) ? ' si' : ''}" data-forma="${esc(k)}">
-        <img loading="lazy" src="${esc(im)}" alt=""><span>${esc(nom)}</span></button>`).join('')}</div>`;
+    cont.innerHTML = `<h3 class="seccion">${L('Formas', 'Forms')} (${n} / ${lst.length})</h3>
+      <div class="sub">${L('Pulsa las formas que tienes para tu colección.', 'Tap the forms you have for your collection.')}</div>
+      <div class="formas">${lst.map(([k, nom, im, en]) => `<button class="forma${formasT.has(k) ? ' si' : ''}" data-forma="${esc(k)}">
+        <img loading="lazy" src="${esc(im)}" alt=""><span>${esc(EN ? (en || nom) : nom)}</span></button>`).join('')}</div>`;
     cont.querySelectorAll('.forma').forEach(b => b.onclick = () => {
       const k = b.dataset.forma; formasT.has(k) ? formasT.delete(k) : formasT.add(k); guardar(); dibuja();
     });
@@ -1347,13 +1458,13 @@ async function pintarFormas(id){
 /* ---------- Condiciones de aparición (clima u hora) ---------- */
 async function pintarCondiciones(id){
   const cont = $('#secCond'); if (!cont || !['swsh', 'bdsp'].includes(juego.id)) return;
-  const C = await cargarJSON('cond.json');
+  const C = await cargarJSON(EN ? 'cond-en.json' : 'cond.json');
   const grupos = C && C[juego.id] && C[juego.id][id]; if (!grupos || !$('#secCond')) return;
-  const col = juego.id === 'swsh' ? 'Clima (probabilidad)' : 'Hora (probabilidad)';
+  const col = juego.id === 'swsh' ? L('Clima (probabilidad)', 'Weather (chance)') : L('Hora (probabilidad)', 'Time (chance)');
   const nivel = v => { const [a, b] = v.split('-'); return a === b ? a : v; };
-  cont.innerHTML = `<h3 class="seccion">Condiciones de aparición</h3>` + grupos.map(([vers, filas]) =>
+  cont.innerHTML = `<h3 class="seccion">${L('Condiciones de aparición', 'Spawn conditions')}</h3>` + grupos.map(([vers, filas]) =>
     `<div class="sub" style="margin:8px 0 0"><b>${esc(vers)}</b></div><div style="overflow-x:auto"><table class="cond">
-      <tr><th>Zona</th><th>Cómo</th><th>${col}</th><th>Nivel</th></tr>
+      <tr><th>${L('Zona', 'Area')}</th><th>${L('Cómo', 'How')}</th><th>${col}</th><th>${L('Nivel', 'Level')}</th></tr>
       ${filas.map(([z, m, c, n]) => `<tr><td>${esc(z)}</td><td>${esc(m)}</td><td>${esc(c)}</td><td>${esc(nivel(n))}</td></tr>`).join('')}
     </table></div>`).join('');
 }
@@ -1361,13 +1472,13 @@ async function pintarCondiciones(id){
 /* ---------- Marcar o desmarcar los que se ven ---------- */
 $('#bMarcar').onclick = () => {
   const n = vista.filter(x => !capturados.has(x)).length;
-  if (!n) return alert('Todos los que se ven ya están marcados.');
-  if (confirm(`¿Marcar como capturados los ${n} Pokémon que se ven y faltan?`)) { vista.forEach(x => marcar(x, true)); guardar(); pintar(); }
+  if (!n) return alert(L('Todos los que se ven ya están marcados.', 'Every Pokémon shown is already marked.'));
+  if (confirm(L(`¿Marcar como capturados los ${n} Pokémon que se ven y faltan?`, `Mark the ${n} missing Pokémon shown as caught?`))) { vista.forEach(x => marcar(x, true)); guardar(); pintar(); }
 };
 $('#bDesmarcar').onclick = () => {
   const n = vista.filter(x => capturados.has(x)).length;
-  if (!n) return alert('No hay ninguno marcado entre los que se ven.');
-  if (confirm(`¿Desmarcar los ${n} Pokémon marcados que se ven?`)) { vista.forEach(x => marcar(x, false)); guardar(); pintar(); }
+  if (!n) return alert(L('No hay ninguno marcado entre los que se ven.', 'None of the Pokémon shown are marked.'));
+  if (confirm(L(`¿Desmarcar los ${n} Pokémon marcados que se ven?`, `Unmark the ${n} marked Pokémon shown?`))) { vista.forEach(x => marcar(x, false)); guardar(); pintar(); }
 };
 
 /* ---------- Intercambios (exclusivos de la otra versión) ---------- */
@@ -1379,53 +1490,63 @@ function abrirIntercambios(){
   const busco = ids.filter(i => exclusivo(i) && exclusivo(i)[0] === otra && !capturados.has(i));
   const ofrezco = ids.filter(i => exclusivo(i) && exclusivo(i)[0] === mia && capturados.has(i));
   const nombres = l => l.map(i => nombreForma(i, nombrePoke(i))).join(', ');
-  const texto = `Juego: Pokémon ${v[mia]}.\nBusco (exclusivos de ${v[otra]}): ${busco.length ? nombres(busco) : 'ninguno'}.\nOfrezco (exclusivos de ${v[mia]}): ${ofrezco.length ? nombres(ofrezco) : 'ninguno'}.`;
-  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>Intercambios</h2>
-    <div class="sub">Tu versión: <select id="miVersion"><option value="0">${v[0]}</option><option value="1">${v[1]}</option></select></div>
-    <h3 class="seccion">Te faltan de ${v[otra]} (${busco.length})</h3>
-    <div class="listapk">${busco.map(mini).join('') || '<span class="sub">¡Ninguno! Ya tienes todos los exclusivos de la otra versión.</span>'}</div>
-    <h3 class="seccion">Puedes ofrecer de ${v[mia]} (${ofrezco.length})</h3>
-    <div class="sub">Exclusivos de tu versión que ya has capturado: captura otro para intercambiarlo.</div>
-    <div class="listapk">${ofrezco.map(mini).join('') || '<span class="sub">Aún no tienes ninguno.</span>'}</div>
-    <h3 class="seccion">Mensaje para un amigo</h3>
+  const texto = L(`Juego: Pokémon ${v[mia]}.\nBusco (exclusivos de ${v[otra]}): ${busco.length ? nombres(busco) : 'ninguno'}.\nOfrezco (exclusivos de ${v[mia]}): ${ofrezco.length ? nombres(ofrezco) : 'ninguno'}.`,
+    `Game: Pokémon ${v[mia]}.\nLooking for (${v[otra]} exclusives): ${busco.length ? nombres(busco) : 'none'}.\nOffering (${v[mia]} exclusives): ${ofrezco.length ? nombres(ofrezco) : 'none'}.`);
+  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>${L('Intercambios', 'Trades')}</h2>
+    <div class="sub">${L('Tu versión', 'Your version')}: <select id="miVersion"><option value="0">${v[0]}</option><option value="1">${v[1]}</option></select></div>
+    <h3 class="seccion">${L('Te faltan de', 'Missing from')} ${v[otra]} (${busco.length})</h3>
+    <div class="listapk">${busco.map(mini).join('') || `<span class="sub">${L('¡Ninguno! Ya tienes todos los exclusivos de la otra versión.', 'None! You have every exclusive from the other version.')}</span>`}</div>
+    <h3 class="seccion">${L('Puedes ofrecer de', 'You can offer from')} ${v[mia]} (${ofrezco.length})</h3>
+    <div class="sub">${L('Exclusivos de tu versión que ya has capturado: captura otro para intercambiarlo.', 'Exclusives from your version you\u2019ve caught: catch another one to trade it.')}</div>
+    <div class="listapk">${ofrezco.map(mini).join('') || `<span class="sub">${L('Aún no tienes ninguno.', 'You don\u2019t have any yet.')}</span>`}</div>
+    <h3 class="seccion">${L('Mensaje para un amigo', 'Message for a friend')}</h3>
     <textarea class="copiar" id="txtInter" readonly>${esc(texto)}</textarea>
-    <button id="copiarInter" style="margin-top:6px">📋 Copiar</button>`);
+    <button id="copiarInter" style="margin-top:6px">📋 ${L('Copiar', 'Copy')}</button>`);
   $('#miVersion').value = String(mia);
   $('#miVersion').onchange = e => { escribir('pokedex-version-' + juego.id, e.target.value); abrirIntercambios(); };
   $('#copiarInter').onclick = async () => {
     const ta = $('#txtInter');
     try { await navigator.clipboard.writeText(ta.value); } catch(e) { ta.select(); document.execCommand('copy'); }
-    $('#copiarInter').textContent = '✔ Copiado';
+    $('#copiarInter').textContent = L('✔ Copiado', '✔ Copied');
   };
 }
 $('#bInter').onclick = abrirIntercambios;
 
 /* ---------- Objetos para evolucionar ---------- */
 const METODO_EVO = {};   // hijo -> métodos por juego
-(function(){ const r = n => n[2].forEach(([met, h]) => { if (!(h[0] in METODO_EVO)) METODO_EVO[h[0]] = met; r(h); }); Object.values(EVO).forEach(r); })();
+(function(){ const r = n => n[2].forEach(([met, h]) => { if (!(h[0] in METODO_EVO)) METODO_EVO[h[0]] = met; r(h); }); Object.values(EVOS).forEach(r); })();
 function objetosDe(id){
   const met = METODO_EVO[id]; if (!met) return [];
   const lista = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0]).map(m => m.replace(/ \*$/, ''));
   const objs = lista.map(m => {
-    const u = m.match(/Usar (.+?)(?:,| \(|$)/), e = m.match(/equipado con (.+?)(?:,| de noche| de día| al anochecer| \(|$)/);
+    const u = EN ? m.match(/Use (.+?)(?:,| \(|$)/) : m.match(/Usar (.+?)(?:,| \(|$)/);
+    const e = EN ? m.match(/holding (.+?)(?:,| during the day| at night| at dusk| in the evening| \(|$)/) : m.match(/equipado con (.+?)(?:,| de noche| de día| al anochecer| \(|$)/);
     return (u && u[1]) || (e && e[1]) || null;
   });
   if (objs.some(o => !o)) return [];   // hay una forma de evolucionarlo sin objeto
   return [...new Set(objs)];
 }
-function abrirObjetos(){
+async function abrirObjetos(){
+  const O = await cargarDatos('objetos.json') || {};
+  const porNombre = {}; Object.values(O).forEach(o => { porNombre[o.es.toLowerCase()] = o; porNombre[o.en.toLowerCase()] = o; });
+  const donde = nombre => {
+    const o = porNombre[nombre.toLowerCase()]; if (!o) return '';
+    const juegos = juego.home ? Object.keys(o.juegos) : [juego.id];
+    const l = juegos.filter(g => o.juegos[g]).map(g => `<div class="donde"><b>${juego.home ? esc(NOMBRE_JUEGO[g]) + ': ' : L('Dónde conseguirlo: ', 'Where to get it: ')}</b>${esc(o.juegos[g][EN ? 1 : 0])}</div>`);
+    return l.join('') || `<div class="donde sub">${L('No hay datos de dónde conseguirlo en este juego.', 'No data on where to get it in this game.')}</div>`;
+  };
   const base = pestana === 'iris' ? requeridos() : DEX[pestana];
   const nomDex = pestana === 'iris' ? premio() : juego.dex.find(d => d.id === pestana).nombre;
   const porObj = {};
   base.filter(p => !capturados.has(p[1])).forEach(p => objetosDe(p[1]).forEach(o => (porObj[o] = porObj[o] || []).push(p[1])));
-  const filas = Object.entries(porObj).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'es'));
+  const filas = Object.entries(porObj).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], LOCALE));
   const ya = l => l.filter(i => capturados.has(PADRE[i])).length;
-  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.6L14 9V3"/><path d="M7.5 15h9"/></svg>Objetos para evolucionar</h2>
-    <div class="sub">Objetos que necesitas para los Pokémon que te faltan de <b>${esc(nomDex)}</b>. Los marcados con ✔ ya los puedes evolucionar porque tienes su preevolución.</div>
-    ${filas.length ? filas.map(([o, l]) => `<div class="objeto"><div class="objeto-cab"><b>${esc(o)}</b><span class="cuenta">×${l.length}</span>${ya(l) ? `<span class="listo">✔ ${ya(l)} ya</span>` : ''}</div>
+  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.6L14 9V3"/><path d="M7.5 15h9"/></svg>${L('Objetos para evolucionar', 'Evolution items')}</h2>
+    <div class="sub">${L(`Objetos que necesitas para los Pokémon que te faltan de <b>${esc(nomDex)}</b>. Los marcados con ✔ ya los puedes evolucionar porque tienes su preevolución.`, `Items you need for the Pokémon you\u2019re missing from <b>${esc(nomDex)}</b>. Those marked ✔ can be evolved now because you have their pre-evolution.`)}</div>
+    ${filas.length ? filas.map(([o, l]) => `<div class="objeto"><div class="objeto-cab"><b>${esc(o)}</b><span class="cuenta">×${l.length}</span>${ya(l) ? `<span class="listo">✔ ${ya(l)} ${L('ya', 'ready')}</span>` : ''}</div>${donde(o)}
       <div class="listapk">${l.map(i => `<span class="minipk${capturados.has(PADRE[i]) ? ' listo' : ''}"><img loading="lazy" src="${img(i)}" alt="" onerror="fallo(this,${i})">${esc(nombreForma(i, nombrePoke(i)))}${capturados.has(PADRE[i]) ? ' ✔' : ''}</span>`).join('')}</div></div>`).join('')
-      : '<div class="entrada">No te falta ningún Pokémon que necesite un objeto para evolucionar.</div>'}
-    <div class="sub" style="margin-top:12px">Se cuentan las piedras evolutivas y los objetos que hay que equipar (intercambios, subir de nivel con un objeto…).</div>`);
+      : `<div class="entrada">${L('No te falta ningún Pokémon que necesite un objeto para evolucionar.', 'You\u2019re not missing any Pokémon that needs an item to evolve.')}</div>`}
+    <div class="sub" style="margin-top:12px">${L('Se cuentan las piedras evolutivas y los objetos que hay que equipar (intercambios, subir de nivel con un objeto…).', 'Includes evolution stones and held items (trades, leveling up while holding an item…).')}</div>`);
 }
 $('#bObjetos').onclick = abrirObjetos;
 
@@ -1435,14 +1556,14 @@ function abrirRuta(){
   const faltan = new Set(base.filter(p => !capturados.has(p[1])).map(p => p[1]));
   const conInc = leer('pokedex-ruta-incursiones', '0') === '1';
   const zonas = Object.entries(conInc ? ZONAS : ZONAS_SIN).map(([z, s]) => [z, [...s].filter(i => faltan.has(i))])
-    .filter(([, l]) => l.length).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'es')).slice(0, 40);
+    .filter(([, l]) => l.length).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], LOCALE)).slice(0, 40);
   const nomDex = pestana === 'iris' ? premio() : juego.dex.find(d => d.id === pestana).nombre;
-  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>Ruta sugerida</h2>
-    <div class="sub">Zonas ordenadas por cuántos Pokémon te faltan de <b>${esc(nomDex)}</b>. Pulsa una para ver solo esos.</div>
-    <label class="interruptor"><input type="checkbox" id="conInc" ${conInc ? 'checked' : ''}> Contar las incursiones</label>
+  abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>${L('Ruta sugerida', 'Suggested route')}</h2>
+    <div class="sub">${L(`Zonas ordenadas por cuántos Pokémon te faltan de <b>${esc(nomDex)}</b>. Pulsa una para ver solo esos.`, `Areas sorted by how many Pokémon you\u2019re missing from <b>${esc(nomDex)}</b>. Tap one to show only those.`)}</div>
+    <label class="interruptor"><input type="checkbox" id="conInc" ${conInc ? 'checked' : ''}> ${L('Contar las incursiones', 'Include raids')}</label>
     ${zonas.length ? zonas.map(([z, l]) => `<button class="ruta" data-zona="${esc(z)}"><b>${l.length}</b><span>${esc(z)}</span>
       <span class="ims">${l.slice(0, 10).map(i => `<img loading="lazy" src="${img(i)}" alt="" title="${esc(nombreForma(i, nombrePoke(i)))}" onerror="fallo(this,${i})">`).join('')}${l.length > 10 ? `<span class="sub">+${l.length - 10}</span>` : ''}</span></button>`).join('')
-      : '<div class="entrada">No queda ninguno que aparezca en una zona concreta: los que faltan se consiguen evolucionando, intercambiando o en eventos.</div>'}`);
+      : `<div class="entrada">${L('No queda ninguno que aparezca en una zona concreta: los que faltan se consiguen evolucionando, intercambiando o en eventos.', 'None left that appear in a specific area: the rest come from evolving, trading or events.')}</div>`}`);
   $('#conInc').onchange = e => { escribir('pokedex-ruta-incursiones', e.target.checked ? '1' : '0'); abrirRuta(); };
   document.querySelectorAll('.ruta').forEach(b => b.onclick = () => {
     fZona = b.dataset.zona; $('#fZona').value = fZona;
@@ -1456,24 +1577,25 @@ $('#bRuta').onclick = abrirRuta;
 const GENS = [[1, 151], [152, 251], [252, 386], [387, 493], [494, 649], [650, 721], [722, 809], [810, 905], [906, 1025]];
 const genDe = id => { const b = MEGAS.base[id] || id; return GENS.findIndex(([a, z]) => b >= a && b <= z) + 1; };
 const medidor = (etq, h, tot) => `<div class="medidor"><span>${etq}</span>
-  <div class="barra2" role="img" aria-label="${esc(etq)}: ${h} de ${tot}"><div style="width:${tot ? h * 100 / tot : 0}%"></div></div>
+  <div class="barra2" role="img" aria-label="${esc(etq)}: ${h} ${L('de', 'of')} ${tot}"><div style="width:${tot ? h * 100 / tot : 0}%"></div></div>
   <span class="cifra">${h} / ${tot} (${tot ? Math.round(h * 100 / tot) : 0} %)</span></div>`;
 function graficaSemanas(){
   const SEM = 7 * 864e5, ahora = Date.now(), n = 12;
   const inicio = ahora - n * SEM;
   const cuenta = Array(n).fill(0);
   Object.values(fechas).forEach(f => { if (f > inicio) cuenta[Math.min(n - 1, Math.floor((f - inicio) / SEM))]++; });
-  if (!cuenta.some(Boolean)) return '<div class="entrada">Todavía no hay fechas: se guardan desde ahora cada vez que marcas un Pokémon.</div>';
+  if (!cuenta.some(Boolean)) return `<div class="entrada">${L('Todavía no hay fechas: se guardan desde ahora cada vez que marcas un Pokémon.', 'No dates yet: they are saved from now on each time you mark a Pokémon.')}</div>`;
   const W = 600, H = 170, izq = 28, abajo = 22, arriba = 14, max = Math.max(...cuenta);
   const ancho = (W - izq) / n, bw = Math.max(6, ancho - 10), alto = H - abajo - arriba;
-  const fmt = t => new Date(t).toLocaleDateString('es-ES', {day: 'numeric', month: 'short'});
-  let s = `<svg class="grafica" viewBox="0 0 ${W} ${H}" role="img" aria-label="Capturas por semana en las últimas ${n} semanas">`;
+  const fmt = t => new Date(t).toLocaleDateString(LOCALE, {day: 'numeric', month: 'short'});
+  const tip = (ini, c) => L(`Semana del ${fmt(ini)}: ${c} capturado${c === 1 ? '' : 's'}`, `Week of ${fmt(ini)}: ${c} caught`);
+  let s = `<svg class="grafica" viewBox="0 0 ${W} ${H}" role="img" aria-label="${L(`Capturas por semana en las últimas ${n} semanas`, `Catches per week over the last ${n} weeks`)}">`;
   s += `<line x1="${izq}" x2="${W}" y1="${H - abajo}" y2="${H - abajo}"/><text x="${izq - 6}" y="${arriba + 4}" text-anchor="end">${max}</text><text x="${izq - 6}" y="${H - abajo}" text-anchor="end">0</text>`;
   cuenta.forEach((c, k) => {
     const x = izq + k * ancho + (ancho - bw) / 2, h = c ? Math.max(3, c / max * alto) : 0, y = H - abajo - h;
     const ini = inicio + k * SEM;
-    if (h) s += `<path class="col" d="M${x},${H - abajo} V${y + 4} Q${x},${y} ${x + 4},${y} H${x + bw - 4} Q${x + bw},${y} ${x + bw},${y + 4} V${H - abajo} Z"><title>Semana del ${fmt(ini)}: ${c} capturado${c === 1 ? '' : 's'}</title></path>`;
-    s += `<rect x="${izq + k * ancho}" y="${arriba}" width="${ancho}" height="${alto}" fill="transparent"><title>Semana del ${fmt(ini)}: ${c} capturado${c === 1 ? '' : 's'}</title></rect>`;
+    if (h) s += `<path class="col" d="M${x},${H - abajo} V${y + 4} Q${x},${y} ${x + 4},${y} H${x + bw - 4} Q${x + bw},${y} ${x + bw},${y + 4} V${H - abajo} Z"><title>${tip(ini, c)}</title></path>`;
+    s += `<rect x="${izq + k * ancho}" y="${arriba}" width="${ancho}" height="${alto}" fill="transparent"><title>${tip(ini, c)}</title></rect>`;
     if (k % 3 === 0 || k === n - 1) s += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${fmt(ini)}</text>`;
   });
   return s + '</svg>';
@@ -1481,18 +1603,18 @@ function graficaSemanas(){
 function abrirStats(){
   const base = pestana === 'iris' ? requeridos() : DEX[pestana];
   const nomDex = pestana === 'iris' ? premio() : juego.dex.find(d => d.id === pestana).nombre;
-  let h = `<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>Estadísticas</h2><div class="sub">${esc(juego.nombre)}</div>`;
-  h += '<h3 class="seccion">Por Pokédex</h3>';
+  let h = `<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-8M21 20H3"/></svg>${L('Estadísticas', 'Stats')}</h2><div class="sub">${esc(juego.nombre)}</div>`;
+  h += `<h3 class="seccion">${L('Por Pokédex', 'By Pokédex')}</h3>`;
   juego.dex.forEach(d => h += medidor(d.nombre.replace(/ \(\d+\)/, ''), DEX[d.id].filter(p => capturados.has(p[1])).length, DEX[d.id].length));
   const req = requeridos(); h += medidor(premio(), req.filter(p => capturados.has(p[1])).length, req.length);
-  h += `<h3 class="seccion">Por tipo · ${esc(nomDex)}</h3>`;
-  LISTA_TIPOS.forEach(tp => { const l = base.filter(p => tiposDe(p[1]).includes(tp)); if (l.length) h += medidor(`<span class="tipo t-${tp}">${tp}</span>`, l.filter(p => capturados.has(p[1])).length, l.length); });
-  h += `<h3 class="seccion">Por generación · ${esc(nomDex)}</h3>`;
-  GENS.forEach((_, g) => { const l = base.filter(p => genDe(p[1]) === g + 1); if (l.length) h += medidor(`${g + 1}.ª generación`, l.filter(p => capturados.has(p[1])).length, l.length); });
-  const extra = [['★ Variocolores', shiny], ...(juego.alfas ? [['α Alfas', alfas]] : [])];
-  h += '<h3 class="seccion">Colección</h3>';
+  h += `<h3 class="seccion">${L('Por tipo', 'By type')} · ${esc(nomDex)}</h3>`;
+  LISTA_TIPOS.forEach(tp => { const l = base.filter(p => tiposDe(p[1]).includes(tp)); if (l.length) h += medidor(`<span class="tipo t-${tp}">${tipoTxt(tp)}</span>`, l.filter(p => capturados.has(p[1])).length, l.length); });
+  h += `<h3 class="seccion">${L('Por generación', 'By generation')} · ${esc(nomDex)}</h3>`;
+  GENS.forEach((_, g) => { const l = base.filter(p => genDe(p[1]) === g + 1); if (l.length) h += medidor(L(`${g + 1}.ª generación`, `Generation ${g + 1}`), l.filter(p => capturados.has(p[1])).length, l.length); });
+  const extra = [[L('★ Variocolores', '★ Shiny'), shiny], ...(juego.alfas ? [[L('α Alfas', 'α Alphas'), alfas]] : [])];
+  h += `<h3 class="seccion">${L('Colección', 'Collection')}</h3>`;
   extra.forEach(([n, s]) => h += medidor(n, base.filter(p => s.has(p[1])).length, base.length));
-  h += '<h3 class="seccion">Capturas por semana</h3><div class="sub">Últimas 12 semanas. Pasa el ratón (o pulsa) sobre una barra para ver la cifra.</div>' + graficaSemanas();
+  h += `<h3 class="seccion">${L('Capturas por semana', 'Catches per week')}</h3><div class="sub">${L('Últimas 12 semanas. Pasa el ratón (o pulsa) sobre una barra para ver la cifra.', 'Last 12 weeks. Hover over (or tap) a bar to see the number.')}</div>` + graficaSemanas();
   abrirModal(h);
 }
 $('#bStats').onclick = abrirStats;
@@ -1514,12 +1636,12 @@ $('#fondo').addEventListener('keydown', e => {
 
 function mostrarZona(ent, loc){
   document.querySelectorAll(`.zona[data-ent="${ent}"]`).forEach(z => z.classList.toggle('sel', +z.dataset.loc === loc));
-  const [nom, orig, foto, mapa] = LOC[loc];
+  const [, orig, foto, mapa] = LOC[loc], nom = locNom(loc);
   const det = $('#det' + ent);
-  det.innerHTML = `<div class="tit">${esc(nom)}${orig ? ` <small>(${esc(orig)})</small>` : ''}</div>
-    <div class="foto">${foto ? `<img src="${esc(foto)}" alt="Foto de ${esc(nom)}" onerror="this.parentNode.innerHTML='<div class=sinimg>No se pudo cargar la foto</div>'">` : '<div class="sinimg">No hay foto de esta zona</div>'}</div>
-    <div class="mapa${mapa && MAPAS[mapa][3] ? ' pixel' : ''}" id="mapa${ent}">${mapa ? '' : '<div class="sinimg">Esta entrada no tiene una zona concreta en el mapa (por ejemplo, las teraincursiones aparecen por toda la región).</div>'}</div>
-    ${mapa ? '<div class="nota">El punto rojo marca la posición aproximada de la zona.</div>' : ''}`;
+  det.innerHTML = `<div class="tit">${esc(nom)}${orig && !EN ? ` <small>(${esc(orig)})</small>` : ''}</div>
+    <div class="foto">${foto ? `<img src="${esc(foto)}" alt="${L('Foto de', 'Photo of')} ${esc(nom)}" onerror="this.parentNode.innerHTML='<div class=sinimg>${L('No se pudo cargar la foto', 'The photo could not be loaded')}</div>'">` : `<div class="sinimg">${L('No hay foto de esta zona', 'No photo of this area')}</div>`}</div>
+    <div class="mapa${mapa && MAPAS[mapa][3] ? ' pixel' : ''}" id="mapa${ent}">${mapa ? '' : `<div class="sinimg">${L('Esta entrada no tiene una zona concreta en el mapa (por ejemplo, las teraincursiones aparecen por toda la región).', 'This entry has no specific area on the map (for example, Tera Raids appear all over the region).')}</div>`}</div>
+    ${mapa ? `<div class="nota">${L('El punto rojo marca la posición aproximada de la zona.', 'The red dot marks the approximate position of the area.')}</div>` : ''}`;
   if (mapa) pintarMapa(ent, loc, false);
 }
 
@@ -1528,8 +1650,8 @@ function pintarMapa(ent, loc, entero){
   const [src, w, hgt, pixel] = MAPAS[mapa];
   const cont = $('#mapa' + ent);
   cont.classList.toggle('entero', entero);
-  cont.innerHTML = `<img class="m" src="${src}" alt="Mapa" draggable="false"><span class="marca"></span>
-    <button class="botonmapa" data-ent="${ent}" data-loc="${loc}" data-entero="${entero ? 0 : 1}">${entero ? 'Acercar' : 'Mapa entero'}</button>`;
+  cont.innerHTML = `<img class="m" src="${src}" alt="${L('Mapa', 'Map')}" draggable="false"><span class="marca"></span>
+    <button class="botonmapa" data-ent="${ent}" data-loc="${loc}" data-entero="${entero ? 0 : 1}">${entero ? L('Acercar', 'Zoom in') : L('Mapa entero', 'Full map')}</button>`;
   const im = cont.querySelector('img.m'), marca = cont.querySelector('.marca');
   if (entero) {
     marca.style.left = (x / w * 100) + '%';

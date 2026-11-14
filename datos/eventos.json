@@ -1,5 +1,24 @@
 {
  "actualizado": "2026-11-14",
  "fuente": "Serebii.net",
- "eventos": []
+ "eventos": [
+  {
+   "juego": "za",
+   "tipo": "codigo-compartido",
+   "titulo": "Alpha Charizard Distributions",
+   "regiones": [
+    [
+     "Global",
+     "2026-11-12",
+     "2027-01-07"
+    ]
+   ],
+   "ids": [
+    716
+   ],
+   "shiny": true,
+   "alfa": false,
+   "codigo": "CELEBRATE30TH"
+  }
+ ]
 }
