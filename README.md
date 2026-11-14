@@ -25,7 +25,9 @@ Otras herramientas:
 - **Objetos para evolucionar**: piedras y objetos que necesitas para los que te faltan.
 - Mapa de Luminalia con las zonas salvajes de Z-A.
 - **Movimientos por nivel** de cada juego y **crianza** paso a paso (grupos huevo, pareja, dónde criar, incienso y movimientos huevo).
-- **Eventos**: aviso de teraincursiones de evento de Escarlata / Púrpura activas o próximas. `herramientas/eventos.py` los descarga a diario con GitHub Actions.
+- **Eventos**: aviso de teraincursiones de evento y regalos con código (con el código, si es público) de Escarlata / Púrpura y Leyendas Z-A, activos o próximos. `herramientas/eventos.py` los descarga a diario con GitHub Actions.
+- **Habilidades** (normales y oculta) con su descripción, y **dónde conseguir cada objeto de evolución** en cada juego.
+- **Idioma**: español o inglés (selector ES / EN en la barra superior); se traducen la interfaz y los datos.
 - **Búsqueda** por nombre en español o en inglés, número regional o nacional y tipo (por ejemplo, "fuego volador").
 - Accesible con teclado y lector de pantalla.
 
