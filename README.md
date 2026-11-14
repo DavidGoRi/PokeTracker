@@ -23,6 +23,8 @@ Otras herramientas:
 - **Condiciones de aparición** (clima en Espada / Escudo y hora en Diamante Brillante / Perla Reluciente).
 - **Combate** en Detalles: debilidades y resistencias por tipo y estadísticas base.
 - **Objetos para evolucionar**: piedras y objetos que necesitas para los que te faltan.
+- **Puedes evolucionar**: los que te faltan y puedes conseguir ya evolucionando uno que tienes, con cómo hacerlo (respeta las formas regionales: Meowth de Galar evoluciona a Perrserker).
+- **Puedes criar**: los que te faltan y puedes sacar de un huevo con un Pokémon que ya tienes, con la pareja y el incienso.
 - Mapa de Luminalia con las zonas salvajes de Z-A.
 - **Movimientos por nivel** de cada juego y **crianza** paso a paso (grupos huevo, pareja, dónde criar, incienso y movimientos huevo).
 - **Eventos**: aviso de teraincursiones de evento y regalos con código (con el código, si es público) de Escarlata / Púrpura y Leyendas Z-A, activos o próximos. `herramientas/eventos.py` los descarga a diario con GitHub Actions.

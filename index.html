@@ -310,6 +310,15 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 .interruptor{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:2px 0 12px;cursor:pointer;user-select:none}
 .interruptor input{width:18px;height:18px;accent-color:var(--acento)}
 #miVersion{padding:6px 32px 6px 12px;margin-left:6px}
+.filapk{gap:12px}
+.filapk .par{display:flex;align-items:center;gap:2px;flex:none;color:var(--mute);font-size:13px}
+.filapk .par img{width:44px;height:44px;object-fit:contain}
+.filapk .par img:first-child{width:34px;height:34px;opacity:.75}
+.filapk .txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.filapk .txt strong{font-size:14.5px}
+.filapk .txt small{font-size:12.5px;color:var(--sub);line-height:1.4}
+.filapk .txt small b{color:var(--txt);font-weight:700;font-size:inherit;min-width:0;text-align:left}
+.filapk.cria:hover{border-color:var(--ok)}
 
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
@@ -553,6 +562,8 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
     <button id="bRuta"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>Ruta sugerida</button>
     <button id="bInter"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>Intercambios</button>
     <button id="bObjetos"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.6L14 9V3"/><path d="M7.5 15h9"/></svg>Objetos para evolucionar</button>
+    <button id="bEvolucionar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V6M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>Puedes evolucionar</button>
+    <button id="bCriar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C8.2 3 5 9.6 5 14a7 7 0 0 0 14 0c0-4.4-3.2-11-7-11Z"/></svg>Puedes criar</button>
     <span class="sep"></span>
     <button id="bMarcar" class="suave" title="Marca como capturados todos los Pokémon que se ven ahora en la lista"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Marcar los visibles</button>
     <button id="bDesmarcar" class="suave" title="Desmarca todos los Pokémon que se ven ahora en la lista"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>Desmarcar los visibles</button>
@@ -616,7 +627,7 @@ if (EN) {
   q('#filtros button[data-f="cria"]').title = 'You don’t have it, but you have a Pokémon from its line to breed it';
   q('#fTipo').setAttribute('aria-label', 'Type'); q('#fZona').setAttribute('aria-label', 'Area'); q('#fVersion').setAttribute('aria-label', 'Version'); q('#fOrden').setAttribute('aria-label', 'Sort');
   [['num', 'Sort: number'], ['nom', 'Sort: name'], ['faltan', 'Sort: missing first'], ['facil', 'Sort: easiest first']].forEach(([v, s]) => q(`#fOrden option[value="${v}"]`).textContent = s);
-  txt('#bStats', 'Stats'); txt('#bRuta', 'Suggested route'); txt('#bInter', 'Trades'); txt('#bObjetos', 'Evolution items');
+  txt('#bStats', 'Stats'); txt('#bRuta', 'Suggested route'); txt('#bInter', 'Trades'); txt('#bObjetos', 'Evolution items'); txt('#bEvolucionar', 'Ready to evolve'); txt('#bCriar', 'Ready to breed');
   txt('#bMarcar', 'Mark visible'); txt('#bDesmarcar', 'Unmark visible');
   q('#bMarcar').title = 'Marks every Pokémon currently shown in the list as caught'; q('#bDesmarcar').title = 'Unmarks every Pokémon currently shown in the list';
   q('#rejilla').setAttribute('aria-label', 'Pokémon list');
@@ -878,6 +889,7 @@ function cargarJuego(){
   if (filtro === 'alfa' && !juego.alfas) filtro = 'todos';
   const hayCria = !juego.home && !!CRIA_JUEGO[juego.id];
   document.querySelector('#filtros button[data-f="cria"]').style.display = hayCria ? '' : 'none';
+  $('#bCriar').style.display = hayCria ? '' : 'none';
   if (filtro === 'cria' && !hayCria) filtro = 'todos';
   $('#bInter').style.display = VERSIONES[juego.id] ? '' : 'none';
   $('#bRuta').style.display = juego.home ? 'none' : '';
@@ -986,7 +998,7 @@ function pintarRejilla(){
   if (!iris) {
     if (filtro === 'faltan') items = items.filter(p => !capturados.has(p[1]));
     if (filtro === 'cap') items = items.filter(p => capturados.has(p[1]));
-    if (filtro === 'evo') items = items.filter(p => !capturados.has(p[1]) && capturados.has(PADRE[p[1]]));
+    if (filtro === 'evo') items = items.filter(p => puedeEvo(p[1]));
     if (filtro === 'cria') items = items.filter(p => criaDisponible(p[1]) !== null);
     if (filtro === 'shiny') items = items.filter(p => shiny.has(p[1]));
     if (filtro === 'alfa') items = items.filter(p => alfas.has(p[1]));
@@ -1005,7 +1017,7 @@ function pintarRejilla(){
     let s = '';
     const ex = exclusivo(id);
     if (ex) s += `<span class="excl v${ex[0]}" title="${esc(L('Exclusivo de ', 'Exclusive to ') + vers[ex[0]] + (ex[1] ? '. ' + notaEx(ex[1]) : ''))}">${L('Solo', 'Only')} ${vers[ex[0]]}</span>`;
-    if (!capturados.has(id) && capturados.has(PADRE[id])) s += `<span class="evoaviso">⬆ ${L('Evoluciona tu', 'Evolve your')} ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
+    if (puedeEvo(id)) s += `<span class="evoaviso">⬆ ${L('Evoluciona tu', 'Evolve your')} ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
     const cd = criaDisponible(id);
     if (cd !== null) s += `<span class="criaaviso" title="${esc(L('Cría tu ', 'Breed your ') + nomEs(cd))}">🥚 ${L('Crianza disponible', 'Breeding available')}</span>`;
     return s ? `<div class="etiquetas">${s}</div>` : '';
@@ -1585,6 +1597,21 @@ $('#bInter').onclick = abrirIntercambios;
 /* ---------- Objetos para evolucionar ---------- */
 const METODO_EVO = {};   // hijo -> métodos por juego
 (function(){ const r = n => n[2].forEach(([met, h]) => { if (!(h[0] in METODO_EVO)) METODO_EVO[h[0]] = met; r(h); }); Object.values(EVOS).forEach(r); })();
+// Métodos de evolución que sirven para la forma de la preevolución que hay en este juego
+// (Meowth de Galar evoluciona a Perrserker, no a Persian)
+function metodosEvo(id){
+  const met = METODO_EVO[id]; if (!met) return [];
+  const l = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0] || []).map(m => m.replace(/ \*$/, ''));
+  const fp = forma(PADRE[id]), fh = forma(id);
+  if (!fp || (fh && fh[1] === fp[1])) { const sin = l.filter(m => !m.startsWith('[')); return sin.length ? sin : l; }
+  const reg = fp[1], regEn = REG_EN[reg] || reg;
+  return l.filter(m => m.startsWith('[') && (m.includes(reg) || m.includes(regEn)));
+}
+// No lo tienes, tienes su preevolución y esa forma puede evolucionar a él
+function puedeEvo(id){
+  if (capturados.has(id) || !capturados.has(PADRE[id])) return false;
+  return !METODO_EVO[id] || metodosEvo(id).length > 0;
+}
 function objetosDe(id){
   const met = METODO_EVO[id]; if (!met) return [];
   const lista = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0]).map(m => m.replace(/ \*$/, ''));
@@ -1610,15 +1637,48 @@ async function abrirObjetos(){
   const porObj = {};
   base.filter(p => !capturados.has(p[1])).forEach(p => objetosDe(p[1]).forEach(o => (porObj[o] = porObj[o] || []).push(p[1])));
   const filas = Object.entries(porObj).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], LOCALE));
-  const ya = l => l.filter(i => capturados.has(PADRE[i])).length;
+  const ya = l => l.filter(puedeEvo).length;
   abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-2.6L14 9V3"/><path d="M7.5 15h9"/></svg>${L('Objetos para evolucionar', 'Evolution items')}</h2>
     <div class="sub">${L(`Objetos que necesitas para los Pokémon que te faltan de <b>${esc(nomDex)}</b>. Los marcados con ✔ ya los puedes evolucionar porque tienes su preevolución.`, `Items you need for the Pokémon you\u2019re missing from <b>${esc(nomDex)}</b>. Those marked ✔ can be evolved now because you have their pre-evolution.`)}</div>
     ${filas.length ? filas.map(([o, l]) => `<div class="objeto"><div class="objeto-cab"><b>${esc(o)}</b><span class="cuenta">×${l.length}</span>${ya(l) ? `<span class="listo">✔ ${ya(l)} ${L('ya', 'ready')}</span>` : ''}</div>${donde(o)}
-      <div class="listapk">${l.map(i => `<span class="minipk${capturados.has(PADRE[i]) ? ' listo' : ''}"><img loading="lazy" src="${img(i)}" alt="" onerror="fallo(this,${i})">${esc(nombreForma(i, nombrePoke(i)))}${capturados.has(PADRE[i]) ? ' ✔' : ''}</span>`).join('')}</div></div>`).join('')
+      <div class="listapk">${l.map(i => `<span class="minipk${puedeEvo(i) ? ' listo' : ''}"><img loading="lazy" src="${img(i)}" alt="" onerror="fallo(this,${i})">${esc(nombreForma(i, nombrePoke(i)))}${puedeEvo(i) ? ' ✔' : ''}</span>`).join('')}</div></div>`).join('')
       : `<div class="entrada">${L('No te falta ningún Pokémon que necesite un objeto para evolucionar.', 'You\u2019re not missing any Pokémon that needs an item to evolve.')}</div>`}
     <div class="sub" style="margin-top:12px">${L('Se cuentan las piedras evolutivas y los objetos que hay que equipar (intercambios, subir de nivel con un objeto…).', 'Includes evolution stones and held items (trades, leveling up while holding an item…).')}</div>`);
 }
 $('#bObjetos').onclick = abrirObjetos;
+
+/* ---------- Puedes evolucionar / Puedes criar ---------- */
+function metodoEvo(id){
+  return metodosEvo(id).map(m => esc(m.replace(/^\[[^\]]*\]\s*/, ''))).join(L(' · o ', ' · or '));
+}
+const filaPk = (desde, a, txt, clase) => `<button class="ruta filapk ${clase}" data-id="${a}">
+  <span class="par"><img loading="lazy" src="${img(desde)}" alt="" onerror="fallo(this,${desde})">→<img loading="lazy" src="${img(a)}" alt="" onerror="fallo(this,${a})"></span>
+  <span class="txt"><strong>${esc(nombreForma(a, nombrePoke(a)))}</strong><small>${txt}</small></span></button>`;
+function listaApartado(titulo, ico, sub, filas, vacio){
+  abrirModal(`<h2>${ico}${titulo} <span class="cuenta">${filas.length}</span></h2><div class="sub">${sub}</div>
+    <div style="margin-top:12px">${filas.join('') || `<div class="entrada">${vacio}</div>`}</div>`);
+  document.querySelectorAll('#modal .filapk').forEach(b => b.onclick = () => abrirSpawn(+b.dataset.id));
+}
+function abrirEvolucionar(){
+  const ids = [...idsJuego()].sort((a, b) => a - b).filter(puedeEvo);
+  listaApartado(L('Puedes evolucionar', 'Ready to evolve'), '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V6M6 11l6-6 6 6"/><path d="M5 20h14"/></svg>',
+    L(`No los tienes en ${NOMBRE_JUEGO[juego.id]}, pero sí su preevolución. Pulsa uno para ver sus detalles.`, `You don\u2019t have them in ${NOMBRE_JUEGO[juego.id]}, but you have their pre-evolution. Tap one to see its details.`),
+    ids.map(i => { const m = metodoEvo(i);
+      return filaPk(PADRE[i], i, L(`Evoluciona tu <b>${esc(nombreForma(PADRE[i], nombrePoke(PADRE[i])))}</b>`, `Evolve your <b>${esc(nombreForma(PADRE[i], nombrePoke(PADRE[i])))}</b>`) + (m ? ': ' + m : ''), 'evo'); }),
+    L('Ahora mismo no puedes evolucionar ninguno: no tienes ninguna preevolución de los que te faltan.', 'There\u2019s nothing to evolve right now: you don\u2019t have the pre-evolution of any Pokémon you\u2019re missing.'));
+}
+function abrirCriar(){
+  const ids = [...idsJuego()].sort((a, b) => a - b).filter(i => criaDisponible(i) !== null);
+  listaApartado(L('Puedes criar', 'Ready to breed'), '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C8.2 3 5 9.6 5 14a7 7 0 0 0 14 0c0-4.4-3.2-11-7-11Z"/></svg>',
+    L(`No los tienes en ${NOMBRE_JUEGO[juego.id]}, pero puedes sacarlos de un huevo con un Pokémon que ya tienes. ${CRIA_JUEGO[juego.id].lugar[0].toUpperCase() + CRIA_JUEGO[juego.id].lugar.slice(1)}.`,
+      `You don\u2019t have them in ${NOMBRE_JUEGO[juego.id]}, but you can hatch them from an Egg with a Pokémon you already have. ${CRIA_JUEGO[juego.id].lugar[0].toUpperCase() + CRIA_JUEGO[juego.id].lugar.slice(1)}.`),
+    ids.map(i => { const tuyo = criaDisponible(i), ic = infoCria(i);
+      const inc = !ic.inc ? '' : ic.inc.poner ? L(`, con el <b>${esc(ic.inc.nombre)}</b> equipado`, `, holding a <b>${esc(ic.inc.nombre)}</b>`) : L(`, sin el ${esc(ic.inc.nombre)}`, `, without the ${esc(ic.inc.nombre)}`);
+      return filaPk(tuyo, i, L(`Junta tu <b>${esc(nombreForma(tuyo, nombrePoke(tuyo)))}</b> `, `Pair your <b>${esc(nombreForma(tuyo, nombrePoke(tuyo)))}</b> `) + parejaCria(ic) + inc + '.', 'cria'); }),
+    L('Ahora mismo no puedes criar ninguno de los que te faltan con los Pokémon que tienes.', 'You can\u2019t breed any of the Pokémon you\u2019re missing with the ones you have right now.'));
+}
+$('#bEvolucionar').onclick = abrirEvolucionar;
+$('#bCriar').onclick = abrirCriar;
 
 /* ---------- Ruta sugerida: zonas con más Pokémon que te faltan ---------- */
 function abrirRuta(){
