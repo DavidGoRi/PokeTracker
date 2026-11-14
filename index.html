@@ -1246,43 +1246,62 @@ function nombrePokeGlobal(i){
   for (const k in DEX) { const p = DEX[k].find(x => x[1] === i); if (p) return p[2]; }
   return NOMBRES_EN[i] || '#' + i;
 }
+// Crianza: cómo conseguir ESTE Pokémon criando (a quién juntar, qué sale del huevo y si hay que evolucionarlo)
 async function pintarCrianza(id){
   const cont = $('#secCria'); if (!cont) return;
-  const base = MEGAS.base[id] || id, c = CRIA[base]; if (!c) return;
-  const [grupos, sexo, ciclos, raiz, sinIncienso, incienso] = c;
-  const nom = nombreForma(id, nombrePoke(id)), gNom = grupos.map(g => GRUPOS_HUEVO[g] || g);
+  const base = MEGAS.base[id] || id; if (!CRIA[base]) return;
+  const nom = nombreForma(id, nombrePoke(id).startsWith('#') ? nombrePokeGlobal(id) : nombrePoke(id));
   const reglas = juego.home ? null : CRIA_JUEGO[juego.id];
+  // Línea evolutiva completa y quiénes de ella pueden criar (los bebés y los legendarios no ponen huevos)
+  const arbol = EVO[EVO_IDX[base]];
+  const linea = []; if (arbol) (function rec(n){ linea.push(n[0]); n[2].forEach(([, x]) => rec(x)); })(arbol); else linea.push(base);
+  const crian = linea.filter(i => CRIA[i] && !CRIA[i][0].includes('no-eggs') && i !== 132);
+  const conIncienso = linea.map(i => CRIA[i]).find(c => c && c[5]);       // la línea tiene un bebé que necesita incienso
+  const raiz = CRIA[base][3];
+  const genero = s => s === -1 ? 'sin sexo' : s === 0 ? 'solo macho' : s === 8 ? 'solo hembra' : `${100 - s * 12.5} % macho · ${s * 12.5} % hembra`;
   let h = '<h3 class="seccion">Crianza</h3><div class="cria">';
-  h += `<div class="info"><span><b>Grupo huevo:</b> ${gNom.map(esc).join(' y ')}</span>`
-    + `<span><b>Sexo:</b> ${sexo === -1 ? 'sin sexo' : sexo === 0 ? 'solo macho' : sexo === 8 ? 'solo hembra' : `${100 - sexo * 12.5} % macho · ${sexo * 12.5} % hembra`}</span>`
-    + (ciclos ? `<span><b>Eclosión:</b> ${ciclos} ciclos (unos ${(ciclos * 257).toLocaleString('es-ES')} pasos)</span>` : '') + '</div>';
   const pasos = [];
-  if (base === 132) pasos.push('Ditto no se puede criar con otro Ditto, pero sirve de pareja para criar casi cualquier otro Pokémon.');
-  else if (grupos.includes('no-eggs') && base !== 490) pasos.push(`${esc(nom)} <b>no se puede criar</b>: no pone huevos. Tienes que capturarlo o conseguirlo de otra forma.`);
-  else if (juego.id && !juego.home && !reglas) pasos.push(`En ${NOMBRE_JUEGO[juego.id]} <b>no se pueden criar Pokémon</b>. Consíguelo capturándolo o evolucionándolo.`);
-  else {
-    const pareja = sexo === -1 || sexo === 0 ? 'con un <b>Ditto</b> (es la única pareja posible' + (sexo === -1 ? ': no tiene sexo)' : ': solo hay machos)')
-      : `con un <b>Ditto</b> o con un Pokémon de sexo contrario del grupo huevo <b>${gNom.map(esc).join('</b> o <b>')}</b>`;
-    const quien = base === 490 ? 'un Manaphy' : `un ${esc(nomEs(raiz))} o cualquier Pokémon de su línea evolutiva`;
-    pasos.push(`Junta ${quien} ${pareja}.`);
-    pasos.push(reglas ? `Después ${reglas.lugar}.` : 'Se puede criar en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura y Rojo Fuego / Verde Hoja (en Let’s Go, Leyendas: Arceus y Z-A no hay crianza).');
-    const sale = base === 490 ? 489 : raiz;
-    let nace = sale;
-    if (incienso && sinIncienso && (!reglas || reglas.incienso)) {
-      if (sinIncienso === base) { nace = base; pasos.push(`Si ninguno de los dos lleva equipado el <b>${esc(incienso)}</b>, del huevo saldrá directamente <b>${esc(nom)}</b> (con el incienso saldría ${esc(nomEs(raiz))}).`); }
-      else pasos.push(`Para que del huevo salga <b>${esc(nomEs(raiz))}</b>, uno de los dos debe llevar equipado el <b>${esc(incienso)}</b>; si no, saldrá ${esc(nomEs(sinIncienso))}.`);
-    } else pasos.push(`Del huevo saldrá <b>${esc(nomEs(sale))}</b>${base === 490 ? ' (Manaphy no se puede conseguir por crianza)' : ''}.`);
-    if (nace !== base && base !== 490) pasos.push(`Después evoluciónalo hasta ${esc(nom)} (mira la línea evolutiva de arriba).`);
-    if (forma(id)) pasos.push(`Para que salga la ${forma(id)[1] ? 'forma de ' + forma(id)[1] : 'forma regional'}, el padre o la madre que no sea Ditto tiene que tener esa forma.`);
+  let padre = null, nace = null, movsDe = null;
+  if (base === 132) pasos.push('<b>Ditto no se puede conseguir criando</b>: hay que capturarlo. Eso sí, sirve de pareja para criar casi cualquier otro Pokémon.');
+  else if (base === 490) pasos.push('<b>Manaphy no se puede conseguir criando.</b> Si crías un Manaphy con un Ditto, del huevo sale Phione.');
+  else if (base === 489) { padre = 490; nace = 489; }
+  else if (!crian.length) pasos.push(`<b>${esc(nom)} no se puede conseguir criando</b>: ni él ni nadie de su línea pone huevos (es legendario, singular o un caso especial). Tienes que capturarlo o conseguirlo de otra forma.`);
+  else { padre = crian.includes(base) ? base : crian[0]; nace = raiz; }
+  if (padre) {
+    const [grupos, sexo] = CRIA[padre], gNom = grupos.map(g => GRUPOS_HUEVO[g] || g);
+    const otros = crian.filter(i => i !== padre).map(nomEs);
+    h += `<div class="info"><span><b>Grupo huevo${padre !== base ? ' de ' + esc(nomEs(padre)) : ''}:</b> ${gNom.map(esc).join(' y ')}</span>`
+      + `<span><b>Sexo:</b> ${genero(CRIA[base][1])}</span>`
+      + (CRIA[nace] && CRIA[nace][2] ? `<span><b>Eclosión:</b> ${CRIA[nace][2]} ciclos (unos ${(CRIA[nace][2] * 257).toLocaleString('es-ES')} pasos)</span>` : '') + '</div>';
+    if (juego.id && !juego.home && !reglas) {
+      pasos.push(`En ${NOMBRE_JUEGO[juego.id]} <b>no se pueden criar Pokémon</b>: consigue a ${esc(nom)} capturándolo o evolucionándolo. Sí se puede criar en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura y Rojo Fuego / Verde Hoja.`);
+    } else {
+      const pareja = sexo === -1 || sexo === 0 ? `con un <b>Ditto</b> (es la única pareja posible: ${sexo === -1 ? 'no tiene sexo' : 'solo hay machos'})`
+        : `con un <b>Ditto</b> o con un Pokémon de sexo contrario del grupo huevo <b>${gNom.map(esc).join('</b> o <b>')}</b>`;
+      pasos.push(`Consigue un <b>${esc(nomEs(padre))}</b>${otros.length ? ` (o ${otros.map(esc).join(', ').replace(/, ([^,]*)$/, ' o $1')})` : ''} y júntalo ${pareja}.`);
+      pasos.push(reglas ? `Después ${reglas.lugar}.` : 'Hazlo en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura o Rojo Fuego / Verde Hoja (en Let’s Go, Leyendas: Arceus y Z-A no hay crianza).');
+      const usaIncienso = conIncienso && (!reglas || reglas.incienso);
+      if (usaIncienso) {
+        const [, , , bebe, sinInc, inc] = conIncienso;
+        if (base === bebe) pasos.push(`Equipa a uno de los dos con el <b>${esc(inc)}</b>; sin él, del huevo saldría ${esc(nomEs(sinInc))} en vez de ${esc(nom)}.`);
+        else { nace = sinInc; pasos.push(`Que ninguno lleve el <b>${esc(inc)}</b>: así del huevo sale ${esc(nomEs(sinInc))} (con el incienso saldría ${esc(nomEs(bebe))}).`); }
+      }
+      pasos.push(nace === base ? `Del huevo saldrá <b>${esc(nom)}</b>.` : `Del huevo saldrá <b>${esc(nomEs(nace))}</b>.`);
+      if (nace !== base) pasos.push(`Evoluciónalo hasta <b>${esc(nom)}</b> (mira cómo en la línea evolutiva de arriba).`);
+      if (forma(id)) pasos.push(`Para que salga la forma de ${esc(forma(id)[1])}, el padre o la madre que no sea Ditto tiene que tener esa forma.`);
+      movsDe = nace;
+    }
   }
   h += `<ol class="pasos">${pasos.map(x => `<li>${x}</li>`).join('')}</ol>`;
   // Movimientos huevo del Pokémon que sale del huevo
-  const g = juego.home ? 'sv' : juego.id;
-  const [M, N] = await Promise.all([cargarDatos(`movs-${g}.json`), cargarDatos('movimientos.json')]);
-  const mh = M && N && M[raiz] && M[raiz][1];
-  if (mh && mh.length) h += `<div class="subtit" style="margin-top:12px">Movimientos huevo de ${esc(nomEs(raiz))}</div>
-    <div class="listapk">${mh.map(k => `<span class="minipk mov">${N[k][1] ? `<span class="tipo t-${N[k][1]}">${N[k][1]}</span>` : ''}${esc(N[k][0])}</span>`).join('')}</div>
-    <div class="sub">Se los pasa el padre (o la madre) si los conoce al dejarlos juntos.</div>`;
+  if (movsDe) {
+    const g = juego.home ? 'sv' : juego.id;
+    const [M, N] = await Promise.all([cargarDatos(`movs-${g}.json`), cargarDatos('movimientos.json')]);
+    const mh = M && N && M[movsDe] && M[movsDe][1];
+    if (mh && mh.length) h += `<div class="subtit" style="margin-top:12px">Movimientos huevo de ${esc(nomEs(movsDe))}</div>
+      <div class="listapk">${mh.map(k => `<span class="minipk mov">${N[k][1] ? `<span class="tipo t-${N[k][1]}">${N[k][1]}</span>` : ''}${esc(N[k][0])}</span>`).join('')}</div>
+      <div class="sub">Los aprende si el padre (o la madre) los conoce al dejarlos juntos.</div>`;
+  }
   if ($('#secCria')) cont.innerHTML = h + '</div>';
 }
 
