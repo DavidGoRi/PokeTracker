@@ -40,7 +40,7 @@ Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iri
 - Marca los Pokémon que ya tienes (se guarda en el navegador de cada dispositivo).
 - Pestaña **Amuleto Iris** con los que te faltan y los requisitos de cada juego.
 - Marca con la ★ los que tienes variocolores (shiny), aparte de los capturados.
-- Filtros por tipo, por zona, por exclusivos de versión y "Por evolucionar" (no lo tienes, pero sí su preevolución). Orden por número, por nombre o los que faltan primero.
+- Filtros por tipo, por zona, por exclusivos de versión y "Por evolucionar" (no lo tienes, pero sí su preevolución). "Por criar" y la etiqueta "Crianza disponible" marcan los que puedes sacar de un huevo con un Pokémon que ya tienes; al abrir Detalles, lo primero es con quién criarlo. Orden por número, por nombre o los que faltan primero.
 - Etiqueta "Solo Espada", "Solo Escudo", etc. en los exclusivos de cada versión.
 - Botón **Detalles** con el ratio de captura, las tareas de investigación (Leyendas: Arceus), la línea evolutiva completa (nivel, objeto, intercambio u otra condición, según el juego) y las ubicaciones, con la foto de la zona y un mapa con la posición aproximada.
 - Copia de seguridad: "Guardar copia de todo" descarga un archivo con todos los juegos (marcas, variocolores, alfas, formas, fechas y ajustes) y "Cargar copia" lo restaura en otro navegador o dispositivo.

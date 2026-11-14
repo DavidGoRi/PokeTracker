@@ -172,6 +172,9 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 :root[data-theme=dark] .excl.v0{color:#fdba74;border-color:rgba(253,186,116,.35)}
 :root[data-theme=dark] .excl.v1{color:#c4b5fd;border-color:rgba(196,181,253,.35)}
 .evoaviso{font-size:11px;color:var(--acento);font-weight:700}
+.criaaviso{font-size:11px;color:var(--ok);font-weight:700}
+.criaya{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;padding:12px 14px;border-radius:14px;background:var(--okbg);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);font-size:14px;line-height:1.45}
+.criaya .ico{font-size:22px;line-height:1}.criaya a{color:var(--ok);font-weight:700;white-space:nowrap}
 .poke .exc{font-size:11px;color:var(--mute);margin-top:4px}
 .poke-acc{display:flex;align-items:center;gap:4px;width:100%;margin-top:auto;padding-top:8px;border-top:1px solid var(--borde)}
 /* El contenido variable empuja la fila de acciones siempre al fondo de la tarjeta */
@@ -528,6 +531,7 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
         <button data-f="faltan">Me faltan</button>
         <button data-f="cap" id="filtroCap">Capturados</button>
         <button data-f="evo" title="No los tienes, pero sí su preevolución">Por evolucionar</button>
+        <button data-f="cria" id="filtroCria" title="No los tienes, pero tienes un Pokémon de su línea con el que criarlo">Por criar</button>
         <button data-f="shiny">★ Variocolores</button>
         <button data-f="alfa" id="filtroAlfa">α Alfas</button>
       </div>
@@ -606,9 +610,10 @@ if (EN) {
   q('.saltar').textContent = 'Skip to the Pokémon list';
   q('#juego').setAttribute('aria-label', 'Game'); q('#tema').setAttribute('aria-label', 'Change theme');
   q('#buscar').placeholder = 'Name, number or type…'; q('#buscar').setAttribute('aria-label', 'Search by name (English or Spanish), number or type');
-  [['todos', 'All'], ['faltan', 'Missing'], ['cap', 'Caught'], ['evo', 'To evolve'], ['shiny', '★ Shiny'], ['alfa', 'α Alphas']]
+  [['todos', 'All'], ['faltan', 'Missing'], ['cap', 'Caught'], ['evo', 'To evolve'], ['cria', 'To breed'], ['shiny', '★ Shiny'], ['alfa', 'α Alphas']]
     .forEach(([f, v]) => { const b = q(`#filtros button[data-f="${f}"]`); if (b) b.textContent = v; });
   q('#filtros button[data-f="evo"]').title = 'You don\u2019t have it, but you have its pre-evolution';
+  q('#filtros button[data-f="cria"]').title = 'You don’t have it, but you have a Pokémon from its line to breed it';
   q('#fTipo').setAttribute('aria-label', 'Type'); q('#fZona').setAttribute('aria-label', 'Area'); q('#fVersion').setAttribute('aria-label', 'Version'); q('#fOrden').setAttribute('aria-label', 'Sort');
   [['num', 'Sort: number'], ['nom', 'Sort: name'], ['faltan', 'Sort: missing first'], ['facil', 'Sort: easiest first']].forEach(([v, s]) => q(`#fOrden option[value="${v}"]`).textContent = s);
   txt('#bStats', 'Stats'); txt('#bRuta', 'Suggested route'); txt('#bInter', 'Trades'); txt('#bObjetos', 'Evolution items');
@@ -871,6 +876,9 @@ function cargarJuego(){
   try { fechas = JSON.parse(leer(juego.clave + '-fechas', '{}')) || {}; } catch(e) { fechas = {}; }
   $('#filtroAlfa').style.display = juego.alfas ? '' : 'none';
   if (filtro === 'alfa' && !juego.alfas) filtro = 'todos';
+  const hayCria = !juego.home && !!CRIA_JUEGO[juego.id];
+  document.querySelector('#filtros button[data-f="cria"]').style.display = hayCria ? '' : 'none';
+  if (filtro === 'cria' && !hayCria) filtro = 'todos';
   $('#bInter').style.display = VERSIONES[juego.id] ? '' : 'none';
   $('#bRuta').style.display = juego.home ? 'none' : '';
   opcionesFiltros();
@@ -979,6 +987,7 @@ function pintarRejilla(){
     if (filtro === 'faltan') items = items.filter(p => !capturados.has(p[1]));
     if (filtro === 'cap') items = items.filter(p => capturados.has(p[1]));
     if (filtro === 'evo') items = items.filter(p => !capturados.has(p[1]) && capturados.has(PADRE[p[1]]));
+    if (filtro === 'cria') items = items.filter(p => criaDisponible(p[1]) !== null);
     if (filtro === 'shiny') items = items.filter(p => shiny.has(p[1]));
     if (filtro === 'alfa') items = items.filter(p => alfas.has(p[1]));
   }
@@ -997,6 +1006,8 @@ function pintarRejilla(){
     const ex = exclusivo(id);
     if (ex) s += `<span class="excl v${ex[0]}" title="${esc(L('Exclusivo de ', 'Exclusive to ') + vers[ex[0]] + (ex[1] ? '. ' + notaEx(ex[1]) : ''))}">${L('Solo', 'Only')} ${vers[ex[0]]}</span>`;
     if (!capturados.has(id) && capturados.has(PADRE[id])) s += `<span class="evoaviso">⬆ ${L('Evoluciona tu', 'Evolve your')} ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
+    const cd = criaDisponible(id);
+    if (cd !== null) s += `<span class="criaaviso" title="${esc(L('Cría tu ', 'Breed your ') + nomEs(cd))}">🥚 ${L('Crianza disponible', 'Breeding available')}</span>`;
     return s ? `<div class="etiquetas">${s}</div>` : '';
   };
   $('#rejilla').innerHTML = items.length ? items.map(([n,id,nom]) => `
@@ -1036,7 +1047,7 @@ $('#rejilla').addEventListener('click', e => {
   const id = +c.dataset.id, si = !capturados.has(id);
   marcar(id, si); guardar();
   porUsuario = true; resumen(); porUsuario = false;
-  const desaparece = pestana === 'iris' ? si : (filtro === 'faltan' && si) || (filtro === 'cap' && !si) || (filtro === 'evo' && si);
+  const desaparece = pestana === 'iris' ? si : (filtro === 'faltan' && si) || (filtro === 'cap' && !si) || (filtro === 'evo' && si) || (filtro === 'cria' && si);
   if (desaparece && MOV) {
     c.classList.toggle('cap', si); animCaptura(c, si); c.classList.add('saliendo');
     clearTimeout(c._t); c._t = setTimeout(pintarRejilla, 1000);
@@ -1149,6 +1160,7 @@ async function abrirSpawn(id){
   const datos = spawnsDe(id);
   let h = `<h2><img id="imgDetalle" src="${img(id, shiny.has(id))}" alt="" onerror="fallo(this,${id})">${esc(nombreForma(id, nombrePoke(id)))}${htmlTipos(id)}<button class="vershiny${shiny.has(id) ? ' si' : ''}" id="verShiny" data-id="${id}">${shiny.has(id) ? L('Ver normal', 'Show normal') : L('✨ Ver variocolor', '✨ Show shiny')}</button></h2>
     <div class="sub">${L('Detalles en', 'Details in')} ${NOMBRE_JUEGO[juego.id]}.</div>`;
+  h += resumenCria(id);
   h += datosPoke(id);
   h += '<div id="secEventos"></div>';
   h += combate(id);
@@ -1325,12 +1337,70 @@ const CRIA_JUEGO = {
   frlg: {lugar: L('déjalos en la guardería de la Ruta 5 o en la de Isla Quarta', 'leave them at the Route 5 Day Care or the Four Island Day Care'), incienso: true},
 };
 const nomEs = i => nomVis(i, nombrePokeGlobal(i));
+const nomEs0 = nomEs;
 function nombrePokeGlobal(i){
   for (const k in DEX) { const p = DEX[k].find(x => x[1] === i); if (p) return p[2]; }
   return NOMBRES_EN[i] || '#' + i;
 }
 const INCIENSO_EN = {'Incienso Marino': 'Sea Incense', 'Incienso Lento': 'Lax Incense', 'Incienso Raro': 'Odd Incense', 'Incienso Roca': 'Rock Incense',
   'Incienso Floral': 'Rose Incense', 'Incienso Duplo': 'Luck Incense', 'Incienso Puro': 'Pure Incense', 'Incienso Aroma': 'Full Incense', 'Incienso Armonía': 'Wave Incense'};
+// Plan de crianza de un Pokémon: quién de su línea pone el huevo (padre), qué sale (nace) y el incienso
+const _infoCria = {};
+function infoCria(id){
+  const clave = juego.id + ':' + id;
+  if (clave in _infoCria) return _infoCria[clave];
+  const base = MEGAS.base[id] || id;
+  let r = null;
+  if (CRIA[base] && base !== 132 && base !== 490) {
+    const arbol = EVO[EVO_IDX[base]];
+    const linea = []; if (arbol) (function rec(n){ linea.push(n[0]); n[2].forEach(([, x]) => rec(x)); })(arbol); else linea.push(base);
+    let crian = linea.filter(i => CRIA[i] && !CRIA[i][0].includes('no-eggs') && i !== 132);
+    if (base === 489) crian = [490, ...crian.filter(i => i !== 490)];
+    if (crian.length) {
+      const reglas = juego.home ? null : CRIA_JUEGO[juego.id];
+      const padre = base === 489 ? 490 : crian.includes(base) ? base : crian[0];
+      let nace = base === 489 ? 489 : CRIA[base][3], inc = null;
+      const conIncienso = linea.map(i => CRIA[i]).find(c => c && c[5]);
+      if (conIncienso && (!reglas || reglas.incienso)) {
+        const [, , , bebe, sinInc, incE] = conIncienso, nombre = EN ? (INCIENSO_EN[incE] || incE) : incE;
+        if (base === bebe) inc = {poner: true, nombre, sinInc};
+        else { nace = sinInc; inc = {poner: false, nombre, bebe}; }
+      }
+      r = {base, linea, crian, padre, nace, inc, grupos: CRIA[padre][0], sexo: CRIA[padre][1]};
+    }
+  }
+  return (_infoCria[clave] = r);
+}
+// Para la etiqueta "Crianza disponible": el Pokémon capturado de su línea con el que puedes criarlo (o null)
+function criaDisponible(id){
+  if (juego.home || !CRIA_JUEGO[juego.id] || capturados.has(id)) return null;
+  const ic = infoCria(id); if (!ic || ic.nace !== ic.base) return null;
+  const tuyo = ic.crian.find(i => capturados.has(i));
+  return tuyo === undefined ? null : tuyo;
+}
+// Con quién juntarlo
+function parejaCria(ic){
+  const GH = EN && typeof GRUPOS_HUEVO_EN !== 'undefined' ? GRUPOS_HUEVO_EN : GRUPOS_HUEVO;
+  const gNom = ic.grupos.map(g => GH[g] || g);
+  return ic.sexo === -1 || ic.sexo === 0 ? L('con un <b>Ditto</b>', 'with a <b>Ditto</b>')
+    : L(`con un <b>Ditto</b> o con un Pokémon de sexo contrario del grupo huevo <b>${gNom.map(esc).join('</b> o <b>')}</b>`, `with a <b>Ditto</b> or a Pokémon of the opposite gender from the <b>${gNom.map(esc).join('</b> or <b>')}</b> Egg group`);
+}
+// Lo primero que se ve al abrir Detalles: con quién criarlo para que salga el huevo
+function resumenCria(id){
+  if (juego.id && !juego.home && !CRIA_JUEGO[juego.id]) return '';
+  const ic = infoCria(id); if (!ic) return '';
+  const nom = nombreForma(id, nombrePoke(id).startsWith('#') ? nombrePokeGlobal(id) : nombrePoke(id));
+  const tuyo = juego.home ? undefined : ic.crian.find(i => capturados.has(i));
+  const nomEs = i => i === ic.base ? nom : nomEs0(i);
+  const quien = tuyo !== undefined ? L(`tu <b>${esc(nomEs(tuyo))}</b> (ya lo tienes)`, `your <b>${esc(nomEs(tuyo))}</b> (you already have it)`)
+    : L(`un <b>${esc(nomEs(ic.padre))}</b>`, `a <b>${esc(nomEs(ic.padre))}</b>`);
+  const incienso = !ic.inc ? '' : ic.inc.poner ? L(`, con uno de los dos equipado con el <b>${esc(ic.inc.nombre)}</b>`, `, with one of them holding a <b>${esc(ic.inc.nombre)}</b>`)
+    : L(`, sin el ${esc(ic.inc.nombre)}`, `, without the ${esc(ic.inc.nombre)}`);
+  const sale = ic.nace === ic.base ? L(`Del huevo sale ${esc(nom)}.`, `The Egg hatches into ${esc(nom)}.`)
+    : L(`Del huevo sale ${esc(nomEs(ic.nace))}; luego evoluciónalo hasta ${esc(nom)}.`, `The Egg hatches into ${esc(nomEs(ic.nace))}; then evolve it into ${esc(nom)}.`);
+  const donde = juego.home ? L(' (en Espada / Escudo, Diamante Brillante / Perla Reluciente, Escarlata / Púrpura o Rojo Fuego / Verde Hoja)', ' (in Sword / Shield, Brilliant Diamond / Shining Pearl, Scarlet / Violet or FireRed / LeafGreen)') : '';
+  return `<div class="criaya"><span class="ico" aria-hidden="true">🥚</span><div><b>${L('Para criarlo', 'To breed it')}:</b> ${L('junta', 'pair')} ${quien} ${parejaCria(ic)}${incienso}${donde}. ${sale} <a href="#secCria" onclick="document.getElementById('secCria').scrollIntoView({behavior:'smooth'});return false">${L('Ver pasos', 'See steps')} ↓</a></div></div>`;
+}
 // Crianza: cómo conseguir ESTE Pokémon criando (a quién juntar, qué sale del huevo y si hay que evolucionarlo)
 async function pintarCrianza(id){
   const cont = $('#secCria'); if (!cont) return;
