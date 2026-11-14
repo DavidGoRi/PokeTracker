@@ -632,7 +632,10 @@ function marcar(id, si){
 }
 const idsJuego = () => new Set(juego.dex.flatMap(d => DEX[d.id].map(p => p[1])));
 
-$('#juego').innerHTML = JUEGOS.map(j => `<option value="${j.id}">${j.nombre}</option>`).join('');
+// Orden del selector: HOME primero y después del juego más nuevo al más viejo (por fecha de lanzamiento original)
+const ORDEN_JUEGOS = ['home', 'za', 'sv', 'pla', 'bdsp', 'swsh', 'lgpe', 'frlg'];
+$('#juego').innerHTML = ORDEN_JUEGOS.map(id => JUEGOS.find(j => j.id === id)).filter(Boolean)
+  .map(j => `<option value="${j.id}">${j.nombre}</option>`).join('');
 $('#juego').value = juego.id;
 $('#juego').onchange = e => {
   juego = JUEGOS.find(j => j.id === e.target.value);
