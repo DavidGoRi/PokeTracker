@@ -35,7 +35,7 @@ Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iri
 - Filtros por tipo, por zona, por exclusivos de versión y "Por evolucionar" (no lo tienes, pero sí su preevolución). Orden por número, por nombre o los que faltan primero.
 - Etiqueta "Solo Espada", "Solo Escudo", etc. en los exclusivos de cada versión.
 - Botón **Detalles** con el ratio de captura, las tareas de investigación (Leyendas: Arceus), la línea evolutiva completa (nivel, objeto, intercambio u otra condición, según el juego) y las ubicaciones, con la foto de la zona y un mapa con la posición aproximada.
-- Copia de seguridad: "Guardar copia" y "Cargar copia" para pasar las marcas de un dispositivo a otro.
+- Copia de seguridad: "Guardar copia de todo" descarga un archivo con todos los juegos (marcas, variocolores, alfas, formas, fechas y ajustes) y "Cargar copia" lo restaura en otro navegador o dispositivo.
 
 Las marcas viven en el `localStorage` del navegador: no se pierden al recargar, pero sí si borras los datos del sitio. Haz una copia de vez en cuando.
 
