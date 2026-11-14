@@ -24,6 +24,12 @@ Otras herramientas:
 - **Combate** en Detalles: debilidades y resistencias por tipo y estadísticas base.
 - **Objetos para evolucionar**: piedras y objetos que necesitas para los que te faltan.
 - Mapa de Luminalia con las zonas salvajes de Z-A.
+- **Movimientos por nivel** de cada juego y **crianza** paso a paso (grupos huevo, pareja, dónde criar, incienso y movimientos huevo).
+- **Eventos**: aviso de teraincursiones de evento de Escarlata / Púrpura activas o próximas. `herramientas/eventos.py` los descarga a diario con GitHub Actions.
+- **Búsqueda** por nombre en español o en inglés, número regional o nacional y tipo (por ejemplo, "fuego volador").
+- Accesible con teclado y lector de pantalla.
+
+Los datos van en `datos/` y se cargan solo cuando hacen falta, para que la página abra rápido.
 
 Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iris, el Volcanion variocolor de Z-A o el Diploma de Rojo Fuego / Verde Hoja.
 
@@ -41,7 +47,7 @@ Las marcas viven en el `localStorage` del navegador: no se pierden al recargar, 
 
 ## Datos
 
-Ilustraciones oficiales y líneas evolutivas de [PokeAPI](https://pokeapi.co/); ubicaciones, fotos, mapas, exclusivos y tareas de investigación de [Serebii.net](https://www.serebii.net/). Pokémon y sus nombres son marcas de Nintendo, Game Freak y The Pokémon Company. Proyecto personal sin ánimo de lucro.
+Ilustraciones oficiales y líneas evolutivas de [PokeAPI](https://pokeapi.co/); ubicaciones, fotos, mapas, exclusivos, tareas de investigación, movimientos de Z-A y eventos de [Serebii.net](https://www.serebii.net/); nombres oficiales de los lugares de [WikiDex](https://www.wikidex.net/). Pokémon y sus nombres son marcas de Nintendo, Game Freak y The Pokémon Company. Proyecto personal sin ánimo de lucro.
 
 ## Acceder a la web
 
