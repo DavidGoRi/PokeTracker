@@ -141,7 +141,7 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 .poke{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 10px 10px;background:var(--surf);border:1px solid var(--borde);
   border-radius:var(--radio);box-shadow:var(--sombra);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
   transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s,border-color .18s}
-.poke:hover{transform:translateY(-3px);box-shadow:var(--sombra2);border-color:var(--borde2)}
+.poke:hover{box-shadow:var(--sombra2);border-color:var(--borde2)}
 .poke .num{position:absolute;top:10px;left:12px;font-size:11.5px;font-weight:700;color:var(--mute);font-variant-numeric:tabular-nums;letter-spacing:.02em;z-index:1}
 .poke .chk{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#fff;font-size:12px;font-weight:800;
   display:none;align-items:center;justify-content:center;z-index:1;box-shadow:0 2px 8px rgba(22,163,74,.35)}
@@ -355,7 +355,89 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
   .tareas td.n{width:24px;padding:6px 2px}
 }
 @media (min-width:1100px){.rejilla{grid-template-columns:repeat(auto-fill,minmax(176px,1fr))}}
-@media (hover:none){.poke:hover{transform:none;box-shadow:var(--sombra);border-color:var(--borde)}.poke.cap:hover{border-color:color-mix(in srgb,var(--ok) 45%,var(--borde))}.poke:hover .poke-img img{transform:none}}
+@media (hover:none){.poke:hover{transform:perspective(800px);box-shadow:var(--sombra);border-color:var(--borde)}.poke.cap:hover{border-color:color-mix(in srgb,var(--ok) 45%,var(--borde))}.poke:hover .poke-img img{transform:none}}
+
+/* =================== Animaciones =================== */
+.poke{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(0)}
+.poke:hover{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px)}
+/* Fundido de las imágenes al cargar */
+.poke-img{position:relative}
+.poke-img img{opacity:0;transition:opacity .35s ease,transform .25s cubic-bezier(.2,.8,.2,1),filter .3s ease}
+.poke-img img.ok{opacity:1}
+/* Entrada en cascada */
+.rejilla.entrando .poke{animation:aparece .42s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 22ms)}
+@keyframes aparece{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+/* Captura con Poké Ball */
+.bola{position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;z-index:3;pointer-events:none;
+  background:linear-gradient(#ef4444 0 45%,#1f2937 45% 55%,#f8fafc 55%);border:2px solid #1f2937;box-shadow:0 6px 14px rgba(0,0,0,.3);
+  animation:bolaCaptura .95s cubic-bezier(.3,.7,.4,1) both}
+.bola::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#f8fafc;border:2px solid #1f2937;
+  animation:botonBola .95s both}
+@keyframes bolaCaptura{0%{opacity:0;transform:translateY(-46px) scale(.4) rotate(-90deg)}14%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+  24%{transform:rotate(-20deg)}34%{transform:rotate(16deg)}44%{transform:rotate(-10deg)}52%{transform:rotate(0)}
+  60%{transform:scale(1.1)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.5)}}
+@keyframes botonBola{0%,55%{background:#f8fafc}60%,68%{background:#fde047;box-shadow:0 0 10px #fde047}100%{background:#f8fafc}}
+.chispas{position:absolute;left:50%;top:50%;width:0;height:0;z-index:3;pointer-events:none}
+.chispas i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:var(--ok);opacity:0;
+  animation:chispa .55s .58s ease-out forwards;transform:rotate(var(--a)) translateX(0)}
+.chispas i:nth-child(even){background:#fde047;width:5px;height:5px}
+@keyframes chispa{0%{opacity:1;transform:rotate(var(--a)) translateX(4px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(46px) scale(.4)}}
+.poke.capturando .poke-img img{animation:revela .95s cubic-bezier(.3,.7,.4,1) both}
+@keyframes revela{0%,58%{opacity:0;transform:scale(.3)}74%{opacity:1;transform:scale(1.14)}100%{opacity:1;transform:scale(1)}}
+.poke.capturando{animation:brilloVerde .95s ease-out}
+@keyframes brilloVerde{60%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent),var(--sombra)}100%{box-shadow:0 0 0 14px transparent,var(--sombra)}}
+.poke.capturando .chk{animation:popChk .4s .62s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes popChk{from{transform:scale(0)}to{transform:scale(1)}}
+.poke.soltando .poke-img img{animation:suelta .45s ease}
+@keyframes suelta{0%{transform:scale(1)}30%{transform:scale(.9) rotate(-6deg)}60%{transform:scale(.95) rotate(4deg)}100%{transform:none}}
+.poke.saliendo{animation:sale .3s .7s ease-in forwards}
+@keyframes sale{to{opacity:0;transform:scale(.92)}}
+/* Variocolor */
+.poke.anim-shiny .poke-img img{animation:giroShiny .6s cubic-bezier(.3,.7,.4,1)}
+@keyframes giroShiny{0%{transform:scaleX(1)}45%{transform:scaleX(0);filter:brightness(2)}100%{transform:scaleX(1)}}
+.destellos{position:absolute;inset:0;pointer-events:none;z-index:3}
+.destellos i{position:absolute;font-style:normal;color:#fcd34d;text-shadow:0 0 8px #fbbf24;font-size:var(--s,16px);opacity:0;
+  animation:destello .9s var(--d,0s) ease-out forwards}
+@keyframes destello{0%{opacity:0;transform:scale(0) rotate(0)}35%{opacity:1;transform:scale(1.2) rotate(40deg)}100%{opacity:0;transform:scale(.4) rotate(120deg)}}
+.estrella.si{animation:none}
+.poke.anim-shiny .estrella{animation:popEstrella .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes popEstrella{0%{transform:scale(.4)}100%{transform:scale(1)}}
+/* Alfa */
+.poke.anim-alfa{animation:pulsoAlfa .75s ease-out}
+@keyframes pulsoAlfa{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--alfa) 65%,transparent),var(--sombra)}100%{box-shadow:0 0 0 16px transparent,var(--sombra)}}
+.poke.anim-alfa .alfa{animation:popEstrella .45s cubic-bezier(.3,1.6,.5,1)}
+/* Pestañas: resalte que se desliza */
+.pestanas{position:relative}
+.pestanas .indicador{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:var(--surf);box-shadow:var(--sombra);
+  transition:left .32s cubic-bezier(.2,.8,.2,1),width .32s cubic-bezier(.2,.8,.2,1);z-index:0}
+:root[data-theme=dark] .pestanas .indicador{background:var(--surf3)}
+.pestanas .indicador.quieto{transition:none}
+.pestanas button{position:relative;z-index:1}
+.pestanas button.activa{background:transparent!important;box-shadow:none!important;transition:color .25s}
+/* Confeti y avisos */
+.confeti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.confeti i{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;opacity:.95;
+  animation:cae var(--t,2.2s) var(--d,0s) cubic-bezier(.25,.6,.4,1) forwards}
+@keyframes cae{0%{transform:translate3d(0,0,0) rotate(0)}100%{transform:translate3d(var(--x,0px),105vh,0) rotate(var(--r,540deg))}}
+.toast{position:fixed;left:50%;bottom:28px;z-index:61;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--txt);color:var(--bg);font-weight:700;padding:12px 20px;border-radius:999px;box-shadow:var(--sombra2);
+  transition:opacity .3s,transform .4s cubic-bezier(.2,1.4,.4,1);max-width:calc(100% - 32px);text-align:center}
+.toast.ver{opacity:1;transform:translate(-50%,0)}
+/* Detalles */
+.fondo.abierto .stat-barra div,.fondo.abierto .medidor .barra2 div{transform-origin:left;animation:crece .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms + .1s)}
+@keyframes crece{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.fondo.abierto .debil{animation:aparece .38s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 80ms + .08s)}
+.fondo.abierto .evopoke{animation:aparece .4s cubic-bezier(.2,.8,.2,1) both}
+.evoflecha{display:inline-block}
+.fondo.abierto .evoflecha{animation:flecha .5s .25s ease-out both}
+.fondo.abierto .evoabanico .evoflecha{animation-name:flechaAbajo}
+@keyframes flecha{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes flechaAbajo{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+.marca{animation:caeMarca .55s cubic-bezier(.3,1.5,.6,1) both,latido 1.4s .6s infinite}
+@keyframes caeMarca{from{opacity:0;transform:translateY(-36px)}to{opacity:1;transform:none}}
+/* Cambio de tema */
+html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:background-color .45s,color .45s,border-color .45s,box-shadow .45s!important}
+@media (prefers-reduced-motion:reduce){.poke,.poke:hover{transform:none!important}.poke-img img{opacity:1}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -487,7 +569,10 @@ try { temaGuardado = localStorage.getItem(TEMA); } catch(e) {}
 aplicarTema(temaGuardado || 'dark');
 document.getElementById('tema').onclick = () => {
   const nuevo = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-  aplicarTema(nuevo); try { localStorage.setItem(TEMA, nuevo); } catch(e) {}
+  const h = document.documentElement;
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) { h.classList.add('tema-anim'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.remove('tema-anim'), 500); }
+  aplicarTema(nuevo);
+  try { localStorage.setItem(TEMA, nuevo); } catch(e) {}
 };
 
 /* ---------- Datos ---------- */
@@ -555,7 +640,83 @@ const img = (id, sh) => id >= 20000 && MEGAS.img[id] ? MEGAS.img[id] : `https://
 function fallo(el, id){
   if (el.src.includes('/shiny/')) { el.src = el.src.replace('/shiny/', '/'); return; }
   if (MEGAS.img[id] && el.src !== MEGAS.img[id]) { el.src = MEGAS.img[id]; return; }
-  el.onerror = null;
+  el.onerror = null; el.classList.add('ok');
+}
+/* ---------- Animaciones ---------- */
+const MOV = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+let entrar = true, porUsuario = false;
+const ultimoHecho = {};
+const tarjeta = id => document.querySelector(`#rejilla .poke[data-id="${id}"]`);
+function contar(el, hasta){
+  const desde = +el.dataset.v || 0; el.dataset.v = hasta;
+  if (!MOV || desde === hasta) { el.textContent = hasta; return; }
+  const ini = performance.now(), dur = Math.min(700, 250 + Math.abs(hasta - desde) * 8);
+  const paso = ahora => {
+    const k = Math.min(1, (ahora - ini) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(desde + (hasta - desde) * e);
+    if (k < 1 && +el.dataset.v === hasta) requestAnimationFrame(paso);
+  };
+  requestAnimationFrame(paso);
+}
+function animCaptura(card, si){
+  if (!MOV || !card) return;
+  if (si) {
+    const caja = card.querySelector('.poke-img');
+    caja.insertAdjacentHTML('beforeend', '<span class="bola"></span><span class="chispas">' +
+      [0,45,90,135,180,225,270,315].map(a => `<i style="--a:${a}deg"></i>`).join('') + '</span>');
+    card.classList.add('capturando');
+    setTimeout(() => { card.classList.remove('capturando'); caja.querySelectorAll('.bola,.chispas').forEach(x => x.remove()); }, 1250);
+  } else {
+    card.classList.add('soltando');
+    setTimeout(() => card.classList.remove('soltando'), 500);
+  }
+}
+function animar(id, clase){
+  const card = tarjeta(id); if (!MOV || !card) return;
+  card.classList.add(clase);
+  if (clase === 'anim-shiny' && shiny.has(id)) {
+    const pos = [[12,18,18,0],[78,14,14,.08],[86,58,20,.16],[16,66,13,.12],[50,6,12,.22],[60,78,16,.05],[30,40,10,.28]];
+    card.querySelector('.poke-img').insertAdjacentHTML('beforeend', '<span class="destellos">' +
+      pos.map(([x, y, s, d]) => `<i style="left:${x}%;top:${y}%;--s:${s}px;--d:${d}s">✦</i>`).join('') + '</span>');
+  }
+  setTimeout(() => { card.classList.remove(clase); card.querySelectorAll('.destellos').forEach(x => x.remove()); }, 1000);
+}
+function celebrar(msg){
+  if (MOV) {
+    const cols = ['#ff4d6a', '#ff8a50', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#f472b6'];
+    const c = document.createElement('div'); c.className = 'confeti';
+    c.innerHTML = Array.from({length: 90}, () => {
+      const l = Math.random() * 100, d = Math.random() * .5, tt = 1.8 + Math.random() * 1.4, x = (Math.random() - .5) * 240, r = 360 + Math.random() * 720;
+      return `<i style="left:${l}%;background:${cols[Math.floor(Math.random() * cols.length)]};--d:${d}s;--t:${tt}s;--x:${x}px;--r:${r}deg;${Math.random() < .4 ? 'border-radius:50%;width:9px;height:9px' : ''}"></i>`;
+    }).join('');
+    document.body.appendChild(c); setTimeout(() => c.remove(), 3600);
+  }
+  let toast = $('#toast');
+  if (!toast) { toast = document.createElement('div'); toast.id = 'toast'; toast.className = 'toast'; toast.setAttribute('role', 'status'); document.body.appendChild(toast); }
+  toast.textContent = msg; toast.classList.add('ver');
+  clearTimeout(toast._t); toast._t = setTimeout(() => toast.classList.remove('ver'), 3200);
+}
+function actualizarIndicador(primera){
+  const ind = $('#pestanas .indicador'), act = $('#pestanas button.activa'); if (!ind || !act) return;
+  if (primera || !ind.dataset.ok) { ind.classList.add('quieto'); }
+  ind.style.left = act.offsetLeft + 'px'; ind.style.width = act.offsetWidth + 'px';
+  if (!ind.dataset.ok || primera) { void ind.offsetWidth; ind.classList.remove('quieto'); ind.dataset.ok = '1'; }
+  // Que la pestaña activa se vea entera en pantallas estrechas
+  const cont = $('#pestanas');
+  if (act.offsetLeft < cont.scrollLeft || act.offsetLeft + act.offsetWidth > cont.scrollLeft + cont.clientWidth)
+    cont.scrollTo({left: act.offsetLeft - 12, behavior: primera || !MOV ? 'auto' : 'smooth'});
+}
+addEventListener('resize', () => actualizarIndicador(true));
+// Inclinación 3D de las tarjetas hacia el ratón (solo con ratón)
+if (MOV && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  let ultima = null;
+  document.addEventListener('pointermove', e => {
+    const c = e.target.closest && e.target.closest('#rejilla .poke');
+    if (ultima && ultima !== c) { ultima.style.removeProperty('--rx'); ultima.style.removeProperty('--ry'); }
+    ultima = c; if (!c) return;
+    const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+    c.style.setProperty('--rx', (-py * 7).toFixed(2) + 'deg'); c.style.setProperty('--ry', (px * 9).toFixed(2) + 'deg');
+  }, {passive: true});
 }
 const $ = s => document.querySelector(s);
 const leer = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : v; } catch(e) { return def; } };
@@ -608,6 +769,7 @@ function opcionesFiltros(){
 }
 
 function cargarJuego(){
+  entrar = true;
   try { capturados = new Set(JSON.parse(leer(juego.clave, '[]'))); } catch(e) { capturados = new Set(); }
   try { shiny = new Set(JSON.parse(leer(juego.clave + '-shiny', '[]'))); } catch(e) { shiny = new Set(); }
   try { alfas = new Set(JSON.parse(leer(juego.clave + '-alfa', '[]'))); } catch(e) { alfas = new Set(); }
@@ -620,10 +782,11 @@ function cargarJuego(){
   opcionesFiltros();
   pestana = leer('pokedex-pestana-' + juego.id, juego.dex[0].id);
   if (pestana !== 'iris' && !juego.dex.some(d => d.id === pestana)) pestana = juego.dex[0].id;
-  $('#pestanas').innerHTML = juego.dex.map(d => `<button data-p="${d.id}">${d.nombre}</button>`).join('')
+  $('#pestanas').innerHTML = '<span class="indicador" aria-hidden="true"></span>' + juego.dex.map(d => `<button data-p="${d.id}">${d.nombre}</button>`).join('')
     + `<button data-p="iris">${juego.amuleto.premio ? '🏆' : '✨'} ${premio()}</button>`;
   $('#filtroCap').textContent = juego.marca ? 'Nivel 10' : 'Capturados';
   pintar();
+  actualizarIndicador(true);
 }
 function guardar(){
   escribir(juego.clave, JSON.stringify([...capturados])); escribir(juego.clave + '-shiny', JSON.stringify([...shiny]));
@@ -657,7 +820,8 @@ const requeridos = () => {
   return lst;
 };
 
-function pintar(){
+function pintar(){ resumen(); pintarRejilla(); }
+function resumen(){
   document.querySelectorAll('#pestanas button').forEach(b => b.classList.toggle('activa', b.dataset.p === pestana));
   document.querySelectorAll('#filtros button').forEach(b => b.classList.toggle('activa', b.dataset.f === filtro));
   const iris = pestana === 'iris';
@@ -677,7 +841,12 @@ function pintar(){
   $('#anilloValor').style.strokeDasharray = `${pct} 100`;
   $('#pct').textContent = Math.floor(pct) + '%';
   $('#resEtq').textContent = iris ? etiquetaDex : (juego.marca ? 'En nivel 10 · ' : 'Capturados · ') + juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '');
-  $('#resHechos').textContent = hechos;
+  contar($('#resHechos'), hechos);
+  const claveHito = juego.id + '|' + pestana, antes = ultimoHecho[claveHito];
+  if (porUsuario && base.length && hechos === base.length && antes !== undefined && antes < base.length)
+    setTimeout(() => celebrar(iris ? `¡Ya tienes todo lo necesario para ${juego.amuleto.premio ? 'el ' + premio() : 'el Amuleto Iris'}!`
+      : `¡${juego.dex.find(d => d.id === pestana).nombre.replace(/ \(\d+\)/, '')} completada!`), 700);
+  ultimoHecho[claveHito] = hechos;
   $('#resTotal').textContent = '/ ' + base.length;
   $('#txtProg').textContent = hechos === base.length ? '¡Completada!' : iris
     ? `Te faltan ${base.length - hechos} para ${juego.amuleto.premio ? 'el ' + premio() : 'el Amuleto Iris'}`
@@ -693,6 +862,12 @@ function pintar(){
         : `<div class="aviso"><b>${premio()}:</b> ${a.texto} ${a.donde} Pulsa un Pokémon para marcarlo.</div>`)
     : '';
 
+  actualizarIndicador();
+}
+function pintarRejilla(){
+  const iris = pestana === 'iris';
+  const base = iris ? requeridos() : DEX[pestana];
+  const a = juego.amuleto;
   const q = $('#buscar').value.trim().toLowerCase();
   let items = (iris ? base.filter(p => !capturados.has(p[1])) : base)
     .filter(p => !q || p[2].toLowerCase().includes(q) || String(p[0]) === q || String(p[1]) === q);
@@ -724,7 +899,7 @@ function pintar(){
     <div class="poke${capturados.has(id)?' cap':''}${shiny.has(id)?' shiny':''}" data-id="${id}" title="Nacional nº ${id}">
       <span class="num">#${String(n).padStart(3,'0')}</span>
       <span class="chk">✓</span>
-      <div class="poke-img" style="--c:${COLOR_TIPO[tiposDe(id)[0]] || '#888'}"><img loading="lazy" src="${img(id, shiny.has(id))}" alt="${nom}" onerror="fallo(this,${id})"></div>
+      <div class="poke-img" style="--c:${COLOR_TIPO[tiposDe(id)[0]] || '#888'}"><img loading="lazy" src="${img(id, shiny.has(id))}" alt="${nom}" onload="this.classList.add('ok')" onerror="fallo(this,${id})"></div>
       <div class="nom">${nombreForma(id, nom)}</div>
       ${htmlTipos(id)}
       ${etiquetas(id)}${!iris && exc.has(id) && dexObjetivo().includes(pestana) ? `<div class="exc">No cuenta para ${juego.amuleto.premio ? 'el ' + premio() : 'el amuleto'}</div>` : ''}
@@ -732,31 +907,47 @@ function pintar(){
       <button class="estrella${shiny.has(id) ? ' si' : ''}" data-shiny="${id}" title="${shiny.has(id) ? 'Quitar de variocolores' : 'Marcar como variocolor'}" aria-label="Variocolor">${shiny.has(id) ? '★' : '☆'}</button>
       ${juego.alfas && pestana !== 'mega-za' ? `<button class="alfa${alfas.has(id) ? ' si' : ''}" data-alfa="${id}" title="${alfas.has(id) ? 'Quitar de alfas' : 'Marcar que tienes un alfa'}" aria-label="Alfa">α</button>` : ''}</div>
     </div>`).join('') : `<div class="vacio">${iris ? '¡No te falta ninguno!' : 'No hay resultados.'}</div>`;
+  const rej = $('#rejilla');
+  // Las imágenes que ya están en caché aparecen sin fundido (para que no parpadeen al marcar)
+  rej.querySelectorAll('.poke-img img').forEach(im => { if (im.complete && im.naturalWidth) im.classList.add('ok'); });
+  clearTimeout(rej._t);
+  if (entrar && MOV) {
+    rej.classList.remove('entrando'); void rej.offsetWidth;
+    rej.querySelectorAll('.poke').forEach((c, k) => c.style.setProperty('--i', Math.min(k, 24)));
+    rej.classList.add('entrando');
+    rej._t = setTimeout(() => rej.classList.remove('entrando'), 1100);
+  } else rej.classList.remove('entrando');
+  entrar = false;
 }
 
 $('#rejilla').addEventListener('click', e => {
   const sp = e.target.closest('.verspawn');
   if (sp) { abrirSpawn(+sp.dataset.spawn); return; }
   const st = e.target.closest('.estrella');
-  if (st) { const sid = +st.dataset.shiny; shiny.has(sid) ? shiny.delete(sid) : shiny.add(sid); guardar(); pintar(); return; }
+  if (st) { const sid = +st.dataset.shiny; shiny.has(sid) ? shiny.delete(sid) : shiny.add(sid); guardar(); pintar(); animar(sid, 'anim-shiny'); return; }
   const al = e.target.closest('.alfa');
-  if (al) { const aid = +al.dataset.alfa; alfas.has(aid) ? alfas.delete(aid) : alfas.add(aid); guardar(); pintar(); return; }
+  if (al) { const aid = +al.dataset.alfa; alfas.has(aid) ? alfas.delete(aid) : alfas.add(aid); guardar(); pintar(); animar(aid, 'anim-alfa'); return; }
   const c = e.target.closest('.poke'); if (!c) return;
-  const id = +c.dataset.id;
-  marcar(id, !capturados.has(id));
-  guardar(); pintar();
+  const id = +c.dataset.id, si = !capturados.has(id);
+  marcar(id, si); guardar();
+  porUsuario = true; resumen(); porUsuario = false;
+  const desaparece = pestana === 'iris' ? si : (filtro === 'faltan' && si) || (filtro === 'cap' && !si) || (filtro === 'evo' && si);
+  if (desaparece && MOV) {
+    c.classList.toggle('cap', si); animCaptura(c, si); c.classList.add('saliendo');
+    clearTimeout(c._t); c._t = setTimeout(pintarRejilla, 1000);
+  } else { pintarRejilla(); animCaptura(tarjeta(id), si); }
 });
 $('#pestanas').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  pestana = b.dataset.p; escribir('pokedex-pestana-' + juego.id, pestana);
+  entrar = true; pestana = b.dataset.p; escribir('pokedex-pestana-' + juego.id, pestana);
   pintar(); window.scrollTo(0,0);
 });
-$('#filtros').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ filtro = b.dataset.f; pintar(); } });
+$('#filtros').addEventListener('click', e => { const b = e.target.closest('button'); if (b){ entrar = true; filtro = b.dataset.f; pintar(); } });
 $('#buscar').addEventListener('input', pintar);
-$('#fTipo').onchange = e => { fTipo = e.target.value; pintar(); };
-$('#fZona').onchange = e => { fZona = e.target.value; pintar(); };
-$('#fVersion').onchange = e => { fVersion = e.target.value; pintar(); };
-$('#fOrden').onchange = e => { orden = e.target.value; escribir('pokedex-orden', orden); pintar(); };
+$('#fTipo').onchange = e => { entrar = true; fTipo = e.target.value; pintar(); };
+$('#fZona').onchange = e => { entrar = true; fZona = e.target.value; pintar(); };
+$('#fVersion').onchange = e => { entrar = true; fVersion = e.target.value; pintar(); };
+$('#fOrden').onchange = e => { entrar = true; orden = e.target.value; escribir('pokedex-orden', orden); pintar(); };
 
 /* Copia de seguridad: todos los juegos en un solo archivo */
 /* Copia de seguridad completa: todos los juegos, variocolores, alfas, formas, fechas y ajustes */
@@ -907,9 +1098,10 @@ function combate(id){
   const def = tiposDe(id); if (!def.length) return '';
   const mult = {};
   LISTA_TIPOS.forEach(at => mult[at] = def.reduce((m, d) => m * (EFICACIA[at][d] ?? 1), 1));
+  let nGrupo = 0;
   const grupo = (titulo, f, clase) => {
     const l = LISTA_TIPOS.filter(at => f(mult[at])); if (!l.length) return '';
-    return `<div class="debil ${clase}"><span class="debil-x">${titulo}</span><div>${l.map(x => `<span class="tipo t-${x}">${x}</span>`).join('')}</div></div>`;
+    return `<div class="debil ${clase}" style="--i:${nGrupo++}"><span class="debil-x">${titulo}</span><div>${l.map(x => `<span class="tipo t-${x}">${x}</span>`).join('')}</div></div>`;
   };
   let h = '<h3 class="seccion">Combate</h3><div class="combate"><div><div class="subtit">Daño que recibe</div>';
   h += grupo('×4', m => m === 4, 'x4') + grupo('×2', m => m === 2, 'x2') + grupo('×½', m => m === .5, 'r2') + grupo('×¼', m => m === .25, 'r4') + grupo('×0', m => m === 0, 'x0');
@@ -917,7 +1109,7 @@ function combate(id){
   const st = STATS[(forma(id) || [id])[0]] || STATS[id];
   if (st) {
     const tot = st.reduce((a, b) => a + b, 0);
-    h += `<div><div class="subtit">Estadísticas base · total ${tot}</div>` + st.map((v, k) => `<div class="stat"><span>${NOM_STATS[k]}</span>
+    h += `<div><div class="subtit">Estadísticas base · total ${tot}</div>` + st.map((v, k) => `<div class="stat" style="--i:${k}"><span>${NOM_STATS[k]}</span>
       <div class="stat-barra" role="img" aria-label="${NOM_STATS[k]}: ${v}"><div style="width:${Math.min(100, v / 2)}%"></div></div><b>${v}</b></div>`).join('') + '</div>';
   }
   return h + '</div>';
