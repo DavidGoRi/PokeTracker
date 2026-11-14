@@ -171,7 +171,11 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 :root[data-theme=dark] .excl.v1{color:#c4b5fd;border-color:rgba(196,181,253,.35)}
 .evoaviso{font-size:11px;color:var(--acento);font-weight:700}
 .poke .exc{font-size:11px;color:var(--mute);margin-top:4px}
-.poke-acc{display:flex;align-items:center;gap:4px;width:100%;margin-top:10px;padding-top:8px;border-top:1px solid var(--borde)}
+.poke-acc{display:flex;align-items:center;gap:4px;width:100%;margin-top:auto;padding-top:8px;border-top:1px solid var(--borde)}
+/* El contenido variable empuja la fila de acciones siempre al fondo de la tarjeta */
+.poke>.tipos{margin:6px 0 10px}
+.poke>.etiquetas{margin:-4px 0 10px}
+.poke>.exc{margin:-6px 0 10px}
 .verspawn{flex:1;font-size:12.5px;padding:6px 10px;background:transparent;border-color:transparent;color:var(--sub)}
 .verspawn:hover{background:var(--surf2);color:var(--txt);border-color:var(--borde)}
 .estrella,.alfa{width:32px;height:32px;padding:0;background:transparent;border-color:transparent;color:var(--mute);font-size:16px;line-height:1;flex:none}
@@ -338,7 +342,8 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
   .rejilla{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .poke{padding:8px 8px 6px;border-radius:16px}
   .poke .nom{font-size:13.5px}
-  .poke-acc{margin-top:8px;padding-top:6px}
+  .poke-acc{padding-top:6px}
+  .poke>.tipos{margin:6px 0 8px}
   .verspawn{font-size:12px;padding:5px 6px}
   .estrella,.alfa{width:30px;height:30px}
   .fondo{padding:12px 0 0}
