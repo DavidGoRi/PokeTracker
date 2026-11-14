@@ -21,6 +21,9 @@ Otras herramientas:
 - **Marcar o desmarcar todos los que se ven**, o toda una línea evolutiva desde Detalles.
 - **Alfas** (Leyendas: Arceus y Z-A) y colección de **formas** (Vivillon, Unown, Alcremie…).
 - **Condiciones de aparición** (clima en Espada / Escudo y hora en Diamante Brillante / Perla Reluciente).
+- **Combate** en Detalles: debilidades y resistencias por tipo y estadísticas base.
+- **Objetos para evolucionar**: piedras y objetos que necesitas para los que te faltan.
+- Mapa de Luminalia con las zonas salvajes de Z-A.
 
 Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iris, el Volcanion variocolor de Z-A o el Diploma de Rojo Fuego / Verde Hoja.
 
