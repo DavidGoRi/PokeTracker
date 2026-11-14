@@ -9,6 +9,18 @@ Seguimiento personal de la Pokédex de los juegos principales de Pokémon que se
 - Escarlata / Púrpura (con Noroteo y Arándano)
 - Leyendas Pokémon: Z-A (con el Hiperespacio del DLC Megadimensión)
 - Rojo Fuego / Verde Hoja (Kanto y Nacional)
+- Pokémon HOME: Pokédex viviente con los 1025 Pokémon y dónde conseguir cada uno en los juegos de Switch
+
+Leyendas Z-A incluye también la Pokédex de megaevoluciones, con dónde está cada megapiedra.
+
+Otras herramientas:
+
+- **Estadísticas**: progreso por Pokédex, tipo y generación, variocolores, alfas y capturas por semana.
+- **Ruta sugerida**: zonas ordenadas por cuántos Pokémon te faltan.
+- **Intercambios**: los exclusivos de la otra versión que te faltan, con un mensaje listo para copiar.
+- **Marcar o desmarcar todos los que se ven**, o toda una línea evolutiva desde Detalles.
+- **Alfas** (Leyendas: Arceus y Z-A) y colección de **formas** (Vivillon, Unown, Alcremie…).
+- **Condiciones de aparición** (clima en Espada / Escudo y hora en Diamante Brillante / Perla Reluciente).
 
 Cada juego tiene una pestaña con lo que te falta para su premio: el Amuleto Iris, el Volcanion variocolor de Z-A o el Diploma de Rojo Fuego / Verde Hoja.
 
