@@ -29,6 +29,12 @@ Otras herramientas:
 - **Movimientos por nivel** de cada juego y **crianza** paso a paso (grupos huevo, pareja, dónde criar, incienso y movimientos huevo).
 - **Eventos**: aviso de teraincursiones de evento y regalos con código (con el código, si es público) de Escarlata / Púrpura y Leyendas Z-A, activos o próximos. `herramientas/eventos.py` los descarga a diario con GitHub Actions.
 - **Habilidades** (normales y oculta) con su descripción, y **dónde conseguir cada objeto de evolución** en cada juego.
+- **Comparar** dos Pokémon: estadísticas, debilidades, resistencias e inmunidades lado a lado (también desde Detalles).
+- **Naturalezas**: tabla de las 25 con lo que suben y bajan, buscador y la recomendada para cada Pokémon según sus estadísticas.
+- **Logros**: medallas que se desbloquean solas (capturas, variocolores, alfas, premios de cada juego, maestro de cada tipo, zonas…), con aviso animado.
+- **Comparar con un amigo**: cargas su copia de seguridad y ves qué tiene tu amigo que te falta a ti y al revés, con un mensaje listo para enviar.
+- **Compartir progreso**: genera una imagen con tu porcentaje, tus Pokédex, variocolores y logros para descargarla o compartirla.
+- **Aviso de eventos**: una campana en la barra superior avisa cuando hay un evento activo con un Pokémon que te falta.
 - **Idioma**: español o inglés (selector ES / EN en la barra superior); se traducen la interfaz y los datos.
 - **Búsqueda** por nombre en español o en inglés, número regional o nacional y tipo (por ejemplo, "fuego volador").
 - Accesible con teclado y lector de pantalla.

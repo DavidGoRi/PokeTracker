@@ -310,6 +310,52 @@ input[type=search]:focus{outline:none;border-color:var(--acento);box-shadow:0 0 
 .interruptor{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:2px 0 12px;cursor:pointer;user-select:none}
 .interruptor input{width:18px;height:18px;accent-color:var(--acento)}
 #miVersion{padding:6px 32px 6px 12px;margin-left:6px}
+/* Herramientas extra */
+.campana{position:relative;width:40px;height:40px;padding:0;flex:none;background:var(--surf);box-shadow:var(--sombra);display:grid;place-items:center}
+.campana svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.campana .punto{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--acento);color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center}
+.campana.hay svg{animation:campana 2.6s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes campana{0%,70%,100%{transform:rotate(0)}75%{transform:rotate(14deg)}80%{transform:rotate(-12deg)}85%{transform:rotate(8deg)}90%{transform:rotate(-5deg)}}
+@media (prefers-reduced-motion:reduce){.campana.hay svg{animation:none}}
+.fila-botones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.suave-btn{display:inline-flex;align-items:center;gap:7px;background:var(--surf2);font-weight:600;font-size:13px;padding:8px 14px}
+.suave-btn .ico{width:17px;height:17px;color:var(--acento)}
+.cmp-sel{display:flex;gap:8px;align-items:center;margin:12px 0}
+.cmp-sel select{flex:1;min-width:0}
+.cmp-sel button{flex:none;width:40px;height:40px;padding:0;font-size:18px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmp-col{background:var(--surf2);border:1px solid var(--borde);border-radius:16px;padding:12px;min-width:0}
+.cmp-cab{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:8px;text-align:center}
+.cmp-cab img{width:96px;height:96px;object-fit:contain}
+.cmp-stat{display:grid;grid-template-columns:minmax(60px,78px) 1fr 34px;gap:6px;align-items:center;font-size:12.5px;margin:5px 0}
+.cmp-stat b{text-align:right;font-variant-numeric:tabular-nums}
+.cmp-stat .stat-barra div{background:var(--mute)}
+.cmp-stat.mas b{color:var(--ok)}
+.cmp-stat.mas .stat-barra div{background:var(--ok)}
+.cmp-stat.total{border-top:1px solid var(--borde);padding-top:6px;font-weight:700}
+.cmp-tipos{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}
+.cmp-tipos .tipo{font-size:10.5px}
+@media (max-width:560px){.cmp{gap:8px}.cmp-col{padding:8px}.cmp-stat{grid-template-columns:52px 1fr 28px;font-size:11.5px}.cmp-cab img{width:72px;height:72px}}
+table.nat{border-collapse:separate;border-spacing:4px;width:100%;min-width:520px;font-size:13px}
+.nat th{font-size:12px;font-weight:700;padding:6px;white-space:nowrap}
+.nat th.sube{color:var(--ok);text-align:left}
+.nat th.baja{color:var(--acento)}
+.nat td{background:var(--surf2);border:1px solid var(--borde);border-radius:10px;padding:8px 6px;text-align:center;font-weight:700;transition:background .2s,border-color .2s}
+.nat td small{display:block;font-weight:500;color:var(--mute);font-size:11px}
+.nat td.neutra{opacity:.55;font-style:italic}
+.nat td.luz{background:var(--acento-suave);border-color:var(--acento)}
+.logros{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.logro{display:flex;gap:12px;align-items:flex-start;background:var(--surf2);border:1px solid var(--borde);border-radius:16px;padding:12px;opacity:.75}
+.logro.ok{opacity:1;border-color:color-mix(in srgb,var(--oro) 55%,var(--borde));background:linear-gradient(135deg,color-mix(in srgb,var(--oro) 14%,transparent),transparent 70%),var(--surf2)}
+.logro-ico{font-size:26px;line-height:1;width:34px;text-align:center;flex:none;filter:grayscale(1)}
+.logro.ok .logro-ico{filter:none}
+.logro-tipo{display:inline-block;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}
+.logro-prog{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--sub)}
+.logro-prog .pista{flex:1;height:6px}
+img.previa{display:block;width:100%;max-width:420px;margin:12px auto 0;border-radius:16px;box-shadow:var(--sombra)}
+button.minipk{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:inherit}
+.minipk.falta{border-color:color-mix(in srgb,var(--acento) 55%,var(--borde));background:var(--acento-suave)}
+
 .filapk{gap:12px}
 .filapk .par{display:flex;align-items:center;gap:2px;flex:none;color:var(--mute);font-size:13px}
 .filapk .par img{width:44px;height:44px;object-fit:contain}
@@ -583,11 +629,11 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
 const EN = (() => { try { return localStorage.getItem('pokedex-idioma') === 'en'; } catch(e) { return false; } })();
 const L = (es, en) => EN ? en : es;
 document.documentElement.lang = EN ? 'en' : 'es';
-if (EN) document.write('<script src="datos/base-en.js?v=202611151011"><\/script>');
+if (EN) document.write('<script src="datos/base-en.js?v=202611151030"><\/script>');
 </script>
-<script src="datos/base.js?v=202611151011"></script>
+<script src="datos/base.js?v=202611151030"></script>
 <script>
-const V = '202611151011';
+const V = '202611151030';
 /* ---------- Tema: oscuro por defecto ---------- */
 const TEMA = 'pokedex-galar-tema';
 function aplicarTema(tm){
@@ -906,6 +952,7 @@ function guardar(){
   escribir(juego.clave, JSON.stringify([...capturados])); escribir(juego.clave + '-shiny', JSON.stringify([...shiny]));
   escribir(juego.clave + '-alfa', JSON.stringify([...alfas])); escribir(juego.clave + '-formas', JSON.stringify([...formasT]));
   escribir(juego.clave + '-fechas', JSON.stringify(fechas));
+  if (typeof alGuardar === 'function') alGuardar();
 }
 // Marca o desmarca guardando la fecha (para las estadísticas)
 function marcar(id, si){
@@ -1175,7 +1222,7 @@ async function abrirSpawn(id){
   h += resumenCria(id);
   h += datosPoke(id);
   h += '<div id="secEventos"></div>';
-  h += combate(id);
+  h += combate(id) + botonesExtra(id);
   h += '<div id="secHab"></div>';
   h += lineaEvolutiva(id);
   h += '<div id="secFormas"></div>';
@@ -1295,7 +1342,7 @@ function tareasInvestigacion(id){
      forma son de la forma normal: se etiquetan ("[Yamask de Teselia] Nivel 34") y solo se dejan si esa evolución se
      puede conseguir en el juego. Devuelve [{t: texto, otra: true si es para otra forma}]; vacío = rama imposible. */
 const REGIONES_FORMA = ['Alola', 'Galar', 'Hisui', 'Paldea'];
-const REGIONES_EXTRA = {lgpe: ['Alola'], swsh: ['Alola']};
+const REGIONES_EXTRA = {lgpe: ['Alola'], swsh: ['Alola'], za: ['Alola', 'Galar', 'Hisui']};
 const ORIGEN = [[151, 'Kanto', 'Kantonian'], [251, 'Johto', 'Johtonian'], [386, 'Hoenn', 'Hoennian'], [493, 'Sinnoh', 'Sinnohan'],
   [649, 'Teselia', 'Unovan'], [721, 'Kalos', 'Kalosian'], [809, 'Alola', 'Alolan'], [905, 'Galar', 'Galarian']];
 const _regJuego = {}; let _hijosMet = null;
@@ -1862,6 +1909,348 @@ $('#fondo').addEventListener('click', e => { if (e.target.id === 'fondo') cerrar
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarSpawn(); });
 
 cargarJuego();
+</script>
+<script>
+/* =====================================================================
+   Herramientas extra: comparar, naturalezas, logros, amigo, compartir y aviso de eventos
+   ===================================================================== */
+const ICO = {
+  cmp: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0L5 7Zm14 0-3 7a3.5 3.5 0 0 0 6 0l-3-7Z"/></svg>',
+  nat: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 6-14 15-14 0 9-6 15-14 15"/><path d="M5 19 14 10"/></svg>',
+  logro: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 6H4v1a4 4 0 0 0 4 4M16 6h4v1a4 4 0 0 1-4 4M12 13v4M8 20h8M10 17h4"/></svg>',
+  amigo: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 5.3"/></svg>',
+  compartir: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>',
+  campana: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>'
+};
+// Botones en la barra de herramientas (antes de «Marcar los visibles»)
+(function(){
+  const sep = document.querySelector('.herramientas .sep');
+  [['bComparar', ICO.cmp, L('Comparar', 'Compare')], ['bNaturalezas', ICO.nat, L('Naturalezas', 'Natures')], ['bLogros', ICO.logro, L('Logros', 'Achievements')],
+   ['bAmigo', ICO.amigo, L('Comparar con un amigo', 'Compare with a friend')], ['bCompartir', ICO.compartir, L('Compartir progreso', 'Share progress')]]
+    .forEach(([id, ico, txt]) => sep.insertAdjacentHTML('beforebegin', `<button id="${id}">${ico}<span>${txt}</span></button>`));
+  document.querySelector('#idioma').insertAdjacentHTML('beforebegin',
+    `<button id="bEventos" class="campana" hidden aria-label="${L('Eventos', 'Events')}" title="${L('Eventos activos y próximos', 'Active and upcoming events')}">${ICO.campana}<span class="punto" hidden></span></button>`);
+})();
+const conjunto = (k, def) => { try { return JSON.parse(leer(k, def)); } catch(e) { return JSON.parse(def); } };
+// Datos guardados de cualquier juego (el actual, desde memoria)
+function datosDe(j){
+  if (j === juego) return {cap: capturados, sh: shiny, al: alfas, fo: formasT, fe: fechas};
+  return {cap: new Set(conjunto(j.clave, '[]')), sh: new Set(conjunto(j.clave + '-shiny', '[]')), al: new Set(conjunto(j.clave + '-alfa', '[]')),
+          fo: new Set(conjunto(j.clave + '-formas', '[]')), fe: conjunto(j.clave + '-fechas', '{}') || {}};
+}
+const nomJ = j => EN && JUEGOS_EN[j.id] ? JUEGOS_EN[j.id].nombre : j.nombre;
+const requeridosDe = j => { const v = new Set(), l = []; [].concat(j.amuleto.dex).forEach(d => DEX[d].forEach(p => { if (!v.has(p[1]) && !j.amuleto.excluir.includes(p[1])) { v.add(p[1]); l.push(p[1]); } })); return l; };
+const fmtFecha = d => new Date(d).toLocaleDateString(LOCALE, {day: 'numeric', month: 'long', year: 'numeric'});
+
+/* ---------- 7. Comparar dos Pokémon ---------- */
+function opcionesPoke(){
+  const v = new Set(), l = [];
+  juego.dex.forEach(d => DEX[d.id].forEach(p => { if (!v.has(p[1])) { v.add(p[1]); l.push([p[1], nombreForma(p[1], p[2])]); } }));
+  return l;
+}
+const statsDe = id => STATS[(forma(id) || [id])[0]] || STATS[id] || null;
+function multTipos(id){ const def = tiposDe(id), m = {}; LISTA_TIPOS.forEach(at => m[at] = def.reduce((x, d) => x * (EFICACIA[at][d] ?? 1), 1)); return m; }
+function abrirComparar(a, b){
+  const ops = opcionesPoke(); if (!ops.length) return;
+  if (a == null || !ops.some(o => o[0] === a)) a = ops[0][0];
+  if (b == null || !ops.some(o => o[0] === b)) b = (ops.find(o => o[0] !== a) || ops[0])[0];
+  const sel = (n, v) => `<select id="cmp${n}" aria-label="${L('Pokémon', 'Pokémon')} ${n}">${ops.map(([i, nom]) => `<option value="${i}"${i === v ? ' selected' : ''}>${esc(nom)}</option>`).join('')}</select>`;
+  const sa = statsDe(a), sb = statsDe(b);
+  const col = (id, s, so) => {
+    const m = multTipos(id), tot = s ? s.reduce((x, y) => x + y, 0) : 0, toto = so ? so.reduce((x, y) => x + y, 0) : 0;
+    const lst = f => LISTA_TIPOS.filter(t => f(m[t])).map(t => `<span class="tipo t-${t}">${tipoTxt(t)}${m[t] === 4 ? ' ×4' : m[t] === .25 ? ' ×¼' : ''}</span>`).join('') || '<span class="sub" style="margin:0">—</span>';
+    return `<div class="cmp-col">
+      <div class="cmp-cab"><img src="${img(id, shiny.has(id))}" alt="" onerror="fallo(this,${id})"><b>${esc(nombreForma(id, nombrePoke(id)))}</b>${htmlTipos(id)}</div>
+      ${s ? s.map((v, k) => `<div class="cmp-stat${so && v > so[k] ? ' mas' : ''}"><span>${NOM_STATS[k]}</span><div class="stat-barra"><div style="width:${Math.min(100, v / 2)}%"></div></div><b>${v}</b></div>`).join('')
+        + `<div class="cmp-stat total${so && tot > toto ? ' mas' : ''}"><span>${L('Total', 'Total')}</span><div></div><b>${tot}</b></div>` : `<div class="sub">${L('Sin estadísticas.', 'No stats.')}</div>`}
+      <div class="subtit">${L('Débil a', 'Weak to')}</div><div class="cmp-tipos">${lst(x => x >= 2)}</div>
+      <div class="subtit">${L('Resiste', 'Resists')}</div><div class="cmp-tipos">${lst(x => x > 0 && x < 1)}</div>
+      <div class="subtit">${L('Inmune a', 'Immune to')}</div><div class="cmp-tipos">${lst(x => x === 0)}</div></div>`;
+  };
+  abrirModal(`<h2>${ICO.cmp}${L('Comparar Pokémon', 'Compare Pokémon')}</h2>
+    <div class="sub">${L('Elige dos Pokémon de', 'Pick two Pokémon from')} ${NOMBRE_JUEGO[juego.id]}. ${L('En verde, la estadística más alta.', 'Higher stats are shown in green.')}</div>
+    <div class="cmp-sel">${sel(1, a)}<button id="cmpCambiar" title="${L('Intercambiar', 'Swap')}" aria-label="${L('Intercambiar', 'Swap')}">⇄</button>${sel(2, b)}</div>
+    <div class="cmp">${col(a, sa, sb)}${col(b, sb, sa)}</div>`);
+  $('#cmp1').onchange = e => abrirComparar(+e.target.value, b);
+  $('#cmp2').onchange = e => abrirComparar(a, +e.target.value);
+  $('#cmpCambiar').onclick = () => abrirComparar(b, a);
+}
+const botonesExtra = id => `<div class="fila-botones"><button class="suave-btn" data-cmp="${id}">${ICO.cmp}${L('Comparar con otro Pokémon', 'Compare with another Pokémon')}</button><button class="suave-btn" data-nat="${id}">${ICO.nat}${L('Naturaleza recomendada', 'Recommended nature')}</button></div>`;
+$('#bComparar').onclick = () => abrirComparar();
+document.addEventListener('click', e => { const c = e.target.closest('[data-cmp]'); if (c) abrirComparar(+c.dataset.cmp);
+  const n = e.target.closest('[data-nat]'); if (n) abrirNaturalezas(+n.dataset.nat); });
+
+/* ---------- 9. Naturalezas ---------- */
+// [español, inglés, sube, baja] con 1 Ataque, 2 Defensa, 3 At. esp., 4 Def. esp., 5 Velocidad
+const NATURALEZAS = [['Fuerte','Hardy',1,1],['Huraña','Lonely',1,2],['Firme','Adamant',1,3],['Pícara','Naughty',1,4],['Audaz','Brave',1,5],
+  ['Osada','Bold',2,1],['Dócil','Docile',2,2],['Agitada','Impish',2,3],['Floja','Lax',2,4],['Plácida','Relaxed',2,5],
+  ['Modesta','Modest',3,1],['Afable','Mild',3,2],['Tímida','Bashful',3,3],['Alocada','Rash',3,4],['Mansa','Quiet',3,5],
+  ['Serena','Calm',4,1],['Amable','Gentle',4,2],['Cauta','Careful',4,3],['Rara','Quirky',4,4],['Grosera','Sassy',4,5],
+  ['Miedosa','Timid',5,1],['Activa','Hasty',5,2],['Alegre','Jolly',5,3],['Ingenua','Naive',5,4],['Seria','Serious',5,5]];
+function recomendarNaturaleza(id){
+  const s = statsDe(id); if (!s) return '';
+  const fisico = s[1] >= s[3], rapido = s[5] >= 80;
+  const n = k => NATURALEZAS.find(x => x[0] === k), nom = x => EN ? x[1] : x[0];
+  const op = fisico ? [n('Firme'), n('Alegre')] : [n('Modesta'), n('Miedosa')];
+  const def = s[2] + s[4] > s[1] + s[3] ? [n(fisico ? 'Agitada' : 'Serena'), n(fisico ? 'Cauta' : 'Osada')] : null;
+  return `<div class="criaya" style="margin-top:14px"><span class="ico" aria-hidden="true">💡</span><div><b>${esc(nombreForma(id, nombrePoke(id)))}</b>: ${L(fisico ? `ataca más con Ataque (${s[1]}) que con At. esp. (${s[3]})` : `ataca más con At. esp. (${s[3]}) que con Ataque (${s[1]})`, fisico ? `its Attack (${s[1]}) is higher than its Sp. Atk (${s[3]})` : `its Sp. Atk (${s[3]}) is higher than its Attack (${s[1]})`)}.
+    ${L('Para atacar, prueba', 'For an attacker, try')} <b>${nom(op[0])}</b>${L(' o ', ' or ')}<b>${nom(op[1])}</b>${rapido ? L(' (esta si quieres que sea aún más rápido)', ' (the latter to make it even faster)') : ''}.
+    ${def ? L(`Si lo quieres de defensa, <b>${nom(def[0])}</b> o <b>${nom(def[1])}</b>.`, `As a defender, <b>${nom(def[0])}</b> or <b>${nom(def[1])}</b>.`) : ''}</div></div>`;
+}
+function abrirNaturalezas(id){
+  const st = [1, 2, 3, 4, 5], nom = x => EN ? x[1] : x[0];
+  const ops = opcionesPoke();
+  abrirModal(`<h2>${ICO.nat}${L('Naturalezas', 'Natures')}</h2>
+    <div class="sub">${L('Cada naturaleza sube un 10 % una estadística (fila) y baja otra un 10 % (columna). Las de la diagonal no cambian nada.', 'Each nature raises one stat by 10% (row) and lowers another by 10% (column). Those on the diagonal change nothing.')}</div>
+    <input type="search" id="natBuscar" placeholder="${L('Buscar naturaleza…', 'Search nature…')}" aria-label="${L('Buscar naturaleza', 'Search nature')}" style="margin:10px 0 4px">
+    <div style="overflow-x:auto"><table class="nat"><tr><th>${L('Sube ↓ · Baja →', 'Raises ↓ · Lowers →')}</th>${st.map(k => `<th class="baja">−${NOM_STATS[k]}</th>`).join('')}</tr>
+    ${st.map(u => `<tr><th class="sube">+${NOM_STATS[u]}</th>${st.map(d => { const n = NATURALEZAS.find(x => x[2] === u && x[3] === d);
+      return `<td class="${u === d ? 'neutra' : ''}" data-n="${esc(normaliza(n[0] + ' ' + n[1]))}">${esc(nom(n))}${EN ? '' : `<small>${esc(n[1])}</small>`}</td>`; }).join('')}</tr>`).join('')}</table></div>
+    <div class="sub" style="margin-top:8px">${L('En Espada / Escudo y Escarlata / Púrpura puedes cambiar el efecto de la naturaleza con una <b>menta</b>.', 'In Sword / Shield and Scarlet / Violet you can change a nature’s effect with a <b>mint</b>.')}</div>
+    <h3 class="seccion">${L('¿Cuál le va a mi Pokémon?', 'Which one suits my Pokémon?')}</h3>
+    <select id="natPoke" aria-label="Pokémon"><option value="">${L('Elige un Pokémon…', 'Pick a Pokémon…')}</option>${ops.map(([i, n]) => `<option value="${i}"${i === id ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>
+    <div id="natRec">${id ? recomendarNaturaleza(id) : ''}</div>`);
+  $('#natBuscar').oninput = e => { const q = normaliza(e.target.value.trim());
+    document.querySelectorAll('.nat td').forEach(td => td.classList.toggle('luz', !!q && td.dataset.n.includes(q))); };
+  $('#natPoke').onchange = e => { $('#natRec').innerHTML = e.target.value ? recomendarNaturaleza(+e.target.value) : ''; };
+}
+$('#bNaturalezas').onclick = () => abrirNaturalezas();
+
+/* ---------- 11. Logros ---------- */
+const LOGROS_K = 'pokedex-logros';
+let logrosHechos = conjunto(LOGROS_K, '{}') || {};
+function listaLogros(){
+  const D = JUEGOS.map(j => ({j, ...datosDe(j)}));
+  const suma = f => D.reduce((n, d) => n + f(d), 0);
+  const total = suma(d => d.cap.size), sh = suma(d => d.sh.size), al = suma(d => d.al.size), fo = suma(d => d.fo.size);
+  // Capturas en un mismo día
+  const dias = {}; D.forEach(d => Object.values(d.fe).forEach(t => { const k = new Date(t).toDateString(); dias[k] = (dias[k] || 0) + 1; }));
+  const mejorDia = Math.max(0, ...Object.values(dias));
+  const l = [];
+  const add = (id, ico, t, desc, n, tot, grupo) => l.push({id, ico, t, desc, n: Math.min(n, tot), tot, grupo});
+  const G1 = L('Colección', 'Collection'), G2 = L('Juegos', 'Games'), G3 = L('Tipos', 'Types'), G4 = L('Exploración', 'Exploring');
+  add('primera', '🎉', L('Primeros pasos', 'First steps'), L('Marca tu primer Pokémon', 'Mark your first Pokémon'), total, 1, G1);
+  [[100, '📘'], [500, '📗'], [1000, '📕'], [2000, '📚']].forEach(([n, i]) => add('cap' + n, i, L(`${n} marcas`, `${n} marks`), L(`Marca ${n} Pokémon sumando todos los juegos`, `Mark ${n} Pokémon across all games`), total, n, G1));
+  [[1, '✨', L('¡Brilla!', 'Shiny!')], [10, '🌟', L('Cazador de variocolores', 'Shiny hunter')], [50, '💫', L('Maestro variocolor', 'Shiny master')]]
+    .forEach(([n, i, t]) => add('sh' + n, i, t, L(`Ten ${n} variocolor${n > 1 ? 'es' : ''}`, `Have ${n} shiny Pokémon`), sh, n, G1));
+  add('al1', '🅰️', L('Gigante', 'Giant'), L('Marca tu primer alfa', 'Mark your first alpha'), al, 1, G1);
+  add('al25', '🦣', L('Domador de alfas', 'Alpha tamer'), L('Marca 25 alfas', 'Mark 25 alphas'), al, 25, G1);
+  add('fo10', '🦋', L('Coleccionista de formas', 'Form collector'), L('Marca 10 formas', 'Mark 10 forms'), fo, 10, G1);
+  add('dia10', '⚡', L('Día productivo', 'Busy day'), L('Marca 10 Pokémon el mismo día', 'Mark 10 Pokémon on the same day'), mejorDia, 10, G4);
+  add('dia50', '🔥', L('Maratón', 'Marathon'), L('Marca 50 Pokémon el mismo día', 'Mark 50 Pokémon on the same day'), mejorDia, 50, G4);
+  D.forEach(d => {
+    if (d.j.home) {
+      [[100, '🏠'], [500, '🏡'], [1025, '🏰']].forEach(([n, i]) => add('home' + n, i, L(`HOME: ${n}`, `HOME: ${n}`), L(`Ten ${n} Pokémon en tu Pokédex viviente`, `Have ${n} Pokémon in your living dex`), d.cap.size, n, G2));
+      return;
+    }
+    const req = requeridosDe(d.j), n = req.filter(i => d.cap.has(i)).length, prem = EN && JUEGOS_EN[d.j.id] && JUEGOS_EN[d.j.id].premio || d.j.amuleto.premio || L('Amuleto Iris', 'Shiny Charm');
+    add('mitad-' + d.j.id, '🧭', L(`A medio camino · ${nomJ(d.j)}`, `Halfway · ${nomJ(d.j)}`), L(`La mitad de lo necesario para ${prem}`, `Half of what you need for ${prem}`), n, Math.ceil(req.length / 2), G2);
+    add('premio-' + d.j.id, '🏆', `${prem} · ${nomJ(d.j)}`, L(`Todo lo necesario para ${prem}`, `Everything needed for ${prem}`), n, req.length, G2);
+  });
+  // Tipos: completar todos los de un tipo en cualquier Pokédex (con 5 o más de ese tipo)
+  LISTA_TIPOS.forEach(t => {
+    let mejor = [0, 1];
+    D.forEach(d => d.j.dex.forEach(dx => {
+      const l2 = DEX[dx.id].filter(p => (TIPOS_FORMA[dx.id] && TIPOS_FORMA[dx.id][p[1]] ? TIPOS_FORMA[dx.id][p[1]][2] : TIPOS[p[1]] || []).includes(t));
+      if (l2.length < 5) return;
+      const h = l2.filter(p => d.cap.has(p[1])).length;
+      if (h / l2.length > mejor[0] / mejor[1]) mejor = [h, l2.length];
+    }));
+    add('tipo-' + t, '', L(`Maestro del tipo ${tipoTxt(t)}`, `${tipoTxt(t)}-type master`), L(`Todos los de tipo ${tipoTxt(t)} de una Pokédex`, `Every ${tipoTxt(t)}-type Pokémon in one Pokédex`), mejor[0], mejor[1], G3);
+  });
+  // Zonas completas del juego actual (sin contar incursiones)
+  const zonas = Object.values(ZONAS_SIN || {}), comp = zonas.filter(s => s.size && [...s].every(i => capturados.has(i))).length;
+  if (zonas.length) {
+    add('zona1', '🗺️', L('Zona despejada', 'Area cleared'), L('Todos los Pokémon de una zona del juego actual', 'Every Pokémon in one area of the current game'), comp, 1, G4);
+    add('zona10', '🌍', L('Explorador', 'Explorer'), L('Completa 10 zonas de un juego', 'Clear 10 areas in one game'), comp, 10, G4);
+  } else {
+    l.push({id: 'zona1', ico: '🗺️', t: L('Zona despejada', 'Area cleared'), desc: L('Todos los Pokémon de una zona de un juego', 'Every Pokémon in one area of a game'), n: 0, tot: 1, grupo: G4});
+    l.push({id: 'zona10', ico: '🌍', t: L('Explorador', 'Explorer'), desc: L('Completa 10 zonas de un juego', 'Clear 10 areas in one game'), n: 0, tot: 10, grupo: G4});
+  }
+  return l;
+}
+function evaluarLogros(avisar){
+  const l = listaLogros(), nuevos = [];
+  l.forEach(x => { if (x.n >= x.tot && x.tot > 0 && !logrosHechos[x.id]) { logrosHechos[x.id] = Date.now(); nuevos.push(x); } });
+  if (nuevos.length) escribir(LOGROS_K, JSON.stringify(logrosHechos));
+  if (avisar && nuevos.length) setTimeout(() => celebrar(`🏆 ${L('Logro desbloqueado', 'Achievement unlocked')}: ${nuevos[0].t}${nuevos.length > 1 ? L(` (y ${nuevos.length - 1} más)`, ` (and ${nuevos.length - 1} more)`) : ''}`), 400);
+  const hechos = l.filter(x => logrosHechos[x.id]).length;
+  const b = $('#bLogros span'); if (b) b.textContent = `${L('Logros', 'Achievements')} ${hechos}/${l.length}`;
+  return l;
+}
+function abrirLogros(){
+  const l = evaluarLogros(false), hechos = l.filter(x => logrosHechos[x.id]).length;
+  const grupos = [...new Set(l.map(x => x.grupo))];
+  abrirModal(`<h2>${ICO.logro}${L('Logros', 'Achievements')} <span class="cuenta">${hechos}/${l.length}</span></h2>
+    <div class="sub">${L('Se desbloquean solos al marcar Pokémon en cualquier juego. Se guardan en la copia de seguridad.', 'They unlock by themselves as you mark Pokémon in any game. They are included in the backup.')}</div>
+    <div class="pista" style="margin:10px 0 4px"><div style="width:${hechos * 100 / l.length}%"></div></div>
+    ${grupos.map(g => `<h3 class="seccion">${g}</h3><div class="logros">${l.filter(x => x.grupo === g).sort((x, y) => !!logrosHechos[y.id] - !!logrosHechos[x.id]).map(x => { const ok = logrosHechos[x.id];
+      const ico = x.id.startsWith('tipo-') ? `<span class="logro-tipo" style="background:${COLOR_TIPO[x.id.slice(5)]}"></span>` : x.ico;
+      return `<div class="logro${ok ? ' ok' : ''}"><span class="logro-ico" aria-hidden="true">${ico}</span><div><b>${esc(x.t)}</b><div class="sub" style="margin:0">${esc(x.desc)}</div>
+        ${ok ? `<div class="listo">✔ ${fmtFecha(ok)}</div>` : `<div class="logro-prog"><div class="pista"><div style="width:${x.n * 100 / x.tot}%"></div></div><span>${x.n}/${x.tot}</span></div>`}</div></div>`; }).join('')}</div>`).join('')}`);
+}
+$('#bLogros').onclick = abrirLogros;
+
+/* ---------- 12. Comparar con un amigo ---------- */
+const AMIGO_K = 'poketracker-amigo';   // no empieza por «pokedex-»: no entra en tu copia de seguridad
+let amigo = null; try { amigo = JSON.parse(localStorage.getItem(AMIGO_K)); } catch(e) {}
+function abrirAmigo(){
+  let h = `<h2>${ICO.amigo}${L('Comparar con un amigo', 'Compare with a friend')}</h2>
+    <div class="sub">${L('Pide a tu amigo que pulse «Guardar copia de todo» y te pase el archivo. Aquí verás qué tiene tu amigo que te falta a ti (y al revés) en', 'Ask your friend to press "Save full backup" and send you the file. Here you’ll see what they have that you’re missing (and vice versa) in')} <b>${NOMBRE_JUEGO[juego.id]}</b>.</div>
+    <div class="fila-botones"><button id="amigoCargar">${L('📂 Cargar su copia', '📂 Load their backup')}</button>${amigo ? `<button id="amigoOlvidar" class="suave-btn">${L('Olvidar', 'Forget')}</button>` : ''}</div>
+    <input type="file" id="amigoFichero" accept=".json" hidden>`;
+  if (amigo) {
+    const suyos = new Set(conjunto2(amigo.claves[juego.clave])), sush = new Set(conjunto2(amigo.claves[juego.clave + '-shiny']));
+    const ids = opcionesPoke().map(o => o[0]);
+    const tiene = ids.filter(i => suyos.has(i) && !capturados.has(i)), tengo = ids.filter(i => capturados.has(i) && !suyos.has(i));
+    const shiny2 = ids.filter(i => sush.has(i) && !shiny.has(i));
+    const comun = ids.filter(i => suyos.has(i) && capturados.has(i)).length;
+    const nombres = l2 => l2.map(i => nombreForma(i, nombrePoke(i))).join(', ');
+    const texto = L(`PokeTracker · ${NOMBRE_JUEGO[juego.id]}\nMe faltan y tú tienes (${tiene.length}): ${nombres(tiene) || 'ninguno'}.\nTe faltan y yo tengo (${tengo.length}): ${nombres(tengo) || 'ninguno'}.`,
+      `PokeTracker · ${NOMBRE_JUEGO[juego.id]}\nI'm missing and you have (${tiene.length}): ${nombres(tiene) || 'none'}.\nYou're missing and I have (${tengo.length}): ${nombres(tengo) || 'none'}.`);
+    h += `<div class="info" style="margin-top:12px"><span><b>${L('Copia del', 'Backup from')}</b> ${fmtFecha(amigo.fecha)}</span><span><b>${L('Tu amigo', 'Your friend')}:</b> ${ids.filter(i => suyos.has(i)).length}</span><span><b>${L('Tú', 'You')}:</b> ${ids.filter(i => capturados.has(i)).length}</span><span><b>${L('En común', 'In common')}:</b> ${comun}</span></div>
+      <h3 class="seccion">${L('Te faltan y tu amigo los tiene', 'You’re missing, your friend has')} (${tiene.length})</h3>
+      <div class="listapk">${tiene.map(mini).join('') || `<span class="sub">${L('Ninguno.', 'None.')}</span>`}</div>
+      <h3 class="seccion">${L('A tu amigo le faltan y tú los tienes', 'Your friend is missing, you have')} (${tengo.length})</h3>
+      <div class="listapk">${tengo.map(mini).join('') || `<span class="sub">${L('Ninguno.', 'None.')}</span>`}</div>
+      ${shiny2.length ? `<h3 class="seccion">${L('Variocolores de tu amigo que tú no tienes', 'Your friend’s shiny Pokémon you don’t have')} (${shiny2.length})</h3><div class="listapk">${shiny2.map(mini).join('')}</div>` : ''}
+      <h3 class="seccion">${L('Mensaje para tu amigo', 'Message for your friend')}</h3>
+      <textarea class="copiar" id="txtAmigo" readonly>${esc(texto)}</textarea><button id="copiarAmigo" style="margin-top:6px">📋 ${L('Copiar', 'Copy')}</button>`;
+  }
+  abrirModal(h);
+  $('#amigoCargar').onclick = () => $('#amigoFichero').click();
+  $('#amigoFichero').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      if (!d || d.formato !== 'poketracker' || !d.claves) throw new Error('formato');
+      const claves = {}; Object.entries(d.claves).forEach(([k, v]) => { if (k.startsWith('pokedex-') && !k.startsWith('pokedex-pestana') && !k.startsWith('pokedex-logros')) claves[k] = v; });
+      amigo = {fecha: d.fecha || new Date().toISOString(), claves};
+      try { localStorage.setItem(AMIGO_K, JSON.stringify(amigo)); } catch(err) {}
+      abrirAmigo();
+    } catch(err) { alert(L('El archivo no es una copia válida de PokeTracker (tiene que ser la de «Guardar copia de todo»).', 'This file is not a valid PokeTracker backup (it must be the one from "Save full backup").')); }
+  };
+  if ($('#amigoOlvidar')) $('#amigoOlvidar').onclick = () => { amigo = null; try { localStorage.removeItem(AMIGO_K); } catch(e) {} abrirAmigo(); };
+  if ($('#copiarAmigo')) $('#copiarAmigo').onclick = async () => {
+    const ta = $('#txtAmigo'); try { await navigator.clipboard.writeText(ta.value); } catch(e) { ta.select(); document.execCommand('copy'); }
+    $('#copiarAmigo').textContent = L('✔ Copiado', '✔ Copied');
+  };
+}
+const conjunto2 = v => { try { return (JSON.parse(v || '[]') || []).map(Number); } catch(e) { return []; } };
+$('#bAmigo').onclick = abrirAmigo;
+
+/* ---------- 13. Compartir progreso (imagen) ---------- */
+const cargarImg = src => new Promise(r => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => r(i); i.onerror = () => r(null); i.src = src; setTimeout(() => r(null), 6000); });
+async function imagenProgreso(){
+  const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), fuente = getComputedStyle(document.body).fontFamily;
+  const F = (peso, t) => `${peso} ${t}px ${fuente}`;
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#16181f'); g.addColorStop(1, '#2a1520'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const brillo = x.createRadialGradient(200, 120, 0, 200, 120, 700); brillo.addColorStop(0, 'rgba(255,77,106,.28)'); brillo.addColorStop(1, 'rgba(255,77,106,0)'); x.fillStyle = brillo; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#fff'; x.font = F(800, 64); x.fillText('Poke', 80, 130); const w = x.measureText('Poke').width;
+  const gt = x.createLinearGradient(80 + w, 0, 80 + w + 260, 0); gt.addColorStop(0, '#ff4d6a'); gt.addColorStop(1, '#ff8a50'); x.fillStyle = gt; x.fillText('Tracker', 80 + w, 130);
+  x.fillStyle = '#b8bcc8'; x.font = F(600, 38); x.fillText(nomJ(juego), 80, 190);
+  // Anillo con el porcentaje del premio
+  const req = requeridos(), hechos = req.filter(p => capturados.has(p[1])).length, pct = req.length ? hechos / req.length : 0;
+  const cx = 250, cy = 420, R = 150;
+  x.lineWidth = 34; x.lineCap = 'round'; x.strokeStyle = 'rgba(255,255,255,.1)'; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
+  if (pct > 0) { const ga = x.createLinearGradient(cx - R, cy - R, cx + R, cy + R); ga.addColorStop(0, '#ff4d6a'); ga.addColorStop(1, '#ff8a50'); x.strokeStyle = ga; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct); x.stroke(); }
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = F(800, 72); x.fillText(Math.floor(pct * 100) + '%', cx, cy + 25); x.textAlign = 'left';
+  x.font = F(800, 92); x.fillText(String(hechos), 470, 400); const wn = x.measureText(String(hechos)).width;
+  x.fillStyle = '#8b90a0'; x.font = F(600, 50); x.fillText('/ ' + req.length, 480 + wn, 400);
+  x.fillStyle = '#d6d9e2'; x.font = F(600, 32); x.fillText(L('para ', 'for ') + paraPremio(), 470, 455);
+  // Barras por Pokédex
+  let y = 660;
+  juego.dex.forEach(d => {
+    const n = DEX[d.id].filter(p => capturados.has(p[1])).length, t = DEX[d.id].length;
+    x.fillStyle = '#e6e8ef'; x.font = F(700, 32); x.fillText(d.nombre.replace(/ \(\d+\)/, '').replace(/^Nacional$/, L('Nacional', 'National')), 80, y);
+    x.fillStyle = '#8b90a0'; x.textAlign = 'right'; x.fillText(`${n} / ${t}`, W - 80, y); x.textAlign = 'left';
+    x.fillStyle = 'rgba(255,255,255,.1)'; x.beginPath(); x.roundRect(80, y + 18, W - 160, 18, 9); x.fill();
+    if (n) { const gb = x.createLinearGradient(80, 0, W - 80, 0); gb.addColorStop(0, '#ff4d6a'); gb.addColorStop(1, '#ff8a50'); x.fillStyle = gb; x.beginPath(); x.roundRect(80, y + 18, Math.max(18, (W - 160) * n / t), 18, 9); x.fill(); }
+    y += 100;
+  });
+  // Datos extra
+  const ids = idsJuego(), sh = [...shiny].filter(i => ids.has(i)), l = evaluarLogros(false), lh = l.filter(z => logrosHechos[z.id]).length;
+  const chips = [`★ ${sh.length} ${L('variocolores', 'shiny')}`, `🏆 ${lh}/${l.length} ${L('logros', 'achievements')}`];
+  if (juego.alfas) chips.splice(1, 0, `α ${[...alfas].filter(i => ids.has(i)).length} ${L('alfas', 'alphas')}`);
+  x.font = F(700, 30); let cxp = 80; y += 10;
+  chips.forEach(t => { const cw = x.measureText(t).width + 48; x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.roundRect(cxp, y - 40, cw, 60, 30); x.fill(); x.fillStyle = '#f1f2f6'; x.fillText(t, cxp + 24, y); cxp += cw + 16; });
+  // Últimos (o variocolores) con imagen
+  const ult = (sh.length ? sh.slice(-6) : Object.entries(fechas).sort((a, b) => b[1] - a[1]).slice(0, 6).map(e => +e[0])).filter(i => ids.has(i));
+  if (ult.length) {
+    y += 70; x.fillStyle = '#8b90a0'; x.font = F(700, 28); x.fillText(sh.length ? L('Últimos variocolores', 'Latest shiny') : L('Últimas capturas', 'Latest catches'), 80, y);
+    const imgs = await Promise.all(ult.map(i => cargarImg(img(i, sh.length > 0))));
+    imgs.forEach((im, k) => { const px = 80 + k * 155, py = y + 25; x.fillStyle = 'rgba(255,255,255,.06)'; x.beginPath(); x.roundRect(px, py, 140, 140, 28); x.fill(); if (im) x.drawImage(im, px + 10, py + 10, 120, 120); });
+  }
+  x.fillStyle = '#6b7080'; x.font = F(600, 26); x.fillText('davidgori.github.io/PokeTracker · ' + new Date().toLocaleDateString(LOCALE), 80, H - 60);
+  return c;
+}
+async function abrirCompartir(){
+  abrirModal(`<h2>${ICO.compartir}${L('Compartir progreso', 'Share progress')}</h2><div class="sub">${L('Preparando la imagen…', 'Preparing the image…')}</div>`);
+  const c = await imagenProgreso();
+  let url; try { url = c.toDataURL('image/png'); } catch(e) { url = null; }
+  if (!$('#fondo').classList.contains('abierto')) return;
+  const nombre = `poketracker-${juego.id}-${new Date().toISOString().slice(0, 10)}.png`;
+  abrirModal(`<h2>${ICO.compartir}${L('Compartir progreso', 'Share progress')}</h2><div class="sub">${L('Una imagen con tu progreso en', 'An image with your progress in')} ${NOMBRE_JUEGO[juego.id]}.</div>
+    ${url ? `<img class="previa" src="${url}" alt="${L('Imagen de tu progreso', 'Image of your progress')}">` : `<div class="entrada">${L('No se pudo crear la imagen.', 'The image could not be created.')}</div>`}
+    <div class="fila-botones">${url ? `<button id="shDescargar">⬇ ${L('Descargar', 'Download')}</button>` : ''}${url && navigator.canShare ? `<button id="shCompartir">📤 ${L('Compartir', 'Share')}</button>` : ''}</div>`);
+  if ($('#shDescargar')) $('#shDescargar').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = nombre; a.click(); };
+  if ($('#shCompartir')) $('#shCompartir').onclick = () => c.toBlob(async b => {
+    const f = new File([b], nombre, {type: 'image/png'});
+    try { if (navigator.canShare({files: [f]})) await navigator.share({files: [f], title: 'PokeTracker'}); else $('#shDescargar').click(); } catch(e) {}
+  });
+}
+$('#bCompartir').onclick = abrirCompartir;
+
+/* ---------- 16. Aviso de eventos en la barra superior ---------- */
+function textoEvento(e){
+  if (e.tipo === 'teraincursion') return L(`Teraincursión de evento${e.estrellas ? ` de ${e.estrellas}★` : ''}${e.brote ? ' y brote masivo' : ''}`, `Tera Raid Battle event${e.estrellas ? ` (${e.estrellas}★)` : ''}${e.brote ? ' and mass outbreak' : ''}`);
+  if (e.tipo === 'codigo-compartido') return L(`Regalo Misterioso con código${e.shiny ? ' (variocolor)' : ''}${e.alfa ? ' (alfa)' : ''}`, `Mystery Gift code${e.shiny ? ' (shiny)' : ''}${e.alfa ? ' (alpha)' : ''}`);
+  return L(`Regalo con código de un solo uso (tiendas o eventos)${e.shiny ? ', variocolor' : ''}`, `Single-use code gift (stores or events)${e.shiny ? ', shiny' : ''}`);
+}
+let EVENTOS_VIS = [];
+async function avisoEventos(){
+  const E = await cargarDatos('eventos.json'); if (!E) return;
+  const hoy = new Date().toISOString().slice(0, 10);
+  EVENTOS_VIS = [];
+  E.eventos.forEach(e => {
+    const regs = (e.regiones || []).filter(([, a, b]) => b >= hoy && Math.round((new Date(a) - new Date(hoy)) / 864e5) <= 60);
+    if (!regs.length) return;
+    const r = regs.find(x => x[0] === 'Global') || regs[0];
+    const j = JUEGOS.find(x => x.id === e.juego); if (!j) return;
+    const cap = datosDe(j).cap, faltan = e.ids.filter(i => !cap.has(i));
+    EVENTOS_VIS.push({e, j, reg: r, ahora: r[1] <= hoy, faltan});
+  });
+  EVENTOS_VIS.sort((a, b) => b.ahora - a.ahora || a.reg[1].localeCompare(b.reg[1]));
+  const n = EVENTOS_VIS.filter(v => v.ahora && v.faltan.length).length;
+  const btn = $('#bEventos'); btn.hidden = !EVENTOS_VIS.length;
+  const p = btn.querySelector('.punto'); p.hidden = !n; p.textContent = n;
+  btn.classList.toggle('hay', n > 0);
+  btn.setAttribute('aria-label', n ? L(`Eventos: ${n} con Pokémon que te faltan`, `Events: ${n} with Pokémon you’re missing`) : L('Eventos', 'Events'));
+}
+function abrirEventos(){
+  const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString(LOCALE, {day: 'numeric', month: 'long'});
+  abrirModal(`<h2>${ICO.campana.replace('<svg', '<svg class="ico"')}${L('Eventos', 'Events')}</h2>
+    <div class="sub">${L('Eventos activos o de los próximos 60 días. Marcados en rojo, los Pokémon que te faltan en ese juego.', 'Active events or those in the next 60 days. Pokémon you’re missing in that game are marked in red.')}</div>
+    <div class="eventos">${EVENTOS_VIS.map(v => `<div class="evento${v.ahora ? ' ahora' : ''}"><span class="evento-tag">${v.ahora ? L('Ahora', 'Now') : L('Próximamente', 'Coming soon')}</span>
+      <div><b>${esc(textoEvento(v.e))} · ${esc(NOMBRE_JUEGO[v.e.juego])}</b>
+      <div class="listapk" style="margin:6px 0">${v.e.ids.map(i => `<button class="minipk${v.faltan.includes(i) ? ' falta' : ' listo'}" data-ev-id="${i}" data-ev-j="${v.e.juego}"><img loading="lazy" src="${img(i, v.e.shiny)}" alt="" onerror="fallo(this,${i})">${esc(nomVis(i, nombrePokeGlobal(i)))}${v.faltan.includes(i) ? ` · ${L('te falta', 'missing')}` : ' ✔'}</button>`).join('')}</div>
+      ${v.e.codigo ? `<div class="codigo">${L('Código', 'Code')}: <code>${esc(v.e.codigo)}</code></div>` : ''}
+      <div class="sub" style="margin:0">${esc(region(v.reg[0]))} · ${L(`Del ${fmt(v.reg[1])} al ${fmt(v.reg[2])}.`, `From ${fmt(v.reg[1])} to ${fmt(v.reg[2])}.`)}</div></div></div>`).join('') || `<div class="entrada">${L('No hay eventos ahora mismo.', 'No events right now.')}</div>`}</div>
+    <div class="nota">${L('Fuente: Serebii.net, actualizado a diario.', 'Source: Serebii.net, updated daily.')}</div>`);
+  document.querySelectorAll('[data-ev-id]').forEach(b => b.onclick = () => {
+    if (juego.id !== b.dataset.evJ) { juego = JUEGOS.find(j => j.id === b.dataset.evJ); escribir('pokedex-juego', juego.id); $('#juego').value = juego.id; cargarJuego(); }
+    abrirSpawn(+b.dataset.evId);
+  });
+}
+$('#bEventos').onclick = abrirEventos;
+
+/* ---------- Enganches ---------- */
+function alGuardar(){ evaluarLogros(true); avisoEventos(); }
+evaluarLogros(false);
+avisoEventos();
+// Las zonas se cargan aparte: al tenerlas, se revisan los logros de zonas
+setInterval(() => { if (Object.keys(ZONAS_SIN || {}).length && !evaluarLogros._z) { evaluarLogros._z = juego.id; evaluarLogros(false); } else if (evaluarLogros._z && evaluarLogros._z !== juego.id) evaluarLogros._z = null; }, 1500);
 </script>
 </body>
 </html>
