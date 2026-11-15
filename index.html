@@ -551,6 +551,24 @@ button.minipk{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color
 html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:background-color .45s,color .45s,border-color .45s,box-shadow .45s!important}
 @media (prefers-reduced-motion:reduce){.poke,.poke:hover{transform:none!important}.poke-img img{opacity:1}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+/* Filtros nuevos, ficha de zona, intercambios y sincronización */
+.opciones select.activo{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento) inset}
+#fLimpiar{justify-content:center}
+.zfila{display:flex;align-items:center;gap:12px;background:var(--surf2);border:1px solid var(--borde);border-radius:16px;padding:8px 12px;margin-bottom:8px}
+.zfila>img{width:52px;height:52px;object-fit:contain;flex:none}
+.zfila .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.zfila .txt small{font-size:12.5px;color:var(--sub);line-height:1.4}
+.zfila .txt small b{color:var(--txt);font-weight:600}
+.zfila .enlace{background:none;border:0;padding:0;font:inherit;font-weight:700;font-size:15px;color:inherit;text-align:left;cursor:pointer;justify-content:flex-start}
+.zfila .enlace:hover{text-decoration:underline}
+.zfila.hecho{opacity:.7}
+.zmarca{flex:none;width:38px;height:38px;border-radius:50%;padding:0;justify-content:center;font-size:18px;border:2px solid var(--borde);background:transparent}
+.zmarca.si{background:var(--acento);border-color:var(--acento);color:#fff}
+.minipk.tieneamigo{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento) inset}
+.minipk.tieneamigo::after{content:'👥';font-size:11px;margin-left:2px}
+.amigocuenta{color:var(--acento);font-size:.85em}
+.qrcaja{display:flex;justify-content:center;margin:14px 0 8px;min-height:60px;align-items:center}
+.qrcaja img{width:min(300px,78vw);height:auto;image-rendering:pixelated;background:#fff;padding:10px;border-radius:14px}
 </style>
 </head>
 <body>
@@ -616,12 +634,15 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
       <select id="fTipo" aria-label="Tipo"></select>
       <select id="fZona" aria-label="Zona"></select>
       <select id="fVersion" aria-label="Versión"></select>
+      <select id="fGen" aria-label="Generación"></select>
+      <select id="fColor" aria-label="Color"></select>
       <select id="fOrden" aria-label="Orden">
         <option value="num">Orden: número</option>
         <option value="nom">Orden: nombre</option>
         <option value="faltan">Orden: los que faltan primero</option>
         <option value="facil">Orden: más fáciles primero</option>
       </select>
+      <button id="fLimpiar" class="suave-btn" hidden></button>
     </div>
   </section>
   <div class="herramientas">
@@ -888,7 +909,7 @@ const escribir = (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} };
 let juego = JUEGOS.find(j => j.id === leer('pokedex-juego', 'swsh')) || JUEGOS[1];
 let capturados, shiny, alfas, formasT, fechas, pestana, filtro = 'todos';
 let vista = [];   // ids que se ven ahora en la lista
-let fTipo = '', fZona = '', fVersion = '', orden = leer('pokedex-orden', 'num');
+let fTipo = '', fZona = '', fVersion = '', fGen = '', fColor = '', orden = leer('pokedex-orden', 'num');
 let ZONAS = {};   // nombre de la zona -> Set de ids (del juego actual)
 
 const VERSIONES = EN ? {lgpe:['Pikachu', 'Eevee'], swsh:['Sword', 'Shield'], bdsp:['Brilliant Diamond', 'Shining Pearl'], sv:['Scarlet', 'Violet'], frlg:['FireRed', 'LeafGreen']}
@@ -908,15 +929,19 @@ const notaEx = s => EN ? (NOTA_EN[s] || s) : s;
 const exclusivo = id => (EXCLUSIVOS[juego.id] || {})[id];
 
 let ZONAS_SIN = {};   // las mismas zonas, sin contar incursiones ni aventuras Dinamax
+let ZLINEAS = {};     // zona -> id -> [[versión, sección, línea]]
 const ES_INCURSION = /incursi|aventura dinamax|raid|dynamax adventure/i;
 function zonasJuego(){
   const z = {}, s = {}, sp = SPAWNS[juego.id] || {};
-  for (const id in sp) sp[id].forEach(([, , lineas]) => lineas.forEach(l => {
+  ZLINEAS = {};
+  for (const id in sp) sp[id].forEach(([vers, sec, lineas]) => lineas.forEach(l => {
     const incursion = l.some(tok => typeof tok === 'string' && ES_INCURSION.test(tok));
     l.forEach(tok => {
       if (typeof tok !== 'number' || !(LOC[tok][2] || LOC[tok][3])) return;
       const nz = locNom(tok);
       (z[nz] = z[nz] || new Set()).add(+id);
+      const zl = (ZLINEAS[nz] = ZLINEAS[nz] || {}), li = (zl[id] = zl[id] || []);
+      if (!li.length || li[li.length - 1][2] !== l) li.push([vers, sec, l]);
       if (!incursion) (s[nz] = s[nz] || new Set()).add(+id);
     });
   }));
@@ -942,6 +967,7 @@ function opcionesFiltros(){
   $('#fVersion').style.display = v ? '' : 'none';
   $('#fVersion').innerHTML = v ? `<option value="">${L('Todas las versiones', 'All versions')}</option><option value="0">${L('Solo en', 'Only in')} ${v[0]}</option><option value="1">${L('Solo en', 'Only in')} ${v[1]}</option><option value="ambas">${L('Sin exclusivos', 'No exclusives')}</option>` : '';
   fTipo = fZona = fVersion = '';
+  if (typeof opcionesExtra === 'function') opcionesExtra();
   $('#fOrden').value = orden;
 }
 
@@ -959,7 +985,7 @@ function cargarJuego(){
   $('#bCriar').style.display = hayCria ? '' : 'none';
   if ($('#bCazador')) $('#bCazador').style.display = juego.home ? 'none' : '';
   if (filtro === 'cria' && !hayCria) filtro = 'todos';
-  $('#bInter').style.display = VERSIONES[juego.id] ? '' : 'none';
+  $('#bInter').style.display = juego.home ? 'none' : '';
   $('#bRuta').style.display = juego.home ? 'none' : '';
   opcionesFiltros();
   pestana = leer('pokedex-pestana-' + juego.id, juego.dex[0].id);
@@ -1076,6 +1102,9 @@ function pintarRejilla(){
   if (fZona) items = items.filter(p => ZONAS[fZona] && ZONAS[fZona].has(p[1]));
   if (fVersion === 'ambas') items = items.filter(p => !exclusivo(p[1]));
   else if (fVersion) items = items.filter(p => exclusivo(p[1]) && String(exclusivo(p[1])[0]) === fVersion);
+  if (fGen) items = items.filter(p => genDe(p[1]) === +fGen);
+  if (fColor) items = items.filter(p => colorDe(p[1]) === fColor);
+  if (typeof marcarFiltros === 'function') marcarFiltros();
   if (orden === 'nom') items = [...items].sort((x, y) => nombreForma(x[1], x[2]).localeCompare(nombreForma(y[1], y[2]), LOCALE));
   if (orden === 'faltan') items = [...items].sort((x, y) => capturados.has(x[1]) - capturados.has(y[1]) || x[0] - y[0]);
   if (orden === 'facil') items = [...items].sort((x, y) => capturados.has(x[1]) - capturados.has(y[1]) || (CAPTURA[y[1]] ?? -1) - (CAPTURA[x[1]] ?? -1) || x[0] - y[0]);
@@ -1248,7 +1277,7 @@ async function abrirSpawn(id){
   h += '<div id="secEventos"></div>';
   h += combate(id) + botonesExtra(id);
   h += '<div id="secHab"></div>';
-  h += lineaEvolutiva(id);
+  h += lineaEvolutiva(id) + '<div id="secObjEvo"></div>';
   h += '<div id="secFormas"></div>';
   h += '<div id="secCria"></div><div id="secMovs"></div>';
   h += tareasInvestigacion(id);
@@ -1278,6 +1307,7 @@ async function abrirSpawn(id){
   pintarCrianza(id);
   pintarEventos(id);
   pintarHabilidades(id);
+  if (typeof pintarObjEvo === 'function') pintarObjEvo(id);
   const bl = $('#marcarLinea');
   if (bl) bl.onclick = () => {
     const ids = idsJuego(), linea = JSON.parse(bl.dataset.ids).filter(x => ids.has(x));
@@ -1697,26 +1727,45 @@ $('#bDesmarcar').onclick = () => {
 /* ---------- Intercambios (exclusivos de la otra versión) ---------- */
 const mini = id => `<span class="minipk"><img loading="lazy" src="${img(id)}" alt="" onerror="fallo(this,${id})">${esc(nombreForma(id, nombrePoke(id)))}</span>`;
 function abrirIntercambios(){
-  const v = VERSIONES[juego.id]; if (!v) return;
+  const v = VERSIONES[juego.id];
   const mia = +leer('pokedex-version-' + juego.id, '0'), otra = 1 - mia;
   const ids = [...idsJuego()].sort((a, b) => a - b);
-  const busco = ids.filter(i => exclusivo(i) && exclusivo(i)[0] === otra && !capturados.has(i));
-  const ofrezco = ids.filter(i => exclusivo(i) && exclusivo(i)[0] === mia && capturados.has(i));
+  // Si has cargado la copia de un amigo, se marca lo que tiene
+  const suyos = typeof amigo !== 'undefined' && amigo ? new Set(conjunto2(amigo.claves[juego.clave])) : null;
+  const miniA = i => suyos && suyos.has(i) ? mini(i).replace('class="minipk"', `class="minipk tieneamigo" title="${L('Tu amigo lo tiene', 'Your friend has it')}"`) : mini(i);
+  const busco = v ? ids.filter(i => exclusivo(i) && exclusivo(i)[0] === otra && !capturados.has(i)) : [];
+  const ofrezco = v ? ids.filter(i => exclusivo(i) && exclusivo(i)[0] === mia && capturados.has(i)) : [];
+  // Evolucionan al intercambiarlos y ya tienes la preevolución
+  const esInter = m => /^(?:\[[^\]]*\]\s*)?(?:Intercambio|Trade)\b/.test(m);
+  const porInter = ids.filter(i => puedeEvo(i) && metodosEvo(i).some(esInter));
   const nombres = l => l.map(i => nombreForma(i, nombrePoke(i))).join(', ');
-  const texto = L(`Juego: Pokémon ${v[mia]}.\nBusco (exclusivos de ${v[otra]}): ${busco.length ? nombres(busco) : 'ninguno'}.\nOfrezco (exclusivos de ${v[mia]}): ${ofrezco.length ? nombres(ofrezco) : 'ninguno'}.`,
-    `Game: Pokémon ${v[mia]}.\nLooking for (${v[otra]} exclusives): ${busco.length ? nombres(busco) : 'none'}.\nOffering (${v[mia]} exclusives): ${ofrezco.length ? nombres(ofrezco) : 'none'}.`);
+  const deAmigo = l => suyos ? l.filter(i => suyos.has(i)).length : 0;
+  let texto = v ? L(`Juego: Pokémon ${v[mia]}.\nBusco (exclusivos de ${v[otra]}): ${busco.length ? nombres(busco) : 'ninguno'}.\nOfrezco (exclusivos de ${v[mia]}): ${ofrezco.length ? nombres(ofrezco) : 'ninguno'}.`,
+    `Game: Pokémon ${v[mia]}.\nLooking for (${v[otra]} exclusives): ${busco.length ? nombres(busco) : 'none'}.\nOffering (${v[mia]} exclusives): ${ofrezco.length ? nombres(ofrezco) : 'none'}.`)
+    : L(`Juego: ${NOMBRE_JUEGO[juego.id]}.`, `Game: ${NOMBRE_JUEGO[juego.id]}.`);
+  if (porInter.length) texto += L(`\nNecesito intercambiar para evolucionar (te lo paso y me lo devuelves): ${nombres(porInter.map(i => PADRE[i]))}.`,
+    `\nI need to trade to evolve (I send it, you send it back): ${nombres(porInter.map(i => PADRE[i]))}.`);
   abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>${L('Intercambios', 'Trades')}</h2>
-    <div class="sub">${L('Tu versión', 'Your version')}: <select id="miVersion"><option value="0">${v[0]}</option><option value="1">${v[1]}</option></select></div>
-    <h3 class="seccion">${L('Te faltan de', 'Missing from')} ${v[otra]} (${busco.length})</h3>
-    <div class="listapk">${busco.map(mini).join('') || `<span class="sub">${L('¡Ninguno! Ya tienes todos los exclusivos de la otra versión.', 'None! You have every exclusive from the other version.')}</span>`}</div>
+    ${v ? `<div class="sub">${L('Tu versión', 'Your version')}: <select id="miVersion"><option value="0">${v[0]}</option><option value="1">${v[1]}</option></select></div>
+    <h3 class="seccion">${L('Te faltan de', 'Missing from')} ${v[otra]} (${busco.length})${deAmigo(busco) ? ` · <span class="amigocuenta">${L(`tu amigo tiene ${deAmigo(busco)}`, `your friend has ${deAmigo(busco)}`)}</span>` : ''}</h3>
+    <div class="sub">${L('Solo aparecen en la otra versión: necesitas que alguien te los pase.', 'They only appear in the other version: someone has to trade them to you.')}</div>
+    <div class="listapk">${busco.map(miniA).join('') || `<span class="sub">${L('¡Ninguno! Ya tienes todos los exclusivos de la otra versión.', 'None! You have every exclusive from the other version.')}</span>`}</div>
     <h3 class="seccion">${L('Puedes ofrecer de', 'You can offer from')} ${v[mia]} (${ofrezco.length})</h3>
-    <div class="sub">${L('Exclusivos de tu versión que ya has capturado: captura otro para intercambiarlo.', 'Exclusives from your version you\u2019ve caught: catch another one to trade it.')}</div>
-    <div class="listapk">${ofrezco.map(mini).join('') || `<span class="sub">${L('Aún no tienes ninguno.', 'You don\u2019t have any yet.')}</span>`}</div>
+    <div class="sub">${L('Exclusivos de tu versión que ya has capturado: captura otro para intercambiarlo.', 'Exclusives from your version you’ve caught: catch another one to trade it.')}</div>
+    <div class="listapk">${ofrezco.map(mini).join('') || `<span class="sub">${L('Aún no tienes ninguno.', 'You don’t have any yet.')}</span>`}</div>` : ''}
+    <h3 class="seccion">${L('Evolucionan al intercambiarlos', 'Evolve when traded')} (${porInter.length})</h3>
+    <div class="sub">${L('Ya tienes su preevolución: pásasela a alguien y que te la devuelva.', 'You already have the pre-evolution: trade it to someone and have them send it back.')}</div>
+    <div>${porInter.map(i => filaPk(PADRE[i], i, L(`Intercambia tu <b>${esc(nombreForma(PADRE[i], nombrePoke(PADRE[i])))}</b>: `, `Trade your <b>${esc(nombreForma(PADRE[i], nombrePoke(PADRE[i])))}</b>: `).replace(/: $/, /^(Intercambio|Trade)$/.test(metodoEvo(i)) ? '.' : ': ') + (/^(Intercambio|Trade)$/.test(metodoEvo(i)) ? '' : metodoEvo(i)), 'evo')).join('')
+      || `<div class="entrada">${L('Ahora mismo no tienes ninguno pendiente de evolucionar por intercambio.', 'You have nothing waiting to evolve by trade right now.')}</div>`}</div>
+    ${v && !suyos ? `<div class="sub" style="margin-top:10px">${L('Consejo: carga la copia de un amigo en «Comparar con un amigo» y aquí verás cuáles tiene.', 'Tip: load a friend’s backup in "Compare with a friend" to see which ones they have here.')}</div>` : ''}
     <h3 class="seccion">${L('Mensaje para un amigo', 'Message for a friend')}</h3>
     <textarea class="copiar" id="txtInter" readonly>${esc(texto)}</textarea>
     <button id="copiarInter" style="margin-top:6px">📋 ${L('Copiar', 'Copy')}</button>`);
-  $('#miVersion').value = String(mia);
-  $('#miVersion').onchange = e => { escribir('pokedex-version-' + juego.id, e.target.value); abrirIntercambios(); };
+  if (v) {
+    $('#miVersion').value = String(mia);
+    $('#miVersion').onchange = e => { escribir('pokedex-version-' + juego.id, e.target.value); abrirIntercambios(); };
+  }
+  document.querySelectorAll('#modal .filapk').forEach(b => b.onclick = () => abrirSpawn(+b.dataset.id));
   $('#copiarInter').onclick = async () => {
     const ta = $('#txtInter');
     try { await navigator.clipboard.writeText(ta.value); } catch(e) { ta.select(); document.execCommand('copy'); }
@@ -1815,17 +1864,13 @@ function abrirRuta(){
     .filter(([, l]) => l.length).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], LOCALE)).slice(0, 40);
   const nomDex = pestana === 'iris' ? premio() : juego.dex.find(d => d.id === pestana).nombre;
   abrirModal(`<h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>${L('Ruta sugerida', 'Suggested route')}</h2>
-    <div class="sub">${L(`Zonas ordenadas por cuántos Pokémon te faltan de <b>${esc(nomDex)}</b>. Pulsa una para ver solo esos.`, `Areas sorted by how many Pokémon you\u2019re missing from <b>${esc(nomDex)}</b>. Tap one to show only those.`)}</div>
+    <div class="sub">${L(`Zonas ordenadas por cuántos Pokémon te faltan de <b>${esc(nomDex)}</b>. Pulsa una para ver qué te falta allí y cómo encontrarlo.`, `Areas sorted by how many Pokémon you\u2019re missing from <b>${esc(nomDex)}</b>. Tap one to see what\u2019s missing there and how to find it.`)}</div>
     <label class="interruptor"><input type="checkbox" id="conInc" ${conInc ? 'checked' : ''}> ${L('Contar las incursiones', 'Include raids')}</label>
     ${zonas.length ? zonas.map(([z, l]) => `<button class="ruta" data-zona="${esc(z)}"><b>${l.length}</b><span>${esc(z)}</span>
       <span class="ims">${l.slice(0, 10).map(i => `<img loading="lazy" src="${img(i)}" alt="" title="${esc(nombreForma(i, nombrePoke(i)))}" onerror="fallo(this,${i})">`).join('')}${l.length > 10 ? `<span class="sub">+${l.length - 10}</span>` : ''}</span></button>`).join('')
       : `<div class="entrada">${L('No queda ninguno que aparezca en una zona concreta: los que faltan se consiguen evolucionando, intercambiando o en eventos.', 'None left that appear in a specific area: the rest come from evolving, trading or events.')}</div>`}`);
   $('#conInc').onchange = e => { escribir('pokedex-ruta-incursiones', e.target.checked ? '1' : '0'); abrirRuta(); };
-  document.querySelectorAll('.ruta').forEach(b => b.onclick = () => {
-    fZona = b.dataset.zona; $('#fZona').value = fZona;
-    if (pestana !== 'iris') filtro = 'faltan';
-    cerrarSpawn(); pintar(); window.scrollTo(0, 0);
-  });
+  document.querySelectorAll('.ruta[data-zona]').forEach(b => b.onclick = () => abrirZona(b.dataset.zona));
 }
 $('#bRuta').onclick = abrirRuta;
 
@@ -2394,6 +2439,209 @@ avisoEventos();
 $('#bCazador').style.display = juego.home ? 'none' : '';
 // Las zonas se cargan aparte: al tenerlas, se revisan los logros de zonas
 setInterval(() => { if (Object.keys(ZONAS_SIN || {}).length && !evaluarLogros._z) { evaluarLogros._z = juego.id; evaluarLogros(false); } else if (evaluarLogros._z && evaluarLogros._z !== juego.id) evaluarLogros._z = null; }, 1500);
+
+/* ---------- Filtros: generación y color ---------- */
+const REGION_GEN = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Teselia', 'Kalos', 'Alola', 'Galar', 'Paldea'];
+const REGION_GEN_EN = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea'];
+const COLOR_NOM = {a: ['Negro', 'Black'], b: ['Azul', 'Blue'], c: ['Marrón', 'Brown'], d: ['Gris', 'Gray'], e: ['Verde', 'Green'],
+  f: ['Rosa', 'Pink'], g: ['Morado', 'Purple'], h: ['Rojo', 'Red'], i: ['Blanco', 'White'], j: ['Amarillo', 'Yellow']};
+let COLORES = '';
+const colorDe = id => COLORES[(MEGAS.base[id] || id) - 1] || '';
+function opcionesExtra(){
+  fGen = ''; fColor = '';
+  const ids = [...idsJuego()];
+  const gens = [...new Set(ids.map(genDe))].filter(Boolean).sort((a, b) => a - b);
+  $('#fGen').innerHTML = `<option value="">${L('Todas las generaciones', 'All generations')}</option>` +
+    gens.map(g => `<option value="${g}">${L(`${g}.ª gen. · ${REGION_GEN[g - 1]}`, `Gen ${g} · ${REGION_GEN_EN[g - 1]}`)}</option>`).join('');
+  $('#fGen').style.display = gens.length > 1 ? '' : 'none';
+  const pon = () => {
+    const usados = new Set(ids.map(colorDe));
+    $('#fColor').innerHTML = `<option value="">${L('Todos los colores', 'All colours')}</option>` +
+      Object.entries(COLOR_NOM).filter(([k]) => usados.has(k)).sort((a, b) => L(a[1][0], a[1][1]).localeCompare(L(b[1][0], b[1][1]), LOCALE))
+        .map(([k, n]) => `<option value="${k}">${L(n[0], n[1])}</option>`).join('');
+    $('#fColor').value = fColor;
+  };
+  if (COLORES) pon(); else cargarDatos('colores.json').then(c => { COLORES = c || ''; pon(); });
+  marcarFiltros();
+}
+function marcarFiltros(){
+  const sel = [['#fTipo', fTipo], ['#fZona', fZona], ['#fVersion', fVersion], ['#fGen', fGen], ['#fColor', fColor]];
+  sel.forEach(([s, v]) => $(s) && $(s).classList.toggle('activo', !!v));
+  const n = sel.filter(([, v]) => v).length;
+  const b = $('#fLimpiar'); if (!b) return;
+  b.hidden = !n;
+  b.textContent = L(`✕ Quitar filtros (${n})`, `✕ Clear filters (${n})`);
+}
+$('#fGen').onchange = e => { entrar = true; fGen = e.target.value; pintar(); };
+$('#fColor').onchange = e => { entrar = true; fColor = e.target.value; pintar(); };
+$('#fLimpiar').onclick = () => {
+  entrar = true; fTipo = fZona = fVersion = fGen = fColor = '';
+  ['#fTipo', '#fZona', '#fVersion', '#fGen', '#fColor'].forEach(s => $(s).value = '');
+  pintar();
+};
+opcionesExtra();
+
+/* ---------- Ruta: ficha de cada zona ---------- */
+const textoLinea = l => l.map(tok => typeof tok === 'number' ? `<b>${esc(locNom(tok))}</b>` : esc(String(tok).trim()))
+  .reduce((acc, s, k) => acc + (k && !/^[,:.)]/.test(s) ? ' ' : '') + s, '');
+function verZonaEnLista(z){
+  fZona = z; $('#fZona').value = fZona;
+  if (pestana !== 'iris') filtro = 'faltan';
+  cerrarSpawn(); pintar(); window.scrollTo(0, 0);
+}
+function abrirZona(z){
+  const base = pestana === 'iris' ? requeridos() : DEX[pestana];
+  const enDex = new Set(base.map(p => p[1]));
+  // Igual que en la ruta: sin incursiones salvo que se hayan pedido
+  const conInc = leer('pokedex-ruta-incursiones', '0') === '1', zl = {};
+  Object.entries(ZLINEAS[z] || {}).forEach(([i, ls]) => {
+    const v = conInc ? ls : ls.filter(([, , l]) => !l.some(tok => typeof tok === 'string' && ES_INCURSION.test(tok)));
+    if (v.length) zl[i] = v;
+  });
+  const aqui = Object.keys(zl).map(Number).filter(i => enDex.has(i)).sort((a, b) => a - b);
+  const faltan = aqui.filter(i => !capturados.has(i)), tengo = aqui.filter(i => capturados.has(i));
+  // Los que no salen aquí pero se consiguen evolucionando algo que sí sale
+  const deAqui = i => { let p = PADRE[i], n = 0; while (p && n++ < 4) { if (zl[p]) return p; p = PADRE[p]; } return 0; };
+  const evo = [...enDex].sort((a, b) => a - b).filter(i => !capturados.has(i) && !zl[i] && deAqui(i) && metodosEvo(i).length);
+  const vers = VERSIONES[juego.id];
+  // De cada línea, solo lo que dice cómo aparece aquí (sin la lista de las demás zonas)
+  const SEP = /^[\s,:;.y&o]*$|^(?:or|and)$/i;
+  const condicion = l => {
+    const k = l.filter(tok => typeof tok === 'number' ? locNom(tok) === z : !SEP.test(String(tok).trim()));
+    return k.some(tok => typeof tok !== 'number' || locNom(tok) !== z) ? textoLinea(k).replace(/:(?=\S)/g, ': ') : '';
+  };
+  const fila = i => {
+    const vistas = new Set();
+    const ls = zl[i].map(([v, sec, l]) => {
+      const ver = vers && vers.some(x => v === x) ? `<span class="excl v${vers.indexOf(v)}">${esc(v)}</span> ` : '';
+      const c = condicion(l), s = ver + [sec && esc(sec), c].filter(Boolean).join(' · ');
+      if (!s || vistas.has(s)) return ''; vistas.add(s); return `<small>${s}</small>`;
+    }).filter(Boolean).slice(0, 4).join('');
+    const si = capturados.has(i);
+    return `<div class="zfila${si ? ' hecho' : ''}"><img loading="lazy" src="${img(i)}" alt="" onerror="fallo(this,${i})">
+      <div class="txt"><button class="enlace" data-ver="${i}">${esc(nombreForma(i, nombrePoke(i)))}</button>${ls}</div>
+      <button class="zmarca${si ? ' si' : ''}" data-marca="${i}" aria-pressed="${si}" title="${si ? L('Desmarcar', 'Unmark') : L('Marcar como capturado', 'Mark as caught')}">${si ? '✔' : ''}</button></div>`;
+  };
+  const m = $('#modal'), arriba = m.scrollTop;
+  abrirModal(`<h2>📍 ${esc(z)}</h2>
+    <div class="sub">${faltan.length ? L(`Aquí te faltan <b>${faltan.length}</b> de los ${aqui.length} que aparecen.`, `You’re missing <b>${faltan.length}</b> of the ${aqui.length} that appear here.`) : L('¡Ya tienes todos los que aparecen aquí!', 'You have every Pokémon that appears here!')}</div>
+    <div class="fila-botones"><button class="suave-btn" id="zVolver">← ${L('Ruta sugerida', 'Suggested route')}</button><button class="suave-btn" id="zLista">${L('Ver en la lista', 'Show in the list')}</button></div>
+    ${faltan.length ? `<h3 class="seccion">${L('Te faltan', 'Missing')} (${faltan.length})</h3>${faltan.map(fila).join('')}` : ''}
+    ${evo.length ? `<h3 class="seccion">${L('Evolucionando lo que hay aquí', 'By evolving what’s here')} (${evo.length})</h3>
+      ${evo.map(i => filaPk(deAqui(i), i, L(`De <b>${esc(nombreForma(deAqui(i), nombrePoke(deAqui(i))))}</b>`, `From <b>${esc(nombreForma(deAqui(i), nombrePoke(deAqui(i))))}</b>`) + ': ' + metodoEvo(i), 'evo')).join('')}` : ''}
+    ${tengo.length ? `<h3 class="seccion">${L('Ya capturados aquí', 'Already caught here')} (${tengo.length})</h3>${tengo.map(fila).join('')}` : ''}`);
+  m.scrollTop = arriba;
+  $('#zVolver').onclick = abrirRuta;
+  $('#zLista').onclick = () => verZonaEnLista(z);
+  m.querySelectorAll('[data-ver], .filapk').forEach(b => b.onclick = () => abrirSpawn(+(b.dataset.ver || b.dataset.id)));
+  m.querySelectorAll('[data-marca]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.marca, si = !capturados.has(i);
+    marcar(i, si); guardar(); pintar();
+    abrirZona(z);
+  });
+}
+
+/* ---------- Objetos de evolución en Detalles ---------- */
+function objetoDeMetodo(m){
+  m = m.replace(/^\[[^\]]*\]\s*/, '').replace(/ \*$/, '');
+  const u = EN ? m.match(/Use (?:an? )?(.+?)(?:,| \(|$)/) : m.match(/Usar (.+?)(?:,| \(|$)/);
+  const e = EN ? m.match(/holding (?:an? )?(.+?)(?:,| during the day| at night| at dusk| in the evening| \(|$)/) : m.match(/equipado con (.+?)(?:,| de noche| de día| al anochecer| \(|$)/);
+  return (u && u[1]) || (e && e[1]) || null;
+}
+async function pintarObjEvo(id){
+  const sec = $('#secObjEvo'); if (!sec || juego.home) return;
+  const arbol = EVOS[EVO_IDX[id] || EVO_IDX[MEGAS.base[id]]]; if (!arbol) return;
+  const objs = {};
+  (function rec(n){ n[2].forEach(([, h]) => {
+    metodosEvo(h[0]).forEach(m => { const o = objetoDeMetodo(m); if (o) (objs[o] = objs[o] || new Set()).add(h[0]); });
+    rec(h);
+  }); })(arbol);
+  if (!Object.keys(objs).length) return;
+  const O = await cargarDatos('objetos.json') || {};
+  if (!sec.isConnected) return;
+  const porNombre = {}; Object.values(O).forEach(o => { porNombre[o.es.toLowerCase()] = o; porNombre[o.en.toLowerCase()] = o; });
+  const filas = Object.entries(objs).map(([nom, ids]) => {
+    const o = porNombre[nom.toLowerCase()];
+    const donde = o && o.juegos[juego.id] ? esc(o.juegos[juego.id][EN ? 1 : 0]) : `<span class="sub">${L('No hay datos de dónde conseguirlo en este juego.', 'No data on where to get it in this game.')}</span>`;
+    const para = [...ids].map(i => esc(nombreForma(i, nombrePoke(i)))).join(', ');
+    return `<div class="objeto"><div class="objeto-cab"><b>${esc(nom)}</b><span class="sub">${L('para', 'for')} ${para}</span></div><div class="donde"><b>${L('Dónde conseguirlo: ', 'Where to get it: ')}</b>${donde}</div></div>`;
+  });
+  sec.innerHTML = `<h3 class="seccion">${L('Objetos para su evolución', 'Items for its evolution')}</h3>${filas.join('')}`;
+}
+
+/* ---------- Pasar a otro dispositivo (enlace y QR) ---------- */
+const b64u = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 8192) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const deb64u = t => { const s = atob(t.replace(/-/g, '+').replace(/_/g, '/')); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; };
+async function comprimir(str){
+  const bytes = new TextEncoder().encode(str);
+  if (!window.CompressionStream) return 'j' + b64u(bytes);
+  const s = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return 'z' + b64u(new Uint8Array(await new Response(s).arrayBuffer()));
+}
+async function descomprimir(t){
+  const bytes = deb64u(t.slice(1));
+  if (t[0] === 'j') return new TextDecoder().decode(bytes);
+  const s = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return await new Response(s).text();
+}
+const QR_MAX = 2900;   // bytes que caben en un QR (versión 40, corrección baja)
+let qrLib = null;
+const cargarQR = () => qrLib || (qrLib = new Promise((ok, mal) => {
+  const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  s.onload = () => ok(window.qrcode); s.onerror = () => { qrLib = null; mal(); }; document.head.appendChild(s);
+}));
+async function enlaceSync(sinFechas, sinLogros){
+  const claves = {};
+  try { for (let k = 0; k < localStorage.length; k++) { const c = localStorage.key(k); if (!esClave(c)) continue;
+    if (sinFechas && c.endsWith('-fechas')) continue; if (sinLogros && c === LOGROS_K) continue;
+    claves[c] = localStorage.getItem(c); } } catch(e) {}
+  const datos = {formato: 'poketracker', version: 2, fecha: new Date().toISOString(), claves};
+  return location.origin + location.pathname + '#sync=' + await comprimir(JSON.stringify(datos));
+}
+async function abrirSync(){
+  abrirModal(`<h2>${ICO.sync}${L('Pasar a otro dispositivo', 'Move to another device')}</h2><div class="sub">${L('Preparando…', 'Preparing…')}</div>`);
+  const enlace = await enlaceSync(false, false);
+  let qrEnlace = enlace, nota = '';
+  if (qrEnlace.length > QR_MAX) { qrEnlace = await enlaceSync(true, false); nota = L('El QR no incluye las fechas de captura (no caben); el enlace sí lleva todo.', 'The QR code doesn’t include capture dates (they don’t fit); the link has everything.'); }
+  if (qrEnlace.length > QR_MAX) { qrEnlace = await enlaceSync(true, true); }
+  const cabeQR = qrEnlace.length <= QR_MAX;
+  abrirModal(`<h2>${ICO.sync}${L('Pasar a otro dispositivo', 'Move to another device')}</h2>
+    <div class="sub">${L('Escanea el QR con la cámara del móvil o abre el enlace en el otro dispositivo: se cargará todo tu progreso (todos los juegos). Tus datos van dentro del propio enlace; no se suben a ningún servidor.',
+      'Scan the QR code with your phone’s camera or open the link on the other device: all your progress (every game) will be loaded. Your data travels inside the link itself; nothing is uploaded to any server.')}</div>
+    <div class="qrcaja" id="qrCaja">${cabeQR ? `<span class="sub">${L('Generando QR…', 'Generating QR…')}</span>` : `<span class="sub">${L('Tienes demasiados datos para un QR: usa el enlace.', 'Too much data for a QR code: use the link.')}</span>`}</div>
+    ${nota && cabeQR ? `<div class="sub" style="text-align:center">${nota}</div>` : ''}
+    <h3 class="seccion">${L('Enlace', 'Link')}</h3>
+    <textarea class="copiar" id="txtSync" readonly>${esc(enlace)}</textarea>
+    <div class="fila-botones"><button id="copiarSync">📋 ${L('Copiar enlace', 'Copy link')}</button>${navigator.share ? `<button id="compartirSync" class="suave-btn">${ICO.compartir}${L('Enviar…', 'Send…')}</button>` : ''}</div>
+    <div class="sub" style="margin-top:10px">${L('Es una copia del momento actual: si sigues marcando aquí, genera otro enlace después. Al abrirlo, el otro dispositivo sustituye lo que tenía por lo de este.',
+      'It’s a snapshot of right now: if you keep marking here, generate a new link later. When opened, the other device replaces what it had with this one’s data.')}</div>`);
+  $('#copiarSync').onclick = async () => {
+    const ta = $('#txtSync'); try { await navigator.clipboard.writeText(ta.value); } catch(e) { ta.select(); document.execCommand('copy'); }
+    $('#copiarSync').textContent = L('✔ Copiado', '✔ Copied');
+  };
+  if ($('#compartirSync')) $('#compartirSync').onclick = () => navigator.share({title: 'PokeTracker', url: enlace}).catch(() => {});
+  if (cabeQR) cargarQR().then(qrcode => {
+    const qr = qrcode(0, 'L'); qr.addData(qrEnlace, 'Byte'); qr.make();
+    const caja = $('#qrCaja'); if (caja) caja.innerHTML = `<img src="${qr.createDataURL(4, 4)}" alt="${L('Código QR con tu progreso', 'QR code with your progress')}">`;
+  }).catch(() => { const caja = $('#qrCaja'); if (caja) caja.innerHTML = `<span class="sub">${L('No se ha podido generar el QR (¿sin conexión?). Usa el enlace.', 'Couldn’t generate the QR code (offline?). Use the link.')}</span>`; });
+}
+ICO.sync = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="11" height="15" rx="2"/><rect x="15" y="8" width="7" height="12" rx="1.5"/><path d="M6 16h3M17.5 17h2"/></svg>';
+$('#exportar').insertAdjacentHTML('beforebegin', `<button id="bSync">${ICO.sync}${L('Pasar a otro dispositivo', 'Move to another device')}</button>`);
+$('#bSync').onclick = abrirSync;
+// Al abrir un enlace de sincronización
+(async function(){
+  const m = location.hash.match(/^#sync=([jz][A-Za-z0-9_-]+)$/); if (!m) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  let d;
+  try { d = JSON.parse(await descomprimir(m[1])); if (!d || d.formato !== 'poketracker' || !d.claves) throw 0; }
+  catch(e) { alert(L('El enlace de sincronización no es válido o está incompleto. Vuelve a copiarlo entero.', 'The sync link is invalid or incomplete. Copy the whole link again.')); return; }
+  const r = resumenCopia(d.claves);
+  if (!confirm(L(`Enlace de PokeTracker del ${fmtFecha(d.fecha)}. Va a sustituir lo que hay en este dispositivo por:\n\n`, `PokeTracker link from ${fmtFecha(d.fecha)}. It will replace what is on this device with:\n\n`) +
+    (r.length ? r.join('\n') : L('Sin Pokémon marcados', 'No Pokémon marked')) + L('\n\n¿Continuar?', '\n\nContinue?'))) return;
+  Object.entries(d.claves).forEach(([k, v]) => { if (esClave(k)) escribir(k, String(v)); });
+  location.reload();
+})();
 </script>
 </body>
 </html>
