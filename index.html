@@ -354,6 +354,27 @@ table.nat{border-collapse:separate;border-spacing:4px;width:100%;min-width:520px
 .logro-prog .pista{flex:1;height:6px}
 img.previa{display:block;width:100%;max-width:420px;margin:12px auto 0;border-radius:16px;box-shadow:var(--sombra)}
 button.minipk{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:inherit}
+
+.cazaaviso{font-size:11px;color:var(--oro);font-weight:700}
+.caza{background:var(--surf2);border:1px solid var(--borde);border-radius:18px;padding:14px;margin-top:12px}
+.caza-cab{display:flex;align-items:center;gap:12px}
+.caza-cab img{width:64px;height:64px;object-fit:contain}
+.caza-cab b{font-size:16px}
+.caza-borrar{margin-left:auto;background:transparent;box-shadow:none;font-size:16px;padding:6px 10px}
+.caza-contador{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0}
+.caza-contador output{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;min-width:3ch;text-align:center;line-height:1}
+.caza-contador output.pulso{animation:pulso .25s ease-out}
+@keyframes pulso{0%{transform:scale(1.18);color:var(--oro)}100%{transform:scale(1)}}
+.caza-contador button{width:56px;height:56px;padding:0;font-size:18px;font-weight:800}
+.caza-contador .caza-mas{width:84px;height:84px;font-size:26px;background:linear-gradient(135deg,var(--acento),var(--acento2));color:#fff;border:0}
+.caza-prob{text-align:center;font-size:13px;color:var(--sub)}
+.caza-prob b{color:var(--txt)}
+.caza-cfg{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;margin-top:10px;font-size:13px}
+.caza-cfg label{display:inline-flex;align-items:center;gap:6px}
+.caza-cfg select{padding:5px 28px 5px 10px;font-size:13px}
+.caza-cfg input{width:17px;height:17px;accent-color:var(--acento)}
+.caza .fila-botones{justify-content:center}
+.caza-ok{background:linear-gradient(135deg,#f4b400,#ff8a50);color:#1d1f24;border:0;font-weight:800}
 .minipk.falta{border-color:color-mix(in srgb,var(--acento) 55%,var(--borde));background:var(--acento-suave)}
 
 .filapk{gap:12px}
@@ -629,11 +650,11 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
 const EN = (() => { try { return localStorage.getItem('pokedex-idioma') === 'en'; } catch(e) { return false; } })();
 const L = (es, en) => EN ? en : es;
 document.documentElement.lang = EN ? 'en' : 'es';
-if (EN) document.write('<script src="datos/base-en.js?v=202611151030"><\/script>');
+if (EN) document.write('<script src="datos/base-en.js?v=202611151124"><\/script>');
 </script>
-<script src="datos/base.js?v=202611151030"></script>
+<script src="datos/base.js?v=202611151124"></script>
 <script>
-const V = '202611151030';
+const V = '202611151124';
 /* ---------- Tema: oscuro por defecto ---------- */
 const TEMA = 'pokedex-galar-tema';
 function aplicarTema(tm){
@@ -936,6 +957,7 @@ function cargarJuego(){
   const hayCria = !juego.home && !!CRIA_JUEGO[juego.id];
   document.querySelector('#filtros button[data-f="cria"]').style.display = hayCria ? '' : 'none';
   $('#bCriar').style.display = hayCria ? '' : 'none';
+  if ($('#bCazador')) $('#bCazador').style.display = juego.home ? 'none' : '';
   if (filtro === 'cria' && !hayCria) filtro = 'todos';
   $('#bInter').style.display = VERSIONES[juego.id] ? '' : 'none';
   $('#bRuta').style.display = juego.home ? 'none' : '';
@@ -1060,11 +1082,13 @@ function pintarRejilla(){
   vista = items.map(p => p[1]);
   const exc = new Set(a.excluir);
   const vers = VERSIONES[juego.id];
+  const cz = typeof cazasActivas === 'function' ? cazasActivas() : {};
   const etiquetas = id => {
     let s = '';
     const ex = exclusivo(id);
     if (ex) s += `<span class="excl v${ex[0]}" title="${esc(L('Exclusivo de ', 'Exclusive to ') + vers[ex[0]] + (ex[1] ? '. ' + notaEx(ex[1]) : ''))}">${L('Solo', 'Only')} ${vers[ex[0]]}</span>`;
     if (puedeEvo(id)) s += `<span class="evoaviso">⬆ ${L('Evoluciona tu', 'Evolve your')} ${esc(nombreForma(PADRE[id], nombrePoke(PADRE[id])))}</span>`;
+    if (cz[id]) s += `<span class="cazaaviso" title="${esc(L('Caza de variocolor en marcha', 'Shiny hunt in progress'))}">🎯 ${cz[id].n.toLocaleString(LOCALE)}</span>`;
     const cd = criaDisponible(id);
     if (cd !== null) s += `<span class="criaaviso" title="${esc(L('Cría tu ', 'Breed your ') + nomEs(cd))}">🥚 ${L('Crianza disponible', 'Breeding available')}</span>`;
     return s ? `<div class="etiquetas">${s}</div>` : '';
@@ -1355,7 +1379,9 @@ function regionesJuego(){
   return _regJuego[juego.id];
 }
 const regionDe = txt => REGIONES_FORMA.find(r => txt.includes(r) || txt.includes(REG_EN[r]));
-const hayEnJuego = i => idsJuego().has(i) && !!(SPAWNS[juego.id] && SPAWNS[juego.id][i] && SPAWNS[juego.id][i].length);
+const _idsJ = {};
+const idsJuegoC = () => _idsJ[juego.id] || (_idsJ[juego.id] = idsJuego());
+const hayEnJuego = i => idsJuegoC().has(i) && !!(SPAWNS[juego.id] && SPAWNS[juego.id][i] && SPAWNS[juego.id][i].length);
 function nombreOrigen(i){
   const o = ORIGEN.find(x => i <= x[0]) || ORIGEN[0];
   const n = EN ? (NOMBRES_EN[i] || nombrePokeGlobal(i)) : nombrePokeGlobal(i);
@@ -1364,6 +1390,7 @@ function nombreOrigen(i){
 function metodosRama(padre, hijo, met){
   const l = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0] || []);
   if (juego.home) return l.map(m => ({t: m, otra: m.startsWith('[')}));
+  if (!idsJuegoC().has(hijo) && !hayEnJuego(hijo)) return [];   // esa evolución no existe en este juego (Crobat en Let's Go…)
   const regs = regionesJuego();
   const pref = m => { const x = m.match(/^\[([^\]]+)\]\s*/); return x ? x[1] : null; };
   const sinPref = m => m.replace(/^\[[^\]]+\]\s*/, '');
@@ -1920,12 +1947,13 @@ const ICO = {
   logro: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 6H4v1a4 4 0 0 0 4 4M16 6h4v1a4 4 0 0 1-4 4M12 13v4M8 20h8M10 17h4"/></svg>',
   amigo: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 5.3"/></svg>',
   compartir: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>',
+  caza: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>',
   campana: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>'
 };
 // Botones en la barra de herramientas (antes de «Marcar los visibles»)
 (function(){
   const sep = document.querySelector('.herramientas .sep');
-  [['bComparar', ICO.cmp, L('Comparar', 'Compare')], ['bNaturalezas', ICO.nat, L('Naturalezas', 'Natures')], ['bLogros', ICO.logro, L('Logros', 'Achievements')],
+  [['bCazador', ICO.caza, L('Cazador de variocolores', 'Shiny hunter')], ['bComparar', ICO.cmp, L('Comparar', 'Compare')], ['bNaturalezas', ICO.nat, L('Naturalezas', 'Natures')], ['bLogros', ICO.logro, L('Logros', 'Achievements')],
    ['bAmigo', ICO.amigo, L('Comparar con un amigo', 'Compare with a friend')], ['bCompartir', ICO.compartir, L('Compartir progreso', 'Share progress')]]
     .forEach(([id, ico, txt]) => sep.insertAdjacentHTML('beforebegin', `<button id="${id}">${ico}<span>${txt}</span></button>`));
   document.querySelector('#idioma').insertAdjacentHTML('beforebegin',
@@ -1975,8 +2003,9 @@ function abrirComparar(a, b){
   $('#cmp2').onchange = e => abrirComparar(a, +e.target.value);
   $('#cmpCambiar').onclick = () => abrirComparar(b, a);
 }
-const botonesExtra = id => `<div class="fila-botones"><button class="suave-btn" data-cmp="${id}">${ICO.cmp}${L('Comparar con otro Pokémon', 'Compare with another Pokémon')}</button><button class="suave-btn" data-nat="${id}">${ICO.nat}${L('Naturaleza recomendada', 'Recommended nature')}</button></div>`;
+const botonesExtra = id => `<div class="fila-botones"><button class="suave-btn" data-cmp="${id}">${ICO.cmp}${L('Comparar con otro Pokémon', 'Compare with another Pokémon')}</button><button class="suave-btn" data-nat="${id}">${ICO.nat}${L('Naturaleza recomendada', 'Recommended nature')}</button>${CAZA[juego.id] ? `<button class="suave-btn" data-cazar="${id}">${ICO.caza}${L('Cazar variocolor', 'Hunt shiny')}</button>` : ''}</div>`;
 $('#bComparar').onclick = () => abrirComparar();
+$('#bCazador').onclick = () => abrirCazador();
 document.addEventListener('click', e => { const c = e.target.closest('[data-cmp]'); if (c) abrirComparar(+c.dataset.cmp);
   const n = e.target.closest('[data-nat]'); if (n) abrirNaturalezas(+n.dataset.nat); });
 
@@ -2073,7 +2102,7 @@ function evaluarLogros(avisar){
   const l = listaLogros(), nuevos = [];
   l.forEach(x => { if (x.n >= x.tot && x.tot > 0 && !logrosHechos[x.id]) { logrosHechos[x.id] = Date.now(); nuevos.push(x); } });
   if (nuevos.length) escribir(LOGROS_K, JSON.stringify(logrosHechos));
-  if (avisar && nuevos.length) setTimeout(() => celebrar(`🏆 ${L('Logro desbloqueado', 'Achievement unlocked')}: ${nuevos[0].t}${nuevos.length > 1 ? L(` (y ${nuevos.length - 1} más)`, ` (and ${nuevos.length - 1} more)`) : ''}`), 400);
+  if (avisar && nuevos.length) setTimeout(() => celebrar(`🏆 ${L('Logro desbloqueado', 'Achievement unlocked')}: ${nuevos[0].t}${nuevos.length > 1 ? L(` (y ${nuevos.length - 1} más)`, ` (and ${nuevos.length - 1} more)`) : ''}`), $('#toast') && $('#toast').classList.contains('ver') ? 3400 : 400);
   const hechos = l.filter(x => logrosHechos[x.id]).length;
   const b = $('#bLogros span'); if (b) b.textContent = `${L('Logros', 'Achievements')} ${hechos}/${l.length}`;
   return l;
@@ -2245,10 +2274,124 @@ function abrirEventos(){
 }
 $('#bEventos').onclick = abrirEventos;
 
+
+/* ---------- Modo cazador de variocolores ----------
+   Probabilidades por juego (datamine, rotomlabs.net): cada «tirada» es un intento de 1/base.
+   P(variocolor) = 1 - (1 - 1/base)^tiradas. Algunos métodos tienen una probabilidad fija. */
+const CAZA = {
+  lgpe: {base: 4096, opciones: [
+    {k: 'combo', t: L('Combo de capturas', 'Catch combo'), v: [[0, '0-10'], [3, '11-20'], [7, '21-30'], [11, '31+']]},
+    {k: 'cebo', t: L('Incienso activo', 'Lure active'), si: 1}, {k: 'amuleto', t: L('Amuleto Iris', 'Shiny Charm'), si: 2}]},
+  swsh: {base: 4096, metodos: [['normal', L('Salvaje', 'Wild')], ['masuda', L('Método Masuda (huevos)', 'Masuda method (eggs)')], ['dinamax', L('Aventura Dinamax', 'Dynamax Adventure')]],
+    opciones: [{k: 'amuleto', t: L('Amuleto Iris', 'Shiny Charm'), si: 2}],
+    fijo: c => c.metodo === 'dinamax' ? (c.amuleto ? 100 : 300) : null, extra: c => c.metodo === 'masuda' ? 5 : 0},
+  bdsp: {base: 4096, metodos: [['normal', L('Salvaje', 'Wild')], ['masuda', L('Método Masuda (huevos)', 'Masuda method (eggs)')], ['radar', L('Poké Radar (cadena de 40)', 'Poké Radar (chain of 40)')]],
+    opciones: [{k: 'amuleto', t: L('Amuleto Iris (solo cuenta en los huevos)', 'Shiny Charm (only affects Eggs)'), si: 2}],
+    fijo: c => c.metodo === 'radar' ? 99 : null, extra: c => (c.metodo === 'masuda' ? 5 : 0) - (c.metodo !== 'masuda' && c.amuleto ? 2 : 0)},
+  pla: {base: 4096, opciones: [
+    {k: 'inv', t: L('Investigación', 'Research'), v: [[0, L('Sin nivel 10', 'Below level 10')], [1, L('Nivel 10', 'Level 10')], [3, L('Perfecta', 'Perfect')]]},
+    {k: 'brote', t: L('Brote', 'Outbreak'), v: [[0, L('Ninguno', 'None')], [25, L('Brote masivo', 'Mass outbreak')], [12, L('Brote masivo masivo', 'Massive mass outbreak')]]},
+    {k: 'amuleto', t: L('Amuleto Iris', 'Shiny Charm'), si: 3}]},
+  sv: {base: 4096, metodos: [['normal', L('Salvaje', 'Wild')], ['masuda', L('Método Masuda (huevos)', 'Masuda method (eggs)')]],
+    opciones: [
+      {k: 'brote', t: L('Brote masivo derrotados', 'Outbreak cleared'), v: [[0, L('Ninguno', 'None')], [1, '30-59'], [2, '60+']], solo: 'normal'},
+      {k: 'bocadillo', t: L('Poder Brillo (bocadillo)', 'Sparkling Power (sandwich)'), v: [[0, '—'], [1, L('Nivel 1', 'Level 1')], [2, L('Nivel 2', 'Level 2')], [3, L('Nivel 3', 'Level 3')]], solo: 'normal'},
+      {k: 'amuleto', t: L('Amuleto Iris', 'Shiny Charm'), si: 2}],
+    extra: c => c.metodo === 'masuda' ? 5 : 0},
+  za: {base: 4096, opciones: [
+    {k: 'donut', t: L('Poder Brillo (dónut)', 'Sparkling Power (donut)'), v: [[0, '—'], [1, L('Nivel 1', 'Level 1')], [2, L('Nivel 2', 'Level 2')], [3, L('Nivel 3', 'Level 3')]]},
+    {k: 'amuleto', t: L('Amuleto Iris', 'Shiny Charm'), si: 3}]},
+  frlg: {base: 8192, opciones: [], nota: L('En Rojo Fuego / Verde Hoja no hay forma de mejorar la probabilidad.', 'There is no way to improve the odds in FireRed / LeafGreen.')}
+};
+const cazaK = () => juego.clave + '-caza';
+const leerCaza = () => { const c = conjunto(cazaK(), '{}') || {}; c.activas = c.activas || {}; c.hechas = c.hechas || []; return c; };
+const guardarCaza = c => escribir(cazaK(), JSON.stringify(c));
+function probCaza(cfg){
+  const g = CAZA[juego.id]; if (!g) return null;
+  const fijo = g.fijo && g.fijo(cfg); if (fijo) return fijo;
+  let tiradas = 1 + (g.extra ? g.extra(cfg) : 0);
+  g.opciones.forEach(o => { if (o.solo && (cfg.metodo || 'normal') !== o.solo) return; tiradas += o.v ? (+cfg[o.k] || 0) : (cfg[o.k] ? o.si : 0); });
+  return 1 / (1 - Math.pow(1 - 1 / g.base, Math.max(1, tiradas)));
+}
+const fmtProb = d => '1/' + (d >= 100 ? Math.round(d).toLocaleString(LOCALE) : d.toLocaleString(LOCALE, {maximumFractionDigits: 1}));
+function textoProgresoCaza(a){
+  const d = probCaza(a.cfg), p = 1 - Math.pow(1 - 1 / d, a.n);
+  return `${L('Probabilidad', 'Odds')}: <b>${fmtProb(d)}</b> · ${a.n ? L(`llevas ${(a.n / d).toLocaleString(LOCALE, {maximumFractionDigits: 2})} veces la probabilidad · un ${Math.floor(p * 100)} % de cazadores ya lo habría encontrado`,
+    `you’re at ${(a.n / d).toLocaleString(LOCALE, {maximumFractionDigits: 2})}× the odds · ${Math.floor(p * 100)}% of hunters would have found it by now`) : L('aún sin encuentros', 'no encounters yet')}`;
+}
+function htmlCaza(id, a){
+  const g = CAZA[juego.id], cfg = a.cfg;
+  const ctrl = (g.metodos ? `<label>${L('Método', 'Method')} <select data-cfg="metodo">${g.metodos.map(([k, t]) => `<option value="${k}"${(cfg.metodo || 'normal') === k ? ' selected' : ''}>${t}</option>`).join('')}</select></label>` : '')
+    + g.opciones.map(o => o.solo && (cfg.metodo || 'normal') !== o.solo ? '' : o.v
+      ? `<label>${o.t} <select data-cfg="${o.k}">${o.v.map(([v, t]) => `<option value="${v}"${(+cfg[o.k] || 0) === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>`
+      : `<label class="chk-l"><input type="checkbox" data-cfg="${o.k}"${cfg[o.k] ? ' checked' : ''}> ${o.t}</label>`).join('');
+  return `<div class="caza" data-caza="${id}">
+    <div class="caza-cab"><img src="${img(id, true)}" alt="" onerror="fallo(this,${id})"><div><b>${esc(nombreForma(id, nombrePoke(id)))}</b><div class="sub" style="margin:0">${L('Desde el', 'Since')} ${fmtFecha(a.inicio)}</div></div>
+      <button class="caza-borrar" data-accion="borrar" aria-label="${L('Borrar esta caza', 'Delete this hunt')}" title="${L('Borrar esta caza', 'Delete this hunt')}">🗑</button></div>
+    <div class="caza-contador"><button data-accion="menos" aria-label="${L('Restar uno', 'Subtract one')}">−1</button>
+      <output aria-live="polite">${a.n.toLocaleString(LOCALE)}</output>
+      <button class="caza-mas" data-accion="mas" aria-label="${L('Sumar un encuentro', 'Add one encounter')}">+1</button></div>
+    <div class="caza-prob">${textoProgresoCaza(a)}</div>
+    <div class="caza-cfg">${ctrl}</div>
+    <div class="fila-botones"><button data-accion="mas10">+10</button><button data-accion="fijar">${L('Poner cifra…', 'Set number…')}</button><button class="caza-ok" data-accion="encontrado">✨ ${L('¡Encontrado!', 'Found it!')}</button></div></div>`;
+}
+function abrirCazador(id){
+  if (!CAZA[juego.id]) return;
+  const c = leerCaza();
+  if (id != null && !c.activas[id]) { c.activas[id] = {n: 0, inicio: Date.now(), cfg: {}}; guardarCaza(c); }
+  const ops = opcionesPoke().filter(([i]) => !c.activas[i]);
+  abrirModal(`<h2>${ICO.caza}${L('Cazador de variocolores', 'Shiny hunter')}</h2>
+    <div class="sub">${L('Cuenta los encuentros (o huevos) de cada caza. La probabilidad depende del método y de lo que tengas activo en', 'Count the encounters (or Eggs) of each hunt. The odds depend on the method and on what you have active in')} ${NOMBRE_JUEGO[juego.id]}.${CAZA[juego.id].nota ? ' ' + CAZA[juego.id].nota : ''}</div>
+    <div class="cmp-sel"><select id="cazaNueva" aria-label="${L('Pokémon para cazar', 'Pokémon to hunt')}"><option value="">${L('Empezar una caza nueva…', 'Start a new hunt…')}</option>${ops.map(([i, n]) => `<option value="${i}">${esc(n)}</option>`).join('')}</select></div>
+    <div id="cazaLista"></div>`);
+  $('#cazaNueva').onchange = e => { if (e.target.value) abrirCazador(+e.target.value); };
+  pintarCazas();
+}
+function pintarCazas(){
+  const c = leerCaza(), act = Object.entries(c.activas);
+  $('#cazaLista').innerHTML = (act.length ? act.map(([i, a]) => htmlCaza(+i, a)).join('') : `<div class="entrada">${L('No tienes ninguna caza en marcha. Elige un Pokémon arriba o pulsa «Cazar variocolor» en sus Detalles.', 'You have no hunts going. Pick a Pokémon above or press "Hunt shiny" in its Details.')}</div>`)
+    + (c.hechas.length ? `<h3 class="seccion">${L('Cazas terminadas', 'Finished hunts')} (${c.hechas.length})</h3><div class="listapk">${c.hechas.slice().reverse().map(h =>
+      `<span class="minipk listo"><img loading="lazy" src="${img(h.id, true)}" alt="" onerror="fallo(this,${h.id})">${esc(nombreForma(h.id, nombrePoke(h.id)))} · ${h.n.toLocaleString(LOCALE)} ${L('encuentros', 'encounters')} · ${fmtProb(h.prob)} · ${new Date(h.fin).toLocaleDateString(LOCALE)}</span>`).join('')}</div>` : '');
+}
+function cazaActualizar(div, a){
+  div.querySelector('output').textContent = a.n.toLocaleString(LOCALE);
+  div.querySelector('.caza-prob').innerHTML = textoProgresoCaza(a);
+  const o = div.querySelector('output'); o.classList.remove('pulso'); void o.offsetWidth; o.classList.add('pulso');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-accion]'), div = b && b.closest('[data-caza]');
+  if (!div) { const z = e.target.closest('[data-cazar]'); if (z) abrirCazador(+z.dataset.cazar); return; }
+  const id = +div.dataset.caza, c = leerCaza(), a = c.activas[id]; if (!a) return;
+  const acc = b.dataset.accion;
+  if (acc === 'mas' || acc === 'mas10' || acc === 'menos') { a.n = Math.max(0, a.n + (acc === 'mas' ? 1 : acc === 'mas10' ? 10 : -1)); guardarCaza(c); cazaActualizar(div, a); return; }
+  if (acc === 'fijar') { const v = prompt(L('¿Cuántos encuentros llevas?', 'How many encounters so far?'), a.n); if (v !== null && !isNaN(parseInt(v))) { a.n = Math.max(0, parseInt(v)); guardarCaza(c); cazaActualizar(div, a); } return; }
+  if (acc === 'borrar') { if (confirm(L(`¿Borrar la caza de ${nombrePoke(id)} (${a.n} encuentros)?`, `Delete the ${nombrePoke(id)} hunt (${a.n} encounters)?`))) { delete c.activas[id]; guardarCaza(c); pintarCazas(); } return; }
+  if (acc === 'encontrado') {
+    c.hechas.push({id, n: a.n, prob: probCaza(a.cfg), fin: Date.now(), inicio: a.inicio}); delete c.activas[id]; guardarCaza(c);
+    celebrar(L(`✨ ¡${nombrePoke(id)} variocolor tras ${a.n.toLocaleString(LOCALE)} encuentros!`, `✨ Shiny ${nombrePoke(id)} after ${a.n.toLocaleString(LOCALE)} encounters!`));
+    shiny.add(id); if (!juego.marca) marcar(id, true); guardar(); pintar(); pintarCazas();
+  }
+});
+document.addEventListener('change', e => {
+  const s = e.target.closest('[data-cfg]'), div = s && s.closest('[data-caza]'); if (!div) return;
+  const id = +div.dataset.caza, c = leerCaza(), a = c.activas[id]; if (!a) return;
+  a.cfg[s.dataset.cfg] = s.type === 'checkbox' ? s.checked : s.dataset.cfg === 'metodo' ? s.value : +s.value;
+  guardarCaza(c);
+  if (s.dataset.cfg === 'metodo') { div.outerHTML = htmlCaza(id, a); } else cazaActualizar(div, a);
+});
+// Teclado: con el cazador abierto y una sola caza, la barra espaciadora o «+» suman uno
+document.addEventListener('keydown', e => {
+  if (!$('#cazaLista') || !$('#fondo').classList.contains('abierto') || /INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)) return;
+  const cazas = document.querySelectorAll('[data-caza]'); if (cazas.length !== 1 || !(e.key === '+' || e.key === ' ')) return;
+  e.preventDefault(); cazas[0].querySelector('[data-accion="mas"]').click();
+});
+const cazasActivas = () => CAZA[juego.id] ? leerCaza().activas : {};
+
 /* ---------- Enganches ---------- */
 function alGuardar(){ evaluarLogros(true); avisoEventos(); }
 evaluarLogros(false);
 avisoEventos();
+$('#bCazador').style.display = juego.home ? 'none' : '';
 // Las zonas se cargan aparte: al tenerlas, se revisan los logros de zonas
 setInterval(() => { if (Object.keys(ZONAS_SIN || {}).length && !evaluarLogros._z) { evaluarLogros._z = juego.id; evaluarLogros(false); } else if (evaluarLogros._z && evaluarLogros._z !== juego.id) evaluarLogros._z = null; }, 1500);
 </script>
