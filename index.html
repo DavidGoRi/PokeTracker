@@ -583,11 +583,11 @@ html.tema-anim *,html.tema-anim *::before,html.tema-anim *::after{transition:bac
 const EN = (() => { try { return localStorage.getItem('pokedex-idioma') === 'en'; } catch(e) { return false; } })();
 const L = (es, en) => EN ? en : es;
 document.documentElement.lang = EN ? 'en' : 'es';
-if (EN) document.write('<script src="datos/base-en.js?v=202611141942"><\/script>');
+if (EN) document.write('<script src="datos/base-en.js?v=202611151011"><\/script>');
 </script>
-<script src="datos/base.js?v=202611141942"></script>
+<script src="datos/base.js?v=202611151011"></script>
 <script>
-const V = '202611141942';
+const V = '202611151011';
 /* ---------- Tema: oscuro por defecto ---------- */
 const TEMA = 'pokedex-galar-tema';
 function aplicarTema(tm){
@@ -1289,29 +1289,86 @@ function tareasInvestigacion(id){
     <table class="tareas">${filas}</table>`;
 }
 
+/* Ramas evolutivas posibles en el juego elegido.
+   - Quita los métodos marcados con * (son de otros juegos) y los de formas regionales que no hay en el juego.
+   - Si la preevolución es una forma regional en este juego (Yamask de Galar en Espada / Escudo), los métodos sin
+     forma son de la forma normal: se etiquetan ("[Yamask de Teselia] Nivel 34") y solo se dejan si esa evolución se
+     puede conseguir en el juego. Devuelve [{t: texto, otra: true si es para otra forma}]; vacío = rama imposible. */
+const REGIONES_FORMA = ['Alola', 'Galar', 'Hisui', 'Paldea'];
+const REGIONES_EXTRA = {lgpe: ['Alola'], swsh: ['Alola']};
+const ORIGEN = [[151, 'Kanto', 'Kantonian'], [251, 'Johto', 'Johtonian'], [386, 'Hoenn', 'Hoennian'], [493, 'Sinnoh', 'Sinnohan'],
+  [649, 'Teselia', 'Unovan'], [721, 'Kalos', 'Kalosian'], [809, 'Alola', 'Alolan'], [905, 'Galar', 'Galarian']];
+const _regJuego = {}; let _hijosMet = null;
+function regionesJuego(){
+  if (!_regJuego[juego.id]) {
+    const s = new Set(REGIONES_EXTRA[juego.id] || []);
+    juego.dex.forEach(d => Object.values(TIPOS_FORMA[d.id] || {}).forEach(f => f && s.add(f[1])));
+    _regJuego[juego.id] = s;
+  }
+  return _regJuego[juego.id];
+}
+const regionDe = txt => REGIONES_FORMA.find(r => txt.includes(r) || txt.includes(REG_EN[r]));
+const hayEnJuego = i => idsJuego().has(i) && !!(SPAWNS[juego.id] && SPAWNS[juego.id][i] && SPAWNS[juego.id][i].length);
+function nombreOrigen(i){
+  const o = ORIGEN.find(x => i <= x[0]) || ORIGEN[0];
+  const n = EN ? (NOMBRES_EN[i] || nombrePokeGlobal(i)) : nombrePokeGlobal(i);
+  return EN ? `${o[2]} ${n}` : `${n} de ${o[1]}`;
+}
+function metodosRama(padre, hijo, met){
+  const l = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0] || []);
+  if (juego.home) return l.map(m => ({t: m, otra: m.startsWith('[')}));
+  const regs = regionesJuego();
+  const pref = m => { const x = m.match(/^\[([^\]]+)\]\s*/); return x ? x[1] : null; };
+  const sinPref = m => m.replace(/^\[[^\]]+\]\s*/, '');
+  // Fuera los de otros juegos y los de formas que no existen aquí (salvo que la evolución sí esté en el juego)
+  const vale = l.filter(m => !/ \*$/.test(m)).filter(m => {
+    const p = pref(m); if (!p) return true;
+    const r = regionDe(p); return !r || regs.has(r) || (!m.includes('→') && hayEnJuego(hijo));
+  });
+  const fp = forma(padre), fh = forma(hijo);
+  if (fp) {
+    // ¿Alguna evolución de este Pokémon es solo de su forma regional? Entonces las que no llevan forma son de la normal
+    if (!_hijosMet) { _hijosMet = {}; const rec = n => n[2].forEach(([mt, x]) => { (_hijosMet[n[0]] = _hijosMet[n[0]] || []).push(mt); rec(x); }); Object.values(EVOS).forEach(rec); }
+    const separa = (_hijosMet[padre] || []).some(mt => Object.values(mt).flat().some(m => pref(m) && regionDe(pref(m)) === fp[1]));
+    if (!separa) return vale.map(m => ({t: m, otra: false}));
+    const propios = vale.filter(m => pref(m) && regionDe(pref(m)) === fp[1]).map(sinPref);
+    const normales = vale.filter(m => !pref(m)), deOtras = vale.filter(m => pref(m) && regionDe(pref(m)) !== fp[1]);
+    if (fh && fh[1] === fp[1])    // Ponyta de Galar -> Rapidash de Galar
+      return (propios.length ? propios.map(m => m.replace(/\s*→[^→]*$/, '')) : normales).map(m => ({t: m, otra: false}));
+    const r = propios.map(m => ({t: m, otra: false}));
+    if (hayEnJuego(hijo)) {
+      normales.forEach(m => r.push({t: `[${nombreOrigen(padre)}] ${m}`, otra: true}));
+      deOtras.forEach(m => r.push({t: m, otra: true}));
+    }
+    return r;
+  }
+  return vale.map(m => ({t: m, otra: !!pref(m)}));
+}
 function lineaEvolutiva(id){
   const arbol = EVOS[EVO_IDX[id] || EVO_IDX[MEGAS.base[id]]];
   let h = `<h3 class="seccion">${L('Línea evolutiva', 'Evolution line')}</h3>`;
   if (!arbol || !arbol[2].length) return h + `<div class="sub">${L('No evoluciona.', 'Does not evolve.')}</div>`;
-  let otros = false;
-  const nodo = ([nid, nom, hijos]) => {
+  let ocultas = false;
+  const todos = [];
+  const nodo = ([nid, nom, hijos0]) => {
+    todos.push(nid);
+    const hijos = hijos0.map(([met, hijo]) => [metodosRama(nid, hijo[0], met), hijo]).filter(([l]) => l.length || !(ocultas = true));
     // Con más de 2 evoluciones (Eevee, Tyrogue…): el Pokémon arriba y una cuadrícula de tarjetas debajo
     const abanico = hijos.length > 2;
     let s = `<div class="evonodo${abanico ? ' evoabanico' : ''}"><button class="evopoke${nid === id ? ' actual' : ''}" data-evo="${nid}" title="${L('Ver detalles de', 'See details for')} ${esc(nom)}">
       <img loading="lazy" src="${img(nid, shiny.has(nid))}" alt="" onerror="fallo(this,${nid})"><span>${esc(nombreForma(nid, nom))}</span></button>`;
     if (hijos.length) {
-      s += '<div class="evoramas">' + hijos.map(([met, hijo]) => {
-        const lista = met[juego.id] || met['*'] || met.sv || Object.values(met)[0];
-        if (lista.some(m => m.endsWith(' *'))) otros = true;
-        return `<div class="evorama"><div class="evometodo">${lista.map((m, k) => (k ? `<span class="o">${L('o', 'or')}</span>` : '') + esc(m)).join('')}<span class="evoflecha">${abanico ? '↓' : '→'}</span></div>${nodo(hijo)}</div>`;
+      s += '<div class="evoramas">' + hijos.map(([lista, hijo]) => {
+        return `<div class="evorama"><div class="evometodo">${lista.map((m, k) => (k ? `<span class="o">${L('o', 'or')}</span>` : '') + esc(m.t)).join('')}<span class="evoflecha">${abanico ? '↓' : '→'}</span></div>${nodo(hijo)}</div>`;
       }).join('') + '</div>';
     }
     return s + '</div>';
   };
-  h += `<div class="evo">${nodo(arbol)}</div>`;
-  const todos = []; (function rec(n){ todos.push(n[0]); n[2].forEach(([, x]) => rec(x)); })(arbol);
+  const arbolH = nodo(arbol);
+  if (todos.length === 1) return h + `<div class="sub">${L('No evoluciona en este juego.', 'It doesn\u2019t evolve in this game.')}</div>`;
+  h += `<div class="evo">${arbolH}</div>`;
   h += `<button id="marcarLinea" data-ids="${JSON.stringify(todos)}" style="margin-top:6px">${L('✔ Marcar toda la línea como capturada', '✔ Mark the whole line as caught')}</button>`;
-  if (otros) h += `<div class="sub">${L('* Método de otros juegos: esa evolución puede no estar disponible en este.', '* Method from other games: this evolution may not be available here.')}</div>`;
+  if (ocultas) h += `<div class="sub">${L('Solo se muestran las evoluciones que se pueden hacer en este juego.', 'Only evolutions possible in this game are shown.')}</div>`;
   return h;
 }
 
@@ -1600,12 +1657,7 @@ const METODO_EVO = {};   // hijo -> métodos por juego
 // Métodos de evolución que sirven para la forma de la preevolución que hay en este juego
 // (Meowth de Galar evoluciona a Perrserker, no a Persian)
 function metodosEvo(id){
-  const met = METODO_EVO[id]; if (!met) return [];
-  const l = (met[juego.id] || met['*'] || met.sv || Object.values(met)[0] || []).map(m => m.replace(/ \*$/, ''));
-  const fp = forma(PADRE[id]), fh = forma(id);
-  if (!fp || (fh && fh[1] === fp[1])) { const sin = l.filter(m => !m.startsWith('[')); return sin.length ? sin : l; }
-  const reg = fp[1], regEn = REG_EN[reg] || reg;
-  return l.filter(m => m.startsWith('[') && (m.includes(reg) || m.includes(regEn)));
+  return METODO_EVO[id] ? metodosRama(PADRE[id], id, METODO_EVO[id]).filter(x => !x.otra).map(x => x.t) : [];
 }
 // No lo tienes, tienes su preevolución y esa forma puede evolucionar a él
 function puedeEvo(id){
@@ -1649,7 +1701,7 @@ $('#bObjetos').onclick = abrirObjetos;
 
 /* ---------- Puedes evolucionar / Puedes criar ---------- */
 function metodoEvo(id){
-  return metodosEvo(id).map(m => esc(m.replace(/^\[[^\]]*\]\s*/, ''))).join(L(' · o ', ' · or '));
+  return metodosEvo(id).map(esc).join(L(' · o ', ' · or '));
 }
 const filaPk = (desde, a, txt, clase) => `<button class="ruta filapk ${clase}" data-id="${a}">
   <span class="par"><img loading="lazy" src="${img(desde)}" alt="" onerror="fallo(this,${desde})">→<img loading="lazy" src="${img(a)}" alt="" onerror="fallo(this,${a})"></span>
