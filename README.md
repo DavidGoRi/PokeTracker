@@ -65,3 +65,13 @@ Ilustraciones oficiales y líneas evolutivas de [PokeAPI](https://pokeapi.co/); 
 
 Podéis entrar en la web desde el siguiente enlace:
 https://davidgori.github.io/PokeTracker/
+
+## Autor
+
+<!-- author-section -->
+Hecho por **David Gómez Rivas**, técnico de soporte IT y sistemas. **Disponible para trabajar** en soporte IT o administración de sistemas (presencial o remoto).
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-David_G%C3%B3mez_Rivas-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/david-gomez-rivas-6026501b7/) [![Email](https://img.shields.io/badge/Email-david.gm.ri%40gmail.com-EA4335?logo=gmail&logoColor=white)](mailto:david.gm.ri@gmail.com)
+
+Más proyectos en [github.com/DavidGoRi](https://github.com/DavidGoRi).
+
